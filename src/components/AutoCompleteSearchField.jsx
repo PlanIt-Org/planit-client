@@ -16,7 +16,8 @@ const AutocompleteSearchField = ({ onPlaceSelected }) => {
     },
     options: {
       types: ["geocode", "establishment"],
-      fields: ["geometry", "name", "formatted_address", "place_id"],
+      // TODO: add "photos" field later
+      fields: ["geometry", "name", "formatted_address", "place_id", "types"],
     },
   });
 
