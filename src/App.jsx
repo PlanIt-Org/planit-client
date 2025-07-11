@@ -1,22 +1,29 @@
 import { useState } from "react";
 import "./App.css";
-import TripPlanning from "./pages/TripPlanning";
-import { Box } from "@mui/material";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import LandingPage from "./pages/LandingPage";
+import ProfilePage from "./pages/ProfilePage";
+import QuestionnairePage from "./pages/QuestionnairePage";
+import RegisterLoginPage from "./pages/RegisterLoginPage";
+import TripPlannerPage from "./pages/TripPlannerPage";
+import TripSummaryPage from "./pages/TripSummaryPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          width: "100%",
-        }}
-      >
-        <TripPlanning />
-      </Box>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/questionnaire" element={<QuestionnairePage />} />
+          <Route path="/tripplanner" element={<TripPlannerPage />} />
+          <Route path="/tripsummary" element={<TripSummaryPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </BrowserRouter>
     </>
   );
 }

@@ -1,4 +1,6 @@
 import react, { useState, useEffect, useRef } from "react";
+import { useNavigate } from 'react-router-dom';
+
 import {
   APIProvider,
   ControlPosition,
@@ -11,8 +13,9 @@ import {
 
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const GOOGLE_MAPS_STYLING_ID = import.meta.env.VITE_GOOGLE_MAPS_STYLING_ID;
 
-const TripPlanningMap = ({ selectedPlace, marker, markerRef, onApiLoaded }) => {
+const TripPlannerMap = ({ selectedPlace, marker, markerRef, onApiLoaded }) => {
 
   return (
      <APIProvider
@@ -23,19 +26,19 @@ const TripPlanningMap = ({ selectedPlace, marker, markerRef, onApiLoaded }) => {
             onApiLoaded(); // Call the callback when API is loaded
           }
         }}
-        libraries={['places']} // Loads the Places API library here
+        libraries={['places']} // loads Place API library
       >
       <Map
-        mapId="TESTING_ID"
+        mapId={GOOGLE_MAPS_STYLING_ID}
         defaultZoom={13}
         defaultCenter={{ lat: 37.7749, lng: -122.4194 }}
         style={{ width: "100%", height: "100%" }}
         disableDefaultUI={true} // Hide default UI for custom controls
       >
-        <AdvancedMarker ref={markerRef} position={null} />
+        {/* <AdvancedMarker ref={markerRef} position={null} /> */}
       </Map>
 
-      <MapHandler place={selectedPlace} marker={marker} />
+      {/* <MapHandler place={selectedPlace} marker={marker} /> */}
     </APIProvider>
   );
 };
@@ -56,4 +59,4 @@ const MapHandler = ({ place, marker }) => {
   return null;
 };
 
-export default TripPlanningMap;
+export default TripPlannerMap;
