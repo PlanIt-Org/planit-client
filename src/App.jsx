@@ -21,6 +21,7 @@ function App() {
           <Route path="/questionnaire" element={<QuestionnairePage />} />
           <Route path="/tripplanner" element={<TripPlannerPage />} />
           <Route path="/tripsummary" element={<TripSummaryPage />} />
+          <Route path="/tripFilter" element={<TripSummaryPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
