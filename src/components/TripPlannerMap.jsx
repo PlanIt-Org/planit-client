@@ -1,6 +1,4 @@
-import react, { useState, useEffect, useRef } from "react";
-import { useNavigate } from 'react-router-dom';
-
+import  { useEffect } from "react";
 import {
   APIProvider,
   ControlPosition,
@@ -18,6 +16,7 @@ const GOOGLE_MAPS_STYLING_ID = import.meta.env.VITE_GOOGLE_MAPS_STYLING_ID;
 const TripPlannerMap = ({ selectedPlace, marker, markerRef, onApiLoaded }) => {
 
   return (
+
      <APIProvider
         apiKey={GOOGLE_MAPS_API_KEY}
         onLoad={() => {
