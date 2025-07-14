@@ -18,8 +18,7 @@ import { IconBubbleFilled, IconMap2 } from "@tabler/icons-react";
 // TODO: DELETE THIS AFTER BACKEND  IS CONNECTED
 import { LoremIpsum } from "react-lorem-ipsum";
 
-// https://pravatar.cc is a random avatar generator
-// TODO: populate comments with pravatar.cc and lorem ipsum for text instead of hardcoded
+// https://pravatar.cc is a random avatar generator btw
 
 const TripSummaryPage = () => {
   return (
