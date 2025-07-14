@@ -1,5 +1,4 @@
 import React from "react";
-import { TextInput } from "@mantine/core";
 import { usePlacesWidget } from "react-google-autocomplete";
 
 // This component will only be mounted when the Google Maps API is ready
@@ -29,16 +28,16 @@ const AutocompleteSearchField = ({ onPlaceSelected }) => {
   });
 
   return (
-    <TextInput
+    <TextField
       id="map-autocomplete-search"
       label="Search for a place"
-      placeholder="Type a place..."
-      ref={autocompleteInputRef} // Assign the ref from usePlacesWidget here
-      style={{
+      variant="outlined" // Use 'outlined' as in your TripPlanning.jsx now
+      fullWidth
+      sx={{
         backgroundColor: "white",
-        margin: "10px",
-        width: "300px",
-        boxShadow: "none",
+        margin: "10px", // Adjust margin as needed for right panel
+        width: "300px", // Adjust width for right panel
+        boxShadow: "none", // Remove box shadow for standard TextField
         borderRadius: "4px",
       }}
       inputRef={autocompleteInputRef} // Assign the ref from usePlacesWidget here
