@@ -35,10 +35,10 @@ const TripPlannerMap = ({ selectedPlace, marker, markerRef, onApiLoaded }) => {
         style={{ width: "100%", height: "100%" }}
         disableDefaultUI={true} // Hide default UI for custom controls
       >
-        {/* <AdvancedMarker ref={markerRef} position={null} /> */}
+        <AdvancedMarker ref={markerRef} position={null} />
       </Map>
 
-      {/* <MapHandler place={selectedPlace} marker={marker} /> */}
+      <MapHandler place={selectedPlace} marker={marker} />
     </APIProvider>
   );
 };
