@@ -8,8 +8,7 @@ import { useNavigate } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
 import SuggestedTrip from "../components/SuggestedTrip";
 
-// TODO: fix filters 
-
+// TODO: add AI suggested trips
 const TripPlannerPage = () => {
   const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
   const [selectedPlace, setSelectedPlace] = useState(null);
