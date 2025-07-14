@@ -4,6 +4,7 @@ import React from 'react'
 
 const SuggestedTrip = () => {
   return (
+    
     <Box  style={{
         border: '1px solid #ccc',
         padding: '12px',

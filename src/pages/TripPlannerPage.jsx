@@ -6,7 +6,7 @@ import { useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
 import { useNavigate } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
-import SuggestedTrip from "../components/SuggestedTrip";
+import SuggestedTripContainer from "../components/SuggestedTripContainer";
 
 // TODO: add AI suggested trips
 const TripPlannerPage = () => {
@@ -15,7 +15,6 @@ const TripPlannerPage = () => {
   const [markerRef, marker] = useAdvancedMarkerRef();
   const [isMapsApiLoaded, setIsMapsApiLoaded] = useState(false); // google maps api fully loaded
   const navigate = useNavigate();
-
 
   // use effect that adds currently selected place to a locations array
   useEffect(() => {
@@ -102,13 +101,15 @@ const TripPlannerPage = () => {
           {/* added locations */}
           <Box style={{ flex: "1", overflowY: "auto", padding: "10px" }}>
             {/* Added a container for locations with scroll */}
-            <Text size="lg" fw={700} mb="sm">
+            <Text size="lg" fw={700} my="lg" ta="center">
               Your Trip Locations:
             </Text>
+
             <DragDropLocations
               locations={locations}
               setLocations={setLocations}
             />
+
           </Box>
         </Box>
 
@@ -133,12 +134,8 @@ const TripPlannerPage = () => {
             </Text>
           )}
           {/*  TODO: change to add AI suggested trips */}
-          <Text>AI Suggested Trips</Text>
-          <SuggestedTrip></SuggestedTrip>
-          <SuggestedTrip></SuggestedTrip>
-          <SuggestedTrip></SuggestedTrip>
-          <SuggestedTrip></SuggestedTrip>
-          <SuggestedTrip></SuggestedTrip>
+          <Text fw={700} ta="center">AI Suggested Trips based on your preferences</Text>
+          <SuggestedTripContainer></SuggestedTripContainer>
           <Button
             onClick={() => {
               navigate("/tripsummary");
