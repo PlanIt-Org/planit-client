@@ -98,7 +98,7 @@ const TripSummaryPage = () => {
                   <Group justify="space-between" mt="md" mb="xs">
                     <Title fw={500}>Title</Title>
                   </Group>
-                  <Text size="sm" c="dimmed">
+                  <Text size="sm" c="dimmed" component="div">
                     <ul style={{ margin: 0, paddingLeft: "1.2em" }}>
                       <li>
                         <LoremIpsum avgWordsPerSentence={1} p={1} />
@@ -262,7 +262,7 @@ const TripSummaryPage = () => {
                       radius="xl"
                     />
                     <div>
-                      <Text size="sm" weight={500}>
+                      <Text size="sm" weight={500} component="div">
                         {<LoremIpsum avgWordsPerSentence={3} p={1} />}
                       </Text>
                       <Text size="sm" color="dimmed">
