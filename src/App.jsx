@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import "./App.css";
 import { AppShell } from "@mantine/core";
@@ -11,6 +12,7 @@ import LoginPage from "./pages/LoginPage";
 import TripPlannerPage from "./pages/TripPlannerPage";
 import TripSummaryPage from "./pages/TripSummaryPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import TripFilterPage from "./pages/TripFilterPage";
 
 
 function App() {
@@ -26,6 +28,7 @@ function App() {
             <Route path="/tripsummary" element={<TripSummaryPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/tripFilter" element={<TripFilterPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
