@@ -13,9 +13,11 @@ import {
   Group,
   Chip,
 } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Renders a single question based on its component type and options.
+ * Returns a tile, radio, or checkbox based on the question.
  */
 function renderQuestion({ question, value, onChange }) {
   switch (question.component) {
@@ -91,6 +93,7 @@ function renderQuestion({ question, value, onChange }) {
 const QuestionnairePage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
+  const navigate = useNavigate();
 
   const questionnaireSteps = [
     {
@@ -204,6 +207,7 @@ const QuestionnairePage = () => {
       setCurrentStep(currentStep + 1);
     } else {
       console.log("Questionnaire completed!", answers);
+      navigate("/home");
     }
   };
 
@@ -239,7 +243,7 @@ const QuestionnairePage = () => {
     const step = questionnaireSteps[currentStep];
     if (step.type === "welcome") return false;
     if (!step.questions) return false;
-    // For now, all questions are required except the "personal" step
+    // all required except personal step
     if (step.id === "personal") return false;
     return step.questions.some((q) => {
       const val = answers[step.id]?.[q.id];
