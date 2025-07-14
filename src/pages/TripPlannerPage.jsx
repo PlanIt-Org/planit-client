@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
-import { Button, Text, Box, Group, Stack } from "@mantine/core";
+import { IconHome } from "@tabler/icons-react";
+import { Button, Text, Box, Group, Stack, ActionIcon } from "@mantine/core";
 import { useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
 import { useNavigate } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
 import SuggestedTrip from "../components/SuggestedTrip";
+
+// TODO: fix filters 
 
 const TripPlannerPage = () => {
   const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
@@ -45,11 +48,29 @@ const TripPlannerPage = () => {
         padding: "20px",
       }}
     >
+      {/*  home icon top right of page */}
+      <ActionIcon
+        variant="transparent" 
+        size="xl"
+        onClick={()=> {
+          navigate("/home");
+        }}
+        style={{
+          position: "absolute",
+          top: "20px",  
+          right: "20px", 
+          zIndex: 1000,  
+        }}
+        aria-label="Go to home page"
+      >
+        <IconHome size={48} /> 
+      </ActionIcon>
+
       {/*container for the map and search field, arranged horizontally */}
       <Group
         style={{
           height: "80vh",
-          width: "90vw",
+          width: "80vw",
           alignItems: "flex-start",
           flexWrap: "nowrap",
           gap: "20px",
@@ -112,6 +133,8 @@ const TripPlannerPage = () => {
               Loading Google Maps API and Places services...
             </Text>
           )}
+          {/*  TODO: change to add AI suggested trips */}
+          <Text>AI Suggested Trips</Text>
           <SuggestedTrip></SuggestedTrip>
           <SuggestedTrip></SuggestedTrip>
           <SuggestedTrip></SuggestedTrip>

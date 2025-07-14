@@ -1,9 +1,10 @@
 import React from "react";
 import { usePlacesWidget } from "react-google-autocomplete";
-import { TextInput, ActionIcon, useMantineTheme } from "@mantine/core";
+import { TextInput, } from "@mantine/core";
 import { IconPlus, IconSearch } from '@tabler/icons-react';
 
 const AutocompleteSearchField = ({ onPlaceSelected }) => {
+
   const { ref: autocompleteInputRef } = usePlacesWidget({
     onPlaceSelected: (place) => {
       console.log("Place selected by react-google-autocomplete:", place);

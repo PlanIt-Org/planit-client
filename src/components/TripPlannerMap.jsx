@@ -34,27 +34,56 @@ const TripPlannerMap = ({ selectedPlace, marker, markerRef, onApiLoaded, locatio
         style={{ width: "100%", height: "50%" }}
         disableDefaultUI={true} // hide default UI for custom controls
       >
-        <AdvancedMarker ref={markerRef} position={null} />
+        {/* added multiple pins on map */}
+       {locations.map((loc, index) => (
+          loc.geometry?.location && ( 
+            <AdvancedMarker
+              key={loc.place_id || index} 
+              position={loc.geometry.location}
+              title={loc.name}
+              
+            />
+          )
+        ))}
       </Map>
 
-      <MapHandler place={selectedPlace} marker={marker} />
+      <MapHandler selectedPlace={selectedPlace} locations={locations} />
     </APIProvider>
   );
 };
 
-const MapHandler = ({ place, marker }) => {
+const MapHandler = ({ selectedPlace, locations }) => {
   const map = useMap();
 
   useEffect(() => {
-    if (!map || !place || !marker) return;
+    if (!map) return;
 
-    if (place.geometry?.viewport) {
-      map.fitBounds(place.geometry?.viewport);
-    } else if (place.geometry?.location) {
-      map.setCenter(place.geometry.location);
+    // focus on current selected place
+    if (selectedPlace && selectedPlace.geometry?.location) {
+      if (selectedPlace.geometry?.viewport) {
+        map.fitBounds(selectedPlace.geometry.viewport);
+      } else {
+        map.setCenter(selectedPlace.geometry.location);
+        map.setZoom(13); 
+      }
+      return; 
     }
-    marker.position = place.geometry?.location;
-  }, [map, place, marker]);
+
+    // if no current location, set zoom to fit all
+    if (locations.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      locations.forEach(loc => {
+        if (loc.geometry?.location) {
+          bounds.extend(loc.geometry.location);
+        }
+      });
+
+      if (!bounds.isEmpty()) {
+        map.fitBounds(bounds);
+      }
+    }
+  }, [map, selectedPlace, locations]); 
+
   return null;
 };
 

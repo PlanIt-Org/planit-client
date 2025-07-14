@@ -1,7 +1,7 @@
 import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
-import { IconGripVertical } from '@tabler/icons-react';
+import { IconGripVertical, IconX } from '@tabler/icons-react';
 import cx from 'clsx';
-import { Text, Box } from '@mantine/core';
+import { Text, Box, ActionIcon } from '@mantine/core';
 import { useListState } from '@mantine/hooks';
 import classes from '../styles/DndListHandle.module.css';
 import { useEffect } from 'react';
@@ -10,15 +10,19 @@ import { useEffect } from 'react';
 function DragDropLocations({locations, setLocations}) {
   const [internalLocations, internalHandlers] = useListState(locations);
 
-  // This useEffect keeps the internal state in sync with external changes to `locations`
+  // Tkeeps the internal state in sync with external changes to `locations
   useEffect(() => {
     internalHandlers.setState(locations);
-  }, [locations, internalHandlers]); // Added internalHandlers to dependency array as recommended by linter
+  }, [locations, internalHandlers])
+  
+  const handleRemove = (indexToRemove) => {
+    const newOrder = internalLocations.filter((_, index) => index !== indexToRemove);
+    internalHandlers.setState(newOrder);
+    setLocations(newOrder);
+  };;
 
 
   const items = internalLocations.map((location, index) => (
-    // Ensure you have a unique key for each draggable item.
-    // place_id is usually a good unique identifier for Google Places.
     <Draggable key={location.place_id || location.name} index={index} draggableId={location.place_id || location.name}>
       {(provided, snapshot) => (
         <div
@@ -29,15 +33,23 @@ function DragDropLocations({locations, setLocations}) {
           <div {...provided.dragHandleProps} className={classes.dragHandle}>
             <IconGripVertical size={18} stroke={1.5} />
           </div>
-          <Box> {/* Use Box for better layout of text */}
+          <Box style={{ flexGrow: 1 }}> 
             <Text fw={500}>{location.name}</Text>
             {location.formatted_address && (
               <Text c="dimmed" size="sm">
                 {location.formatted_address}
               </Text>
             )}
-            {/* You can add more details from the location object here */}
           </Box>
+          <ActionIcon
+            variant="transparent" 
+            color="red"
+            size="md"
+            onClick={() => handleRemove(index)} // remove the location when clicking on X
+            aria-label={`Remove ${location.name}`}
+          >
+            <IconX size={36} stroke={1.5} />
+          </ActionIcon>
         </div>
       )}
     </Draggable>
@@ -46,16 +58,9 @@ function DragDropLocations({locations, setLocations}) {
   const handleDragEnd = ({ destination, source }) => {
     if (!destination) return;
 
-    // Create a new array from the current locations
     const newOrder = Array.from(internalLocations);
-
-    // Remove the dragged item from its original position
     const [reorderedItem] = newOrder.splice(source.index, 1);
-
-    // Insert the dragged item into its new position
     newOrder.splice(destination.index, 0, reorderedItem);
-
-    // Update the internal state first
     internalHandlers.setState(newOrder);
 
     // change the order of locations on array
