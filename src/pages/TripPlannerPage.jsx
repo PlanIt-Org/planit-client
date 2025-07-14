@@ -4,60 +4,125 @@ import { Button, Text, Box, Group, Stack } from "@mantine/core";
 import { useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
 import { useNavigate } from "react-router-dom";
+import DragDropLocations from "../components/DragDropLocations";
+import SuggestedTrip from "../components/SuggestedTrip";
 
 const TripPlannerPage = () => {
+  const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [markerRef, marker] = useAdvancedMarkerRef();
-  const [isMapsApiLoaded, setIsMapsApiLoaded] = useState(false); // State to track API loading
+  const [isMapsApiLoaded, setIsMapsApiLoaded] = useState(false); // google maps api fully loaded
   const navigate = useNavigate();
+
+
+  // use effect that adds currently selected place to a locations array
+  useEffect(() => {
+    if (selectedPlace) {
+      setLocations((prevLocations) => {
+        // don't allow duplicates
+        if (!prevLocations.some(loc => loc.place_id === selectedPlace.place_id)) {
+          return [...prevLocations, selectedPlace];
+        }
+        return prevLocations; 
+      });
+    }
+  }, [selectedPlace]);
+
+
+
+  useEffect(() => {
+    console.log("new locations order: ", locations)
+  }, [locations]);
+
 
   return (
     <Box
-      sx={{
+      style={{
         display: "flex",
-        justifyContent: "center", 
+        justifyContent: "center",
         alignItems: "center",
-        height: "100vh",
-        width: "100%",
+        minHeight: "100vh",
+        padding: "20px",
       }}
     >
+      {/*container for the map and search field, arranged horizontally */}
       <Group
-        sx={{
-          backgroundColor: "gray",
-          width: "70%",
-          height: "70%",
-          alignItems: "center",
-          justifyContent: "center",
+        style={{
+          height: "80vh",
+          width: "90vw",
+          alignItems: "flex-start",
+          flexWrap: "nowrap",
+          gap: "20px",
+          overflow: "hidden",
+          boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+          backgroundColor: "#ffffff",
+          borderRadius: '20px'
         }}
       >
-        <Box sx={{ flex: 1, height: "100%" }}>
+        {/* trip planner map & locations container*/}
+        <Box
+          style={{
+            flex: "3",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column", 
+            overflow: "hidden", 
+            borderRadius: "20px 0 0 20px",
+          }}
+        >
           <TripPlannerMap
             selectedPlace={selectedPlace}
             marker={marker}
             markerRef={markerRef}
-            onApiLoaded={() => setIsMapsApiLoaded(true)} // when api loaded notify
+            onApiLoaded={() => setIsMapsApiLoaded(true)}
+            locations={locations}
+            style={{ flex: "2" }}
           />
+
+          {/* added locations */}
+          <Box style={{ flex: "1", overflowY: "auto", padding: "10px" }}>
+            {/* Added a container for locations with scroll */}
+            <Text size="lg" fw={700} mb="sm">
+              Your Trip Locations:
+            </Text>
+            <DragDropLocations
+              locations={locations}
+              setLocations={setLocations}
+            />
+          </Box>
         </Box>
-        {/* right panel, section next to map w/ search bar, ai suggested trips, and button*/}
+
+        {/* auto complete search stack */}
         <Stack
-          sx={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "lightGray",
+          style={{
+            flex: "2",
             height: "100%",
+            justifyContent: "flex-start",
+            padding: "20px",
+            borderRadius: "8px",
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)",
           }}
         >
-          {/* only reneder when api is loaded */}
+          {/* conditionally render AutocompleteSearchField */}
           {isMapsApiLoaded ? (
             <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
           ) : (
-            <Text>Loading Google Maps API...</Text>
+            <Text size="md">
+              Loading Google Maps API and Places services...
+            </Text>
           )}
-
-          <Box sx={{ backgroundColor: "darkGray", height: "80%", width: "80%" }}></Box>
-          <Button variant="filled" sx={{ width: "80%" }} onClick={()=> { navigate('/tripsummary');}}>
-            Let's Go!
+          <SuggestedTrip></SuggestedTrip>
+          <SuggestedTrip></SuggestedTrip>
+          <SuggestedTrip></SuggestedTrip>
+          <SuggestedTrip></SuggestedTrip>
+          <SuggestedTrip></SuggestedTrip>
+          <Button
+            onClick={() => {
+              navigate("/tripsummary");
+            }}
+          >
+            Let's Go
           </Button>
         </Stack>
       </Group>

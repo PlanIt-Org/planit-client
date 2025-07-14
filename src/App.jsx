@@ -11,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import TripPlannerPage from "./pages/TripPlannerPage";
 import TripSummaryPage from "./pages/TripSummaryPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import TripPlannerMap from "./components/TripPlannerMap";
 
 
 function App() {

@@ -2,7 +2,7 @@ import React from 'react'
 
 const TripSummaryPage = () => {
   return (
-   <></>
+    <div>TripSummaryPage</div>
   )
 }
 
