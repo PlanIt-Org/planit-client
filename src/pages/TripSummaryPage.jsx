@@ -14,6 +14,7 @@ import {
   Box,
   Title,
 } from "@mantine/core";
+import { Carousel } from "@mantine/carousel";
 import { IconBubbleFilled, IconMap2 } from "@tabler/icons-react";
 // TODO: DELETE THIS AFTER BACKEND  IS CONNECTED
 import { LoremIpsum } from "react-lorem-ipsum";
@@ -73,65 +74,71 @@ const TripSummaryPage = () => {
           </Paper>
 
           {/* Bottom Image Placeholders / location cards */}
-          <SimpleGrid cols={3} spacing="md">
-            {[1, 2, 3].map((item) => (
-              <Card
-                key={item}
-                withBorder
-                radius="md"
-                className="relative h-32 bg-gray-100 flex items-center justify-center"
-                style={{ overflow: "hidden", padding: 0 }}
-              >
-                <Card.Section>
-                  <Image
-                    src={`https://picsum.photos/1000?random=${item}`}
-                    alt={`Trip image ${item}`}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      borderRadius: "inherit",
-                    }}
-                  />
-                </Card.Section>
-                <Box m="md">
-                  <Group justify="space-between" mt="md" mb="xs">
-                    <Title fw={500}>Title</Title>
-                  </Group>
-                  <Text size="sm" c="dimmed" component="div">
-                    <ul style={{ margin: 0, paddingLeft: "1.2em" }}>
-                      <li>
-                        <LoremIpsum avgWordsPerSentence={1} p={1} />
-                      </li>
-                      <li>
-                        <LoremIpsum avgWordsPerSentence={1} p={1} />
-                      </li>
-                      <li>
-                        <LoremIpsum avgWordsPerSentence={1} p={1} />
-                      </li>
-                    </ul>
-                  </Text>
-                </Box>
-                <div
+          <Carousel
+            withIndicators
+            slideGap={{ base: 0, sm: "md" }}
+            slidesToScroll={3}
+            slideSize="33.3333%"
+            emblaOptions={{ loop: true, align: "start" }}
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
+              <Carousel.Slide key={item}>
+                <Card
+                  withBorder
+                  radius="md"
+                  className="relative bg-gray-100 flex items-center justify-center"
                   style={{
-                    position: "absolute",
-                    top: 2,
-                    right: 2,
-                    background: "white",
-                    borderRadius: "50%",
-                    padding: 6,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    zIndex: 2,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
+                    overflow: "hidden",
+                    padding: 0,
+                    minWidth: 0,
                   }}
                 >
-                  <IconBubbleFilled size={38} color="#333" />
-                </div>
-              </Card>
+                  <Card.Section>
+                    <Image
+                      src={`https://picsum.photos/300/200?random=${item}`}
+                      alt={`Trip image ${item}`}
+                      width="100%"
+                      fit="cover"
+                    />
+                  </Card.Section>
+                  <Box m="md">
+                    <Group justify="space-between" mt={4} mb={2}>
+                      <Title fw={500} size="XL">
+                        Title
+                      </Title>
+                    </Group>
+                    <Text size="m" c="dimmed" component="div">
+                      <ul style={{ margin: 0, paddingLeft: "1.2em" }}>
+                        <li>
+                          <LoremIpsum avgWordsPerSentence={1} p={1} />
+                        </li>
+                        <li>
+                          <LoremIpsum avgWordsPerSentence={1} p={1} />
+                        </li>
+                      </ul>
+                    </Text>
+                  </Box>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 2,
+                      right: 2,
+                      background: "white",
+                      borderRadius: "50%",
+                      padding: 4,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      zIndex: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <IconBubbleFilled size={24} color="#333" />
+                  </div>
+                </Card>
+              </Carousel.Slide>
             ))}
-          </SimpleGrid>
+          </Carousel>
         </Stack>
       </Grid.Col>
 
