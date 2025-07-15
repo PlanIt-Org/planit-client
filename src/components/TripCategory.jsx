@@ -6,6 +6,7 @@ const categories = ["Upcoming", "Invited Trips", "Hosting", "Past Events"];
 
 const TripCategory = () => {
   const [active, setActive] = useState(categories[0]);
+  
   return (
     <>
       <Group gap="sm" justify="center">

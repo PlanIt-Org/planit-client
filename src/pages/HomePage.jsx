@@ -1,6 +1,7 @@
 import React from "react";
 import SearchBar from "../components/SearchBar";
 import { Container, Title, Box, Group, Avatar, Button} from "@mantine/core";
+import { useState } from "react";
 import TripCategory from "../components/TripCategory";
 import TripGrid from "../components/TripGrid";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +10,7 @@ const HomePage = () => {
   //TODO: if you want to add a custom avatar, like if the user wants to show there profile, or default, go here: https://mantine.dev/core/avatar/
   //TODO: Once the profile page is created, add the avatar to the profile page
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
   return (
     <Container size="mid" py="lg">
       {
@@ -24,7 +26,11 @@ const HomePage = () => {
             Welcome User!{" "}
           </Title>
 
-          <SearchBar> </SearchBar>
+          <SearchBar
+        inputDesc={"Search for a Trip"}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      ></SearchBar>
           <TripCategory></TripCategory>
           <TripGrid></TripGrid>
         </>
