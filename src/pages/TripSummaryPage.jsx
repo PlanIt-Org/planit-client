@@ -15,13 +15,7 @@ import {
   Modal,
   Container,
 } from "@mantine/core";
-import { Carousel } from "@mantine/carousel";
-import {
-  IconBubbleFilled,
-  IconMap2,
-  IconArrowRight,
-  IconArrowLeft,
-} from "@tabler/icons-react";
+import { IconBubbleFilled, IconMap2 } from "@tabler/icons-react";
 // TODO: DELETE THIS AFTER BACKEND  IS CONNECTED
 import { LoremIpsum } from "react-lorem-ipsum";
 import { useDisclosure } from "@mantine/hooks";
@@ -125,21 +119,20 @@ const TripSummaryPage = () => {
               </div>
             </Paper>
 
-            {/* Bottom Image Placeholders / location cards */}
-            <Carousel
-              withIndicators
-              slideGap={{ base: 0, sm: "md" }}
-              slideSize="33.3333%"
-              emblaOptions={{ loop: true, align: "start" }}
-              nextControlIcon={<IconArrowRight size={30} />}
-              previousControlIcon={<IconArrowLeft size={30} />}
-            >
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
-                <Carousel.Slide key={item}>
-                  <Card
-                    withBorder
-                    radius="md"
-                    className="relative bg-gray-100 flex items-center justify-center"
+          {/* Bottom Image Placeholders / location cards */}
+          <SimpleGrid cols={3} spacing="md">
+            {[1, 2, 3].map((item) => (
+              <Card
+                key={item}
+                withBorder
+                radius="md"
+                className="relative h-32 bg-gray-100 flex items-center justify-center"
+                style={{ overflow: "hidden", padding: 0 }}
+              >
+                <Card.Section>
+                  <Image
+                    src={`https://picsum.photos/1000?random=${item}`}
+                    alt={`Trip image ${item}`}
                     style={{
                       overflow: "hidden",
                       padding: 0,
