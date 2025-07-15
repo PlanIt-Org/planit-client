@@ -16,7 +16,12 @@ import {
   Container,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
-import { IconBubbleFilled, IconMap2 } from "@tabler/icons-react";
+import {
+  IconBubbleFilled,
+  IconMap2,
+  IconArrowRight,
+  IconArrowLeft,
+} from "@tabler/icons-react";
 // TODO: DELETE THIS AFTER BACKEND  IS CONNECTED
 import { LoremIpsum } from "react-lorem-ipsum";
 import { useDisclosure } from "@mantine/hooks";
@@ -126,6 +131,8 @@ const TripSummaryPage = () => {
               slideGap={{ base: 0, sm: "md" }}
               slideSize="33.3333%"
               emblaOptions={{ loop: true, align: "start" }}
+              nextControlIcon={<IconArrowRight size={35} />}
+              previousControlIcon={<IconArrowLeft size={35} />}
             >
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
                 <Carousel.Slide key={item}>
@@ -137,6 +144,7 @@ const TripSummaryPage = () => {
                       overflow: "hidden",
                       padding: 0,
                       minWidth: 0,
+                      cursor: "pointer",
                     }}
                     onClick={open}
                   >
