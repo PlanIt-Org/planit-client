@@ -24,7 +24,6 @@ function renderQuestion({ question, value, onChange }) {
     case "TextInput":
       return (
         <TextInput
-          label={question.prompt}
           value={value || ""}
           onChange={(e) => onChange(e.currentTarget.value)}
           required={question.required}
@@ -33,7 +32,6 @@ function renderQuestion({ question, value, onChange }) {
     case "Checkbox.Group":
       return (
         <Stack>
-          <Text fw={500}>{question.prompt}</Text>
           <Group>
             {question.options.map((opt) => (
               <Checkbox
@@ -57,11 +55,7 @@ function renderQuestion({ question, value, onChange }) {
       );
     case "Radio.Group":
       return (
-        <Radio.Group
-          label={question.prompt}
-          value={value || ""}
-          onChange={onChange}
-        >
+        <Radio.Group value={value || ""} onChange={onChange}>
           <Group>
             {question.options.map((opt) => (
               <Radio key={opt.value} value={opt.value} label={opt.label} />
@@ -101,6 +95,42 @@ const QuestionnairePage = () => {
       type: "welcome",
       title: "WELCOME",
       content: "Welcome to our questionnaire! Let's get started.",
+    },
+    {
+      id: "essentials",
+      type: "question",
+      title: "ABOUT YOU",
+      questions: [
+        {
+          id: "age",
+          prompt: "What is your age?",
+          component: "TextInput",
+          required: true,
+        },
+        {
+          id: "dietary",
+          prompt: "Do you have any dietary preferences or restrictions?",
+          component: "Chip.Group",
+          props: { multiple: true },
+          options: [
+            { value: "none", label: "None" },
+            { value: "vegetarian", label: "Vegetarian" },
+            { value: "vegan", label: "Vegan" },
+            { value: "gluten-free", label: "Gluten-Free" },
+            { value: "halal", label: "Halal" },
+            { value: "kosher", label: "Kosher" },
+            { value: "pescatarian", label: "Pescatarian" },
+            { value: "other", label: "Other", showTextInput: true },
+          ],
+        },
+        {
+          id: "location",
+          prompt: "What city or area are you located in?",
+          // TODO: CONNECT TO GOOGLE MAPS API
+          component: "TextInput",
+          required: true,
+        },
+      ],
     },
     {
       id: "activities",
@@ -183,7 +213,7 @@ const QuestionnairePage = () => {
         {
           id: "eventAudience",
           prompt: "Who do you typically plan events for?",
-          component: "Checkbox.Group",
+          component: "Chip.Group",
           options: [
             { value: "family", label: "Family" },
             { value: "friends", label: "Friends" },
@@ -192,12 +222,28 @@ const QuestionnairePage = () => {
             { value: "solo", label: "Solo" },
           ],
         },
+        {
+          id: "lifestyle",
+          prompt: "Which of these best describe your lifestyle choices?",
+          component: "Chip.Group",
+          props: { multiple: true },
+          options: [
+            { value: "active", label: "Active" },
+            { value: "relaxed", label: "Relaxed" },
+            { value: "adventurous", label: "Adventurous" },
+            { value: "cultural", label: "Cultural" },
+            { value: "social", label: "Social" },
+            { value: "family-oriented", label: "Family-Oriented" },
+            { value: "night-owl", label: "Night Owl" },
+            { value: "early-bird", label: "Early Bird" },
+          ],
+        },
       ],
     },
   ];
 
   const totalSteps = questionnaireSteps.length;
-  const progress = ((currentStep + 1) / totalSteps) * 100;
+  const progress = (currentStep / totalSteps) * 100;
 
   /**
    * Advances the questionnaire to the next step, or logs answers if finished.
@@ -286,6 +332,9 @@ const QuestionnairePage = () => {
           </Title>
           {step.questions.map((q) => (
             <Paper key={q.id} p="md" withBorder style={{ width: "100%" }}>
+              <Text fw={500} mb="sm">
+                {q.prompt}
+              </Text>
               {renderQuestion({
                 question: q,
                 value: answers[step.id]?.[q.id],
@@ -327,10 +376,13 @@ const QuestionnairePage = () => {
       {/* Progress Bar */}
       <Progress
         value={progress}
-        color="gray"
+        color="blue"
         size="md"
         style={{ width: "100%", marginBottom: "40px" }}
       />
+      <Text size="md" ta="center" c="dimmed">
+        Step {currentStep + 1} out of {totalSteps}
+      </Text>
 
       {/* Step Content */}
       <div
@@ -345,21 +397,44 @@ const QuestionnairePage = () => {
       </div>
 
       {/* Navigation Buttons */}
-      <Stack direction="row" spacing="md" style={{ marginTop: "40px" }}>
-        {currentStep > 0 && (
-          <Button variant="outline" onClick={handleBack}>
-            BACK
+      <div
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: "100vw",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "32px",
+          pointerEvents: "none",
+          zIndex: 100,
+        }}
+      >
+        <div style={{ pointerEvents: "auto" }}>
+          {currentStep > 0 && (
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              size="lg"
+              style={{ minWidth: "120px" }}
+            >
+              BACK
+            </Button>
+          )}
+        </div>
+        <div style={{ pointerEvents: "auto" }}>
+          <Button
+            size="lg"
+            onClick={handleContinue}
+            disabled={isContinueDisabled()}
+            style={{ minWidth: "200px" }}
+          >
+            {getContinueButtonText()}
           </Button>
-        )}
-        <Button
-          size="lg"
-          onClick={handleContinue}
-          disabled={isContinueDisabled()}
-          style={{ minWidth: "200px" }}
-        >
-          {getContinueButtonText()}
-        </Button>
-      </Stack>
+        </div>
+      </div>
     </Container>
   );
 };
