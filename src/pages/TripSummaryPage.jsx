@@ -144,6 +144,7 @@ const TripSummaryPage = () => {
                       overflow: "hidden",
                       padding: 0,
                       minWidth: 0,
+                      cursor: "pointer",
                     }}
                     onClick={open}
                   >
