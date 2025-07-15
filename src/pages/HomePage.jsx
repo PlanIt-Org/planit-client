@@ -1,6 +1,6 @@
 import React from "react";
 import SearchBar from "../components/SearchBar";
-import { Container, Title, Box, Group, Avatar, Button} from "@mantine/core";
+import { Container, Title, Box, Group, Avatar, Button } from "@mantine/core";
 import TripCategory from "../components/TripCategory";
 import TripGrid from "../components/TripGrid";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ const HomePage = () => {
         <>
           <Group justify="flex-end">
             <Button onClick={() => navigate("/profile")} variant="transparent">
-            <Avatar variant="transparent" radius="sm" size="lg" src="" />
+              <Avatar variant="transparent" radius="sm" size="lg" src="" />
             </Button>
           </Group>
 
