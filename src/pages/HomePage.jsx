@@ -18,7 +18,7 @@ const HomePage = () => {
         alignItems: 'stretch', 
       }}
     >
-      <NavBar/>
+      <NavBar currentPage={0}/>
 
         {/* main content */}
       <Box

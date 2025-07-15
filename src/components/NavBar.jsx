@@ -39,8 +39,8 @@ const mockdata = [
   // { icon: IconFingerprint, label: 'Security' },
 ];
 
-function NavBar() {
-  const [active, setActive] = useState(0); // default to home
+function NavBar({currentPage}) {
+  const [active, setActive] = useState(currentPage); // default to home
   const navigate = useNavigate();
 
   const links = mockdata.map((link, index) => (

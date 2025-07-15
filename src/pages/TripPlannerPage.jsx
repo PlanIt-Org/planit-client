@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
-import { IconHome } from "@tabler/icons-react";
 import { Button, Text, Box, Group, Stack, Flex } from "@mantine/core";
 import { useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
