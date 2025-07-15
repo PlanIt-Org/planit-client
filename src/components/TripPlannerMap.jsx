@@ -1,6 +1,4 @@
-import react, { useState, useEffect, useRef } from "react";
-import { useNavigate } from 'react-router-dom';
-
+import  { useEffect } from "react";
 import {
   APIProvider,
   ControlPosition,
@@ -15,15 +13,16 @@ import {
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAPS_STYLING_ID = import.meta.env.VITE_GOOGLE_MAPS_STYLING_ID;
 
-const TripPlannerMap = ({ selectedPlace, marker, markerRef, onApiLoaded }) => {
+const TripPlannerMap = ({ selectedPlace, marker, markerRef, onApiLoaded, locations}) => {
 
   return (
+
      <APIProvider
         apiKey={GOOGLE_MAPS_API_KEY}
         onLoad={() => {
           console.log("Maps API has loaded.");
           if (onApiLoaded) {
-            onApiLoaded(); // Call the callback when API is loaded
+            onApiLoaded(); // call the callback when API is loaded
           }
         }}
         libraries={['places']} // loads Place API library
@@ -32,30 +31,59 @@ const TripPlannerMap = ({ selectedPlace, marker, markerRef, onApiLoaded }) => {
         mapId={GOOGLE_MAPS_STYLING_ID}
         defaultZoom={13}
         defaultCenter={{ lat: 37.7749, lng: -122.4194 }}
-        style={{ width: "100%", height: "100%" }}
-        disableDefaultUI={true} // Hide default UI for custom controls
+        style={{ width: "100%", height: "50%" }}
+        disableDefaultUI={true} // hide default UI for custom controls
       >
-        <AdvancedMarker ref={markerRef} position={null} />
+        {/* added multiple pins on map */}
+       {locations.map((loc, index) => (
+          loc.geometry?.location && ( 
+            <AdvancedMarker
+              key={loc.place_id || index} 
+              position={loc.geometry.location}
+              title={loc.name}
+              
+            />
+          )
+        ))}
       </Map>
 
-      <MapHandler place={selectedPlace} marker={marker} />
+      <MapHandler selectedPlace={selectedPlace} locations={locations} />
     </APIProvider>
   );
 };
 
-const MapHandler = ({ place, marker }) => {
+const MapHandler = ({ selectedPlace, locations }) => {
   const map = useMap();
 
   useEffect(() => {
-    if (!map || !place || !marker) return;
+    if (!map) return;
 
-    if (place.geometry?.viewport) {
-      map.fitBounds(place.geometry?.viewport);
-    } else if (place.geometry?.location) {
-      map.setCenter(place.geometry.location);
+    // focus on current selected place
+    if (selectedPlace && selectedPlace.geometry?.location) {
+      if (selectedPlace.geometry?.viewport) {
+        map.fitBounds(selectedPlace.geometry.viewport);
+      } else {
+        map.setCenter(selectedPlace.geometry.location);
+        map.setZoom(13); 
+      }
+      return; 
     }
-    marker.position = place.geometry?.location;
-  }, [map, place, marker]);
+
+    // if no current location, set zoom to fit all
+    if (locations.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      locations.forEach(loc => {
+        if (loc.geometry?.location) {
+          bounds.extend(loc.geometry.location);
+        }
+      });
+
+      if (!bounds.isEmpty()) {
+        map.fitBounds(bounds);
+      }
+    }
+  }, [map, selectedPlace, locations]); 
+
   return null;
 };
 

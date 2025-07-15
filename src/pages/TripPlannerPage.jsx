@@ -1,79 +1,150 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
-
+import { IconHome } from "@tabler/icons-react";
+import { Button, Text, Box, Group, Stack, ActionIcon } from "@mantine/core";
 import { useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
 import { useNavigate } from "react-router-dom";
+import DragDropLocations from "../components/DragDropLocations";
+import SuggestedTripContainer from "../components/SuggestedTripContainer";
 
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
+// TODO: add AI suggested trips
 const TripPlannerPage = () => {
+  const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [markerRef, marker] = useAdvancedMarkerRef();
-  const [isMapsApiLoaded, setIsMapsApiLoaded] = useState(false); // State to track API loading
+  const [isMapsApiLoaded, setIsMapsApiLoaded] = useState(false); // google maps api fully loaded
   const navigate = useNavigate();
+
+  // use effect that adds currently selected place to a locations array
+  useEffect(() => {
+    if (selectedPlace) {
+      setLocations((prevLocations) => {
+        // don't allow duplicates
+        if (!prevLocations.some(loc => loc.place_id === selectedPlace.place_id)) {
+          return [...prevLocations, selectedPlace];
+        }
+        return prevLocations; 
+      });
+    }
+  }, [selectedPlace]);
+
+
+
+  useEffect(() => {
+    console.log("new locations order: ", locations)
+  }, [locations]);
+
 
   return (
     <Box
-      sx={{
+      style={{
         display: "flex",
-        justifyContent: "center", 
+        justifyContent: "center",
         alignItems: "center",
-        height: "100vh",
-        width: "100%",
+        minHeight: "100vh",
+        padding: "20px",
       }}
     >
-      <Container
-        sx={{
-          bgcolor: "gray",
-          width: "70%",
-          height: "70%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "row",
+      {/*  home icon top right of page */}
+      <ActionIcon
+        variant="transparent" 
+        size="xl"
+        onClick={()=> {
+          navigate("/home");
+        }}
+        style={{
+          position: "absolute",
+          top: "20px",  
+          right: "20px", 
+          zIndex: 1000,  
+        }}
+        aria-label="Go to home page"
+      >
+        <IconHome size={48} /> 
+      </ActionIcon>
+
+      {/*container for the map and search field, arranged horizontally */}
+      <Group
+        style={{
+          height: "80vh",
+          width: "80vw",
+          alignItems: "flex-start",
+          flexWrap: "nowrap",
+          gap: "20px",
+          overflow: "hidden",
+          boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+          backgroundColor: "#ffffff",
+          borderRadius: '20px'
         }}
       >
-        <Box sx={{ flex: 1, height: "80%" }}>
+        {/* trip planner map & locations container*/}
+        <Box
+          style={{
+            flex: "3",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column", 
+            overflow: "hidden", 
+            borderRadius: "20px 0 0 20px",
+          }}
+        >
           <TripPlannerMap
             selectedPlace={selectedPlace}
             marker={marker}
             markerRef={markerRef}
-            onApiLoaded={() => setIsMapsApiLoaded(true)} // when api loaded notify
+            onApiLoaded={() => setIsMapsApiLoaded(true)}
+            locations={locations}
+            style={{ flex: "2" }}
           />
+
+          {/* added locations */}
+          <Box style={{ flex: "1", overflowY: "auto", padding: "10px" }}>
+            {/* Added a container for locations with scroll */}
+            <Text size="lg" fw={700} my="lg" ta="center">
+              Your Trip Locations:
+            </Text>
+
+            <DragDropLocations
+              locations={locations}
+              setLocations={setLocations}
+            />
+
+          </Box>
         </Box>
-        {/* section next to map w/ search bar, ai suggested trips, and button*/}
-        <Container
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            bgcolor: "lightGray",
-            height: "80%",
+
+        {/* auto complete search stack */}
+        <Stack
+          style={{
+            flex: "2",
+            height: "100%",
+            justifyContent: "flex-start",
+            padding: "20px",
+            borderRadius: "8px",
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)",
           }}
         >
-          {/* only reneder when api is loaded */}
+          {/* conditionally render AutocompleteSearchField */}
           {isMapsApiLoaded ? (
             <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
           ) : (
-            <TextField 
-              id="search-place-autocomplete-loading"
-              label="Loading map and search..."
-              variant="outlined"
-              fullWidth
-              disabled
-              sx={{ mb: 3, width: "80%" }}
-            />
+            <Text size="md">
+              Loading Google Maps API and Places services...
+            </Text>
           )}
-
-          <Box sx={{ bgcolor: "darkGray", height: "80%", width: "80%" }}></Box>
-          <Button variant="contained" fullWidth sx={{ width: "80%" }} onClick={()=> { navigate('/tripsummary');}}>
-            Let's Go!
+          {/*  TODO: change to add AI suggested trips */}
+          <Text fw={700} ta="center">AI Suggested Trips based on your preferences</Text>
+          <SuggestedTripContainer></SuggestedTripContainer>
+          <Button
+            onClick={() => {
+              navigate("/tripsummary");
+            }}
+          >
+            Let's Go
           </Button>
-        </Container>
-      </Container>
+        </Stack>
+      </Group>
     </Box>
   );
 };
