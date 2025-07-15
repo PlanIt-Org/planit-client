@@ -8,11 +8,15 @@ import {
   Stack,
   Card,
   Button,
+  Modal
 } from "@mantine/core";
-const TripCard = () => {
+import { useDisclosure } from "@mantine/hooks";
+
+const TripCard = ({onCardClick}) => {
   const randomId = Math.floor(Math.random() * 10) + 10;
+
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
+    <Card shadow="sm" padding="lg" radius="md" withBorder onClick={onCardClick} style={{ cursor: 'pointer' }} >
       <Card.Section>
         <Image
           src={`https://picsum.photos/id/${randomId}/800/600`}

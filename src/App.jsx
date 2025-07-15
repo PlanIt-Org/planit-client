@@ -13,6 +13,9 @@ import TripPlannerPage from "./pages/TripPlannerPage";
 import TripSummaryPage from "./pages/TripSummaryPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import TripFilterPage from "./pages/TripFilterPage";
+import DiscoverTripsPage from "./pages/DiscoverTripsPage";
+import SavedTripsPage from "./pages/SavedTripsPage";
+
 
 
 
@@ -29,7 +32,9 @@ function App() {
             <Route path="/tripsummary" element={<TripSummaryPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/tripFilter" element={<TripFilterPage />} />
+            <Route path="/tripfilter" element={<TripFilterPage />} />
+            <Route path="/discover" element={<DiscoverTripsPage />} />
+            <Route path="/saved" element={<SavedTripsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </BrowserRouter>
