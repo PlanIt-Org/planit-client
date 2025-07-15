@@ -14,6 +14,10 @@ import {
   Title,
   Modal,
   Container,
+  Combobox,
+  useCombobox,
+  InputBase,
+  Input,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import {
@@ -337,11 +341,57 @@ const TripSummaryPage = () => {
                   <Text size="lg" weight={300}>
                     Comments
                   </Text>
-                  <MultiSelect
-                    label="Filter By"
-                    placeholder="Pick value"
-                    data={["Location", "Person"]}
-                  />
+                  {/*
+                    Best practice Combobox with state and options, following Mantine's recommended pattern.
+                    Place this code inside your component.
+                  */}
+                  {(() => {
+                    // Filter options
+                    const filterOptions = ["Location", "Person", "Comment"];
+
+                    // useCombobox and state
+                    const combobox = useCombobox({
+                      onDropdownClose: () => combobox.resetSelectedOption(),
+                    });
+                    const [filterValue, setFilterValue] = React.useState(null);
+
+                    const options = filterOptions.map((item) => (
+                      <Combobox.Option value={item} key={item}>
+                        {item}
+                      </Combobox.Option>
+                    ));
+
+                    return (
+                      <Combobox
+                        store={combobox}
+                        onOptionSubmit={(val) => {
+                          setFilterValue(val);
+                          combobox.closeDropdown();
+                        }}
+                        withinPortal
+                      >
+                        <Combobox.Target>
+                          <InputBase
+                            component="button"
+                            type="button"
+                            pointer
+                            size="xs"
+                            rightSection={<Combobox.Chevron />}
+                            rightSectionPointerEvents="none"
+                            onClick={() => combobox.toggleDropdown()}
+                            style={{ minWidth: 120 }}
+                          >
+                            {filterValue || (
+                              <Input.Placeholder>Filter By</Input.Placeholder>
+                            )}
+                          </InputBase>
+                        </Combobox.Target>
+                        <Combobox.Dropdown>
+                          <Combobox.Options>{options}</Combobox.Options>
+                        </Combobox.Dropdown>
+                      </Combobox>
+                    );
+                  })()}
                 </Group>
                 <Stack spacing="md" mt="md">
                   <Paper p="xs" withBorder radius="md">
