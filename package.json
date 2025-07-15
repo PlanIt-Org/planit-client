@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.35.0",
+    "@clerk/react-router": "^1.8.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@hello-pangea/dnd": "^18.0.1",
@@ -28,6 +30,7 @@
     "react-dom": "^19.1.0",
     "react-google-autocomplete": "^2.7.5",
     "react-lorem-ipsum": "^1.4.10",
+    "react-router": "^7.6.3",
     "react-router-dom": "^7.6.3",
     "typewriter-effect": "^2.22.0"
   },

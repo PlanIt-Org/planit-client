@@ -1,4 +1,4 @@
-
+// src/App.jsx
 import { useState } from "react";
 import "./App.css";
 import { AppShell } from "@mantine/core";
@@ -15,25 +15,21 @@ import NotFoundPage from "./pages/NotFoundPage";
 import TripPlannerMap from "./components/TripPlannerMap";
 import TripFilterPage from "./pages/TripFilterPage";
 
-
-
 function App() {
   return (
     <>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/questionnaire" element={<QuestionnairePage />} />
-            <Route path="/tripplanner" element={<TripPlannerPage />} />
-            <Route path="/tripsummary" element={<TripSummaryPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/tripFilter" element={<TripFilterPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/questionnaire" element={<QuestionnairePage />} />
+        <Route path="/tripplanner" element={<TripPlannerPage />} />
+        <Route path="/tripsummary" element={<TripSummaryPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/tripFilter" element={<TripFilterPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </>
   );
 }

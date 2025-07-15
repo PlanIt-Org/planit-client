@@ -1,9 +1,9 @@
-import React from 'react'
+// src/pages/RegisterPage.jsx
+import React from "react";
+import { SignUp } from "@clerk/react-router";
 
 const RegisterPage = () => {
-  return (
-    <div>RegisterPage</div>
-  )
-}
+  return <SignUp />;
+};
 
-export default RegisterPage
+export default RegisterPage;
