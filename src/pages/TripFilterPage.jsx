@@ -67,7 +67,7 @@ const TripFilterPage = () => {
   //(Dummy date end)
 
  
-  // This function now handles both users and filters based on the 'type'
+
   function handleRemove(content, type) {
     if (type === "users") {
       setSelectedUsers(selectedUsers.filter((user) => user !== content));
@@ -163,8 +163,8 @@ const TripFilterPage = () => {
                 </Group>
               </Container>
 
-              <Title order={1} ta="center" mb="xl">
-                Current Filters Applied
+              <Title order={1} ta="center" mb="sm">
+                 Filters Applied
               </Title>
               <Container size="md" py="xl">
                 <Group justify="center" gap="sm">
