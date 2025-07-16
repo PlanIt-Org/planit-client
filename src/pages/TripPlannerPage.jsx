@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
-import { IconHome } from "@tabler/icons-react";
-import { Button, Text, Box, Group, Stack, ActionIcon } from "@mantine/core";
+import { Button, Text, Box, Group, Stack, Flex } from "@mantine/core";
 import { useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
 import { useNavigate } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
 import SuggestedTripContainer from "../components/SuggestedTripContainer";
+import NavBar from "../components/NavBar";
 
 // TODO: add AI suggested trips
 const TripPlannerPage = () => {
@@ -37,32 +37,26 @@ const TripPlannerPage = () => {
 
 
   return (
+    <Flex
+    style={{
+      width: '100%',
+      minHeight: '100vh',
+      alignItems: 'stretch', 
+    }}
+  >
+   
+    <NavBar />
     <Box
       style={{
-        display: "flex",
+        flex: 1,
+        minWidth: 0, 
+        padding: '20px',
+        boxSizing: 'border-box', 
+        display: "flex", 
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "100vh",
-        padding: "20px",
       }}
     >
-      {/*  home icon top right of page */}
-      <ActionIcon
-        variant="transparent" 
-        size="xl"
-        onClick={()=> {
-          navigate("/home");
-        }}
-        style={{
-          position: "absolute",
-          top: "20px",  
-          right: "20px", 
-          zIndex: 1000,  
-        }}
-        aria-label="Go to home page"
-      >
-        <IconHome size={48} /> 
-      </ActionIcon>
 
       {/*container for the map and search field, arranged horizontally */}
       <Group
@@ -143,9 +137,10 @@ const TripPlannerPage = () => {
           >
             Let's Go
           </Button>
-        </Stack>
-      </Group>
-    </Box>
+          </Stack>
+        </Group>
+      </Box>
+    </Flex>
   );
 };
 
