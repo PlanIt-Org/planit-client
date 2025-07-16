@@ -6,6 +6,7 @@ const categories = ["Upcoming", "Invited Trips", "Hosting", "Past Events"];
 
 const TripCategory = () => {
   const [active, setActive] = useState(categories[0]);
+  
   return (
     <>
     {/* TODO: make this text bigger, currently when making it bigger it shifts other stuff down???? */}

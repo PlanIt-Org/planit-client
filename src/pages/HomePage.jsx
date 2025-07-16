@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from "react";
 import { Container, Title, Box, Group, Avatar, Button, Flex} from "@mantine/core";
 import TripCategory from "../components/TripCategory";
