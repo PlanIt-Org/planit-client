@@ -1,4 +1,4 @@
-
+// src/App.jsx
 import { useState } from "react";
 import "./App.css";
 import { AppShell } from "@mantine/core";
@@ -17,8 +17,6 @@ import DiscoverTripsPage from "./pages/DiscoverTripsPage";
 import SavedTripsPage from "./pages/SavedTripsPage";
 import { Notifications } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
-
-
 
 
 

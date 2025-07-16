@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
+import SearchBar from "../components/SearchBar";
 import { Container, Title, Box, Group, Avatar, Button, Flex} from "@mantine/core";
 import TripCategory from "../components/TripCategory";
 import TripGrid from "../components/TripGrid";
@@ -12,6 +13,7 @@ const HomePage = () => {
   //TODO: Once the profile page is created, add the avatar to the profile page
   const navigate = useNavigate();
   return (
+
     <Flex
       style={{
         width: '100%',    
@@ -20,7 +22,6 @@ const HomePage = () => {
       }}
     >
       <NavBar currentPage={0}/>
-
         {/* main content */}
       <Box
         style={{
