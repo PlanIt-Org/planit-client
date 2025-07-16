@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
 import SuggestedTripContainer from "../components/SuggestedTripContainer";
 import NavBar from "../components/NavBar";
+import { notifications } from '@mantine/notifications';
+
 
 // TODO: add AI suggested trips
 const TripPlannerPage = () => {
@@ -34,6 +36,23 @@ const TripPlannerPage = () => {
   useEffect(() => {
     console.log("new locations order: ", locations)
   }, [locations]);
+
+
+  const handleLetsGoClick = () => {
+    if (locations.length === 0) {
+      // show notification if no locations are selected
+      notifications.show({
+        title: 'No Locations Selected!',
+        message: 'Please add at least one location to your trip before proceeding.',
+        color: 'red',
+        position: 'bottom-center',
+        autoClose: 5000,
+      });
+    } else {
+      // regular navigation if at least one place selected
+      navigate("/tripsummary");
+    }
+  };
 
 
   return (
@@ -131,9 +150,7 @@ const TripPlannerPage = () => {
           <Text fw={700} ta="center">AI Suggested Trips based on your preferences</Text>
           <SuggestedTripContainer></SuggestedTripContainer>
           <Button
-            onClick={() => {
-              navigate("/tripsummary");
-            }}
+            onClick={handleLetsGoClick}
           >
             Let's Go
           </Button>

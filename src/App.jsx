@@ -15,6 +15,10 @@ import NotFoundPage from "./pages/NotFoundPage";
 import TripFilterPage from "./pages/TripFilterPage";
 import DiscoverTripsPage from "./pages/DiscoverTripsPage";
 import SavedTripsPage from "./pages/SavedTripsPage";
+import { Notifications } from '@mantine/notifications';
+import '@mantine/notifications/styles.css';
+
+
 
 
 
@@ -22,6 +26,7 @@ import SavedTripsPage from "./pages/SavedTripsPage";
 function App() {
   return (
     <>
+     <Notifications position="bottom-center" zIndex={2077} /> 
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
