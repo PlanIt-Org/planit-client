@@ -15,32 +15,27 @@ import NotFoundPage from "./pages/NotFoundPage";
 import TripFilterPage from "./pages/TripFilterPage";
 import DiscoverTripsPage from "./pages/DiscoverTripsPage";
 import SavedTripsPage from "./pages/SavedTripsPage";
-import { Notifications } from '@mantine/notifications';
-import '@mantine/notifications/styles.css';
-
-
-
+import { Notifications } from "@mantine/notifications";
+import "@mantine/notifications/styles.css";
 
 function App() {
   return (
     <>
-     <Notifications position="bottom-center" zIndex={2077} /> 
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/questionnaire" element={<QuestionnairePage />} />
-            <Route path="/tripplanner" element={<TripPlannerPage />} />
-            <Route path="/tripsummary" element={<TripSummaryPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/tripfilter" element={<TripFilterPage />} />
-            <Route path="/discover" element={<DiscoverTripsPage />} />
-            <Route path="/saved" element={<SavedTripsPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </BrowserRouter>
+      <Notifications position="bottom-center" zIndex={2077} />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<HomePage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/questionnaire" element={<QuestionnairePage />} />
+        <Route path="/tripplanner" element={<TripPlannerPage />} />
+        <Route path="/tripsummary" element={<TripSummaryPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/tripfilter" element={<TripFilterPage />} />
+        <Route path="/discover" element={<DiscoverTripsPage />} />
+        <Route path="/saved" element={<SavedTripsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </>
   );
 }

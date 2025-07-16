@@ -1,7 +1,14 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
-import SearchBar from "../components/SearchBar";
-import { Container, Title, Box, Group, Avatar, Button, Flex} from "@mantine/core";
+import {
+  Container,
+  Title,
+  Box,
+  Group,
+  Avatar,
+  Button,
+  Flex,
+} from "@mantine/core";
 import TripCategory from "../components/TripCategory";
 import TripGrid from "../components/TripGrid";
 import { useNavigate } from "react-router-dom";
@@ -13,25 +20,24 @@ const HomePage = () => {
   //TODO: Once the profile page is created, add the avatar to the profile page
   const navigate = useNavigate();
   return (
-
     <Flex
       style={{
-        width: '100%',    
-        minHeight: '100vh', 
-        alignItems: 'stretch', 
+        width: "100%",
+        minHeight: "100vh",
+        alignItems: "stretch",
       }}
     >
-      <NavBar currentPage={0}/>
-        {/* main content */}
+      <NavBar currentPage={0} />
+      {/* main content */}
       <Box
         style={{
-          flex: 1, 
+          flex: 1,
           minWidth: 0,
           padding: 20,
-          boxSizing: 'border-box',
+          boxSizing: "border-box",
         }}
       >
-        <Container size="mid" py="0"> 
+        <Container size="mid" py="0">
           <Title order={1} ta="center" size={70} mb="lg">
             {" "}
             Welcome User!{" "}
@@ -44,7 +50,7 @@ const HomePage = () => {
 
           {/* Public Trips, TODO: make this filter based off the user's location */}
           {/* <TripGrid title="Discover Trips"></TripGrid> */}
-          </Container>
+        </Container>
       </Box>
     </Flex>
   );
