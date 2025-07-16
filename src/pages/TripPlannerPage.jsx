@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
-import { IconHome } from "@tabler/icons-react";
-import { Button, Text, Box, Group, Stack, ActionIcon } from "@mantine/core";
+import { Button, Text, Box, Group, Stack, Flex } from "@mantine/core";
 import { useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
 import { useNavigate } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
-import SuggestedTrip from "../components/SuggestedTrip";
+import SuggestedTripContainer from "../components/SuggestedTripContainer";
+import NavBar from "../components/NavBar";
+import { notifications } from '@mantine/notifications';
 
-// TODO: fix filters 
 
+// TODO: add AI suggested trips
 const TripPlannerPage = () => {
   const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [markerRef, marker] = useAdvancedMarkerRef();
   const [isMapsApiLoaded, setIsMapsApiLoaded] = useState(false); // google maps api fully loaded
   const navigate = useNavigate();
-
 
   // use effect that adds currently selected place to a locations array
   useEffect(() => {
@@ -38,33 +38,44 @@ const TripPlannerPage = () => {
   }, [locations]);
 
 
+  const handleLetsGoClick = () => {
+    if (locations.length === 0) {
+      // show notification if no locations are selected
+      notifications.show({
+        title: 'No Locations Selected!',
+        message: 'Please add at least one location to your trip before proceeding.',
+        color: 'red',
+        position: 'bottom-center',
+        autoClose: 5000,
+      });
+    } else {
+      // regular navigation if at least one place selected
+      navigate("/tripsummary");
+    }
+  };
+
+
   return (
+    <Flex
+    style={{
+      width: '100%',
+      minHeight: '100vh',
+      alignItems: 'stretch', 
+    }}
+  >
+   
+    <NavBar />
     <Box
       style={{
-        display: "flex",
+        flex: 1,
+        minWidth: 0, 
+        padding: '20px',
+        boxSizing: 'border-box', 
+        display: "flex", 
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "100vh",
-        padding: "20px",
       }}
     >
-      {/*  home icon top right of page */}
-      <ActionIcon
-        variant="transparent" 
-        size="xl"
-        onClick={()=> {
-          navigate("/home");
-        }}
-        style={{
-          position: "absolute",
-          top: "20px",  
-          right: "20px", 
-          zIndex: 1000,  
-        }}
-        aria-label="Go to home page"
-      >
-        <IconHome size={48} /> 
-      </ActionIcon>
 
       {/*container for the map and search field, arranged horizontally */}
       <Group
@@ -103,13 +114,15 @@ const TripPlannerPage = () => {
           {/* added locations */}
           <Box style={{ flex: "1", overflowY: "auto", padding: "10px" }}>
             {/* Added a container for locations with scroll */}
-            <Text size="lg" fw={700} mb="sm">
+            <Text size="lg" fw={700} my="lg" ta="center">
               Your Trip Locations:
             </Text>
+
             <DragDropLocations
               locations={locations}
               setLocations={setLocations}
             />
+
           </Box>
         </Box>
 
@@ -134,22 +147,17 @@ const TripPlannerPage = () => {
             </Text>
           )}
           {/*  TODO: change to add AI suggested trips */}
-          <Text>AI Suggested Trips</Text>
-          <SuggestedTrip></SuggestedTrip>
-          <SuggestedTrip></SuggestedTrip>
-          <SuggestedTrip></SuggestedTrip>
-          <SuggestedTrip></SuggestedTrip>
-          <SuggestedTrip></SuggestedTrip>
+          <Text fw={700} ta="center">AI Suggested Trips based on your preferences</Text>
+          <SuggestedTripContainer></SuggestedTripContainer>
           <Button
-            onClick={() => {
-              navigate("/tripsummary");
-            }}
+            onClick={handleLetsGoClick}
           >
             Let's Go
           </Button>
-        </Stack>
-      </Group>
-    </Box>
+          </Stack>
+        </Group>
+      </Box>
+    </Flex>
   );
 };
 

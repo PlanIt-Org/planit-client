@@ -14,13 +14,17 @@ import {
   Title,
   Modal,
   Container,
+  Combobox,
+  useCombobox,
+  InputBase,
+  Input,
 } from "@mantine/core";
 import { Carousel } from "@mantine/carousel";
 import {
   IconBubbleFilled,
   IconMap2,
-  IconArrowRight,
-  IconArrowLeft,
+  IconChevronCompactRight,
+  IconChevronCompactLeft,
 } from "@tabler/icons-react";
 // TODO: DELETE THIS AFTER BACKEND  IS CONNECTED
 import { LoremIpsum } from "react-lorem-ipsum";
@@ -131,8 +135,8 @@ const TripSummaryPage = () => {
               slideGap={{ base: 0, sm: "md" }}
               slideSize="33.3333%"
               emblaOptions={{ loop: true, align: "start" }}
-              nextControlIcon={<IconArrowRight size={35} />}
-              previousControlIcon={<IconArrowLeft size={35} />}
+              nextControlIcon={<IconChevronCompactRight size={30} />}
+              previousControlIcon={<IconChevronCompactLeft size={30} />}
             >
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
                 <Carousel.Slide key={item}>
@@ -288,16 +292,43 @@ const TripSummaryPage = () => {
               <Stack>
                 <Text>GUEST LIST: list of Invitees (PLACEHOLDER)</Text>
                 <Paper p="xs" withBorder>
-                  <Group>
-                    <Avatar src={`https://i.pravatar.cc/150`} alt={"hi"} />
-                    <Avatar src={`https://i.pravatar.cc/150`} alt={"hi"} />
-                    <Avatar src={`https://i.pravatar.cc/150`} alt={"hi"} />
-                    <Avatar src={`https://i.pravatar.cc/150`} alt={"hi"} />
-                    <Avatar src={`https://i.pravatar.cc/150`} alt={"hi"} />
-                    <Avatar src={`https://i.pravatar.cc/150`} alt={"hi"} />
-                    <Avatar src={`https://i.pravatar.cc/150`} alt={"hi"} />
-                    <Avatar src={`https://i.pravatar.cc/150`} alt={"hi"} />
-                    <Avatar src={`https://i.pravatar.cc/150`} alt={"hi"} />
+                  <Group justify="center">
+                    <Avatar
+                      src={`https://i.pravatar.cc/150?img=1`}
+                      alt={"User 1"}
+                    />
+                    <Avatar
+                      src={`https://i.pravatar.cc/150?img=2`}
+                      alt={"User 2"}
+                    />
+                    <Avatar
+                      src={`https://i.pravatar.cc/150?img=3`}
+                      alt={"User 3"}
+                    />
+                    <Avatar
+                      src={`https://i.pravatar.cc/150?img=4`}
+                      alt={"User 4"}
+                    />
+                    <Avatar
+                      src={`https://i.pravatar.cc/150?img=5`}
+                      alt={"User 5"}
+                    />
+                    <Avatar
+                      src={`https://i.pravatar.cc/150?img=6`}
+                      alt={"User 6"}
+                    />
+                    <Avatar
+                      src={`https://i.pravatar.cc/150?img=7`}
+                      alt={"User 7"}
+                    />
+                    <Avatar
+                      src={`https://i.pravatar.cc/150?img=8`}
+                      alt={"User 8"}
+                    />
+                    <Avatar
+                      src={`https://i.pravatar.cc/150?img=9`}
+                      alt={"User 9"}
+                    />
                   </Group>
                 </Paper>
               </Stack>
@@ -310,23 +341,69 @@ const TripSummaryPage = () => {
                   <Text size="lg" weight={300}>
                     Comments
                   </Text>
-                  <MultiSelect
-                    label="Filter By"
-                    placeholder="Pick value"
-                    data={["Location", "Person"]}
-                  />
+                  {/*
+                    Best practice Combobox with state and options, following Mantine's recommended pattern.
+                    Place this code inside your component.
+                  */}
+                  {(() => {
+                    // Filter options
+                    const filterOptions = ["Location", "Person", "Comment"];
+
+                    // useCombobox and state
+                    const combobox = useCombobox({
+                      onDropdownClose: () => combobox.resetSelectedOption(),
+                    });
+                    const [filterValue, setFilterValue] = React.useState(null);
+
+                    const options = filterOptions.map((item) => (
+                      <Combobox.Option value={item} key={item}>
+                        {item}
+                      </Combobox.Option>
+                    ));
+
+                    return (
+                      <Combobox
+                        store={combobox}
+                        onOptionSubmit={(val) => {
+                          setFilterValue(val);
+                          combobox.closeDropdown();
+                        }}
+                        withinPortal
+                      >
+                        <Combobox.Target>
+                          <InputBase
+                            component="button"
+                            type="button"
+                            pointer
+                            size="xs"
+                            rightSection={<Combobox.Chevron />}
+                            rightSectionPointerEvents="none"
+                            onClick={() => combobox.toggleDropdown()}
+                            style={{ minWidth: 120 }}
+                          >
+                            {filterValue || (
+                              <Input.Placeholder>Filter By</Input.Placeholder>
+                            )}
+                          </InputBase>
+                        </Combobox.Target>
+                        <Combobox.Dropdown>
+                          <Combobox.Options>{options}</Combobox.Options>
+                        </Combobox.Dropdown>
+                      </Combobox>
+                    );
+                  })()}
                 </Group>
                 <Stack spacing="md" mt="md">
                   <Paper p="xs" withBorder radius="md">
                     <Group>
                       <Avatar
-                        src={`https://i.pravatar.cc/150`}
+                        src={`https://i.pravatar.cc/150?img=1`}
                         alt={"hi"}
                         radius="xl"
                       />
                       <div>
                         <Text size="sm" weight={500} component="div">
-                          {<LoremIpsum avgWordsPerSentence={3} p={1} />}
+                          {<LoremIpsum avgWordsPerSentence={1} p={1} />}
                         </Text>
                         <Text size="sm" color="dimmed">
                           {}
