@@ -10,7 +10,7 @@ const TripGrid = () => {
 
   return (
     <Container size="xl" py="lg">
-      <Grid gutter="md" rowGap="xl" columnGap="xl">
+      <Grid gutter="md" rowgap="xl" columngap="xl">
         <Grid.Col span={{ base: 12, sm: 6, md: 4, lg: 4 }}>
           <TripCard onCardClick={open}/>
         </Grid.Col>
