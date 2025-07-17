@@ -193,10 +193,9 @@ const TripFilterPage = () => {
                   {renderMultiSelectButtons(selectedFilters, "filters")}
                 </Group>
               </Stack>
-
-              <Group justify="flex-end" mt="md">
-                <Button onClick={() => navigate("/tripPlanner")}>Next</Button>
-              </Group>
+              <Button w="50%" onClick={() => navigate("/tripplanner")}>
+                Next
+              </Button>
             </Stack>
           </Card>
         </Container>

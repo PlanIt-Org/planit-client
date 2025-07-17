@@ -2,7 +2,8 @@ import { Text, Button, Group, NativeSelect, Box } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
-import { Grid } from "@mantine/core";
+import { notifications } from '@mantine/notifications';
+
 
 // creates all time values once for the right section start time and end time
 const generateTimeOptions = () => {
@@ -24,14 +25,37 @@ const timeOptions = generateTimeOptions();
 const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
   const navigate = useNavigate();
 
-  const [startTime, setStartTime] = useState(timeOptions[0]?.value || "");
-  const [endTime, setEndTime] = useState(
-    timeOptions[timeOptions.length - 1]?.value || ""
-  );
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
 
   const handleCitySelected = (place) => {
     setSelectedCity(place);
     console.log("Selected City:", place);
+  };
+
+
+  const handleGoClick = () => {
+    // notification if user does not change times
+    if (!startTime || !endTime) {
+      notifications.show({
+        title: 'Time Selection Missing!',
+        message: 'Please select both a start and an end time for your trip.',
+        color: 'red',
+        position: 'bottom-center',
+        autoClose: 5000,
+      });
+    } else if (!selectedCity) {
+      notifications.show({
+        title: 'City Selection Missing!',
+        message: 'Please select a city for your trip.',
+        color: 'red',
+        position: 'bottom-center',
+        autoClose: 5000,
+      });
+    } else {
+      // navigate if both times input
+      navigate("/tripfilter");
+    }
   };
 
   return (
@@ -44,7 +68,9 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
         margin: "32px 0",
       }}
     >
-      <Text fw={700} size="xl">Plan a Trip!</Text>
+      <Text fw={700} size="xl">
+        Plan a Trip!
+      </Text>
       <Group
         gap={0}
         align="center"
@@ -76,7 +102,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
         {/* Time Selectors and Go Button */}
 
         <NativeSelect
-          data={timeOptions}
+          data={[{ value: "", label: "Start time" }, ...timeOptions]}
           value={startTime}
           onChange={(event) => setStartTime(event.currentTarget.value)}
           aria-label="Select start time"
@@ -91,7 +117,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
           }}
         />
         <NativeSelect
-          data={timeOptions}
+          data={[{ value: "", label: "End time" }, ...timeOptions]}
           value={endTime}
           onChange={(event) => setEndTime(event.currentTarget.value)}
           aria-label="Select end time"
@@ -109,7 +135,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
         />
         <Button
           onClick={() => {
-            navigate("/tripplanner");
+           handleGoClick()
           }}
           size="lg"
           style={{
