@@ -18,16 +18,20 @@ import SavedTripsPage from "./pages/SavedTripsPage";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 
-function App() {
+function App({isMapsApiLoaded}) {
+
+  const [selectedCity, setSelectedCity] = useState("");
+
+
   return (
     <>
       <Notifications position="bottom-center" zIndex={2077} />
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/home" element={<HomePage selectedCity={selectedCity} setSelectedCity={setSelectedCity} isMapsApiLoaded={isMapsApiLoaded}/>} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/questionnaire" element={<QuestionnairePage />} />
-        <Route path="/tripplanner" element={<TripPlannerPage />} />
+        <Route path="/tripplanner" element={<TripPlannerPage selectedCity={selectedCity} setSelectedCity={setSelectedCity}/>} />
         <Route path="/tripsummary" element={<TripSummaryPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
