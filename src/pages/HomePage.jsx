@@ -8,6 +8,7 @@ import {
   Avatar,
   Button,
   Flex,
+  Text
 } from "@mantine/core";
 import TripCategory from "../components/TripCategory";
 import TripGrid from "../components/TripGrid";
@@ -15,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import HomeLocationSearchBar from "../components/HomeLocationSearchBar";
 import NavBar from "../components/NavBar";
 
-const HomePage = () => {
+const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded }) => {
   //TODO: if you want to add a custom avatar, like if the user wants to show there profile, or default, go here: https://mantine.dev/core/avatar/
   //TODO: Once the profile page is created, add the avatar to the profile page
   const navigate = useNavigate();
@@ -43,7 +44,13 @@ const HomePage = () => {
             Welcome User!{" "}
           </Title>
 
-          <HomeLocationSearchBar> </HomeLocationSearchBar>
+        {/* only show search bar when API fully loaded */}
+          {isMapsApiLoaded ? (
+            <HomeLocationSearchBar selectedCity={selectedCity} setSelectedCity={setSelectedCity}> </HomeLocationSearchBar>          ) : (
+            <Text ta="center" size="md" c="dimmed" mt="lg">
+              Loading Google Maps API and Places services...
+            </Text>
+          )}
           <TripCategory></TripCategory>
           {/*  Your Trips */}
           <TripGrid></TripGrid>

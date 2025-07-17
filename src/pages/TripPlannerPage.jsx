@@ -11,11 +11,10 @@ import { notifications } from '@mantine/notifications';
 
 
 // TODO: add AI suggested trips
-const TripPlannerPage = () => {
+const TripPlannerPage = ({selectedCity,setSelectedCity}) => {
   const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [markerRef, marker] = useAdvancedMarkerRef();
-  const [isMapsApiLoaded, setIsMapsApiLoaded] = useState(false); // google maps api fully loaded
   const navigate = useNavigate();
 
   // use effect that adds currently selected place to a locations array
@@ -106,8 +105,9 @@ const TripPlannerPage = () => {
             selectedPlace={selectedPlace}
             marker={marker}
             markerRef={markerRef}
-            onApiLoaded={() => setIsMapsApiLoaded(true)}
             locations={locations}
+            selectedCity={selectedCity}
+            setSelectedCity={setSelectedCity}
             style={{ flex: "2" }}
           />
 
@@ -139,13 +139,7 @@ const TripPlannerPage = () => {
           }}
         >
           {/* conditionally render AutocompleteSearchField */}
-          {isMapsApiLoaded ? (
-            <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
-          ) : (
-            <Text size="md">
-              Loading Google Maps API and Places services...
-            </Text>
-          )}
+          <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
           {/*  TODO: change to add AI suggested trips */}
           <Text fw={700} ta="center">AI Suggested Trips based on your preferences</Text>
           <SuggestedTripContainer></SuggestedTripContainer>

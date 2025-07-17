@@ -9,28 +9,16 @@ import {
   useAdvancedMarkerRef,
 } from "@vis.gl/react-google-maps";
 
-
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAPS_STYLING_ID = import.meta.env.VITE_GOOGLE_MAPS_STYLING_ID;
 
-const TripPlannerMap = ({ selectedPlace, marker, markerRef, onApiLoaded, locations}) => {
+const TripPlannerMap = ({ selectedPlace, marker, markerRef, locations, selectedCity, setSelectedCity}) => {
 
   return (
-
-     <APIProvider
-        apiKey={GOOGLE_MAPS_API_KEY}
-        onLoad={() => {
-          console.log("Maps API has loaded.");
-          if (onApiLoaded) {
-            onApiLoaded(); // call the callback when API is loaded
-          }
-        }}
-        libraries={['places']} // loads Place API library
-      >
+    <>
       <Map
         mapId={GOOGLE_MAPS_STYLING_ID}
         defaultZoom={13}
-        defaultCenter={{ lat: 37.7749, lng: -122.4194 }}
+        defaultCenter={selectedCity?.geometry?.location || { lat: 37.7749, lng: -122.4194 }}
         style={{ width: "100%", height: "50%" }}
         disableDefaultUI={true} // hide default UI for custom controls
       >
@@ -48,7 +36,7 @@ const TripPlannerMap = ({ selectedPlace, marker, markerRef, onApiLoaded, locatio
       </Map>
 
       <MapHandler selectedPlace={selectedPlace} locations={locations} />
-    </APIProvider>
+    </>
   );
 };
 

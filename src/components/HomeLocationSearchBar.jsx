@@ -1,121 +1,129 @@
-import { TextInput, Button, Group, NativeSelect, Box } from '@mantine/core';
-import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-
-
-
-
-
+import { Text, Button, Group, NativeSelect, Box } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
+import { Grid } from "@mantine/core";
 
 // creates all time values once for the right section start time and end time
 const generateTimeOptions = () => {
- const times = [];
- for (let hour = 0; hour < 24; hour++) {
-   for (let minute = 0; minute < 60; minute += 30) {
-     const period = hour < 12 ? 'AM' : 'PM';
-     const displayHour = hour === 0 ? 12 : (hour > 12 ? hour - 12 : hour);
-     const displayMinute = minute === 0 ? '00' : String(minute);
-     const timeString = `${displayHour}:${displayMinute} ${period}`;
-     times.push({ value: timeString, label: timeString });
-   }
- }
- return times;
+  const times = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      const period = hour < 12 ? "AM" : "PM";
+      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+      const displayMinute = minute === 0 ? "00" : String(minute);
+      const timeString = `${displayHour}:${displayMinute} ${period}`;
+      times.push({ value: timeString, label: timeString });
+    }
+  }
+  return times;
 };
-
-
-
 
 const timeOptions = generateTimeOptions();
 
+const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
+  const navigate = useNavigate();
 
+  const [startTime, setStartTime] = useState(timeOptions[0]?.value || "");
+  const [endTime, setEndTime] = useState(
+    timeOptions[timeOptions.length - 1]?.value || ""
+  );
 
+  const handleCitySelected = (place) => {
+    setSelectedCity(place);
+    console.log("Selected City:", place);
+  };
 
-const HomeLocationSearchBar = () => {
- const navigate = useNavigate();
+  return (
+    <Box
+      style={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        margin: "32px 0",
+      }}
+    >
+      <Text fw={700} size="xl">Plan a Trip!</Text>
+      <Group
+        gap={0}
+        align="center"
+        style={{
+          maxWidth: 1200,
+          margin: "0 auto",
+          minHeight: 64,
+        }}
+      >
+        {/* City Autocomplete */}
+        <CityAutoCompleteSearchField
+          onPlaceSelected={handleCitySelected}
+          size="lg"
+          styles={{
+            input: {
+              height: 48,
+              minHeight: 48,
+              borderTopRightRadius: 0,
+              borderBottomRightRadius: 0,
+            },
+            wrapper: {
+              flexGrow: 1,
+              minWidth: 360,
+              maxWidth: 700,
+            },
+          }}
+        />
 
+        {/* Time Selectors and Go Button */}
 
- const [startTime, setStartTime] = useState(timeOptions[0]?.value || '');
- const [endTime, setEndTime] = useState(timeOptions[timeOptions.length - 1]?.value || '');
+        <NativeSelect
+          data={timeOptions}
+          value={startTime}
+          onChange={(event) => setStartTime(event.currentTarget.value)}
+          aria-label="Select start time"
+          size="lg"
+          styles={{
+            input: {
+              fontWeight: 500,
+              borderRadius: 0,
+              height: 48,
+              minHeight: 48,
+            },
+          }}
+        />
+        <NativeSelect
+          data={timeOptions}
+          value={endTime}
+          onChange={(event) => setEndTime(event.currentTarget.value)}
+          aria-label="Select end time"
+          size="lg"
+          styles={{
+            input: {
+              fontWeight: 500,
+              borderRadius: 0,
+              borderLeft: "none",
+              borderRight: "none",
+              height: 48,
+              minHeight: 48,
+            },
+          }}
+        />
+        <Button
+          onClick={() => {
+            navigate("/tripplanner");
+          }}
+          size="lg"
+          style={{
+            borderTopLeftRadius: 0,
+            borderBottomLeftRadius: 0,
+            height: 48,
+            minHeight: 48,
+          }}
+        >
+          Go
+        </Button>
+      </Group>
+    </Box>
+  );
+};
 
-
-
-
-
-
- const rightSectionContent = (
-   <Group gap={0} wrap="nowrap" style={{ height: '100%', alignItems: 'center' }}>
-     {/* START TIME OPTION */}
-     {/* TODO: could limit to only have showing my 5 times at a time to not overwhelm user's screen with time options */}
-     <NativeSelect
-       data={timeOptions}
-       value={startTime}
-       onChange={(event) => setStartTime(event.currentTarget.value)}
-       aria-label="Select start time"
-       size="lg"
-       rightSectionWidth={28}
-       styles={{
-         input: {
-           fontWeight: 500,
-           borderRadius: 0,
-           width: 120,
-           paddingRight: 0,
-         },
-       }}
-     />
-     {/* END TIME OPTION */}
-     <NativeSelect
-       data={timeOptions}
-       value={endTime}
-       onChange={(event) => setEndTime(event.currentTarget.value)}
-       aria-label="Select end time"
-       size="lg"
-       rightSectionWidth={28}
-       styles={{
-         input: {
-           fontWeight: 500,
-           borderRadius: 0,
-           width: 120,
-           paddingRight: 0,
-         },
-       }}
-     />
-     {/* GO BUTTON */}
-     <Button
-       onClick={() => navigate("/tripfilter")}
-       size="lg"
-       style={{
-         borderTopLeftRadius: 0,
-         borderBottomLeftRadius: 0,
-       }}
-     >
-       Go
-     </Button>
-   </Group>
- );
- 
-
- return (
-   <Group gap="sm" justify="center" mb={42}>
-   <TextInput
-     placeholder="Search for a location (ex: San Francisco)"
-     w="50%"
-     size="lg"
-     styles={{
-       input: {
-         minHeight: '50px',
-         fontSize: '1.1rem',
-         paddingRight: '220px',
-       },
-     }}
-     rightSection={rightSectionContent}
-     rightSectionWidth={220}
-   />
- </Group>
- )
-}
-
-
-export default HomeLocationSearchBar
-
-
-
+export default HomeLocationSearchBar;
