@@ -173,7 +173,7 @@ const TripFilterPage = () => {
                 </Group>
               </Container>
 
-              <Button w="50%" onClick={() => navigate("/tripPlanner")}>
+              <Button w="50%" onClick={() => navigate("/tripplanner")}>
                 Next
               </Button>
             </Stack>

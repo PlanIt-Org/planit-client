@@ -109,7 +109,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
         />
         <Button
           onClick={() => {
-            navigate("/tripplanner");
+            navigate("/tripfilter");
           }}
           size="lg"
           style={{
