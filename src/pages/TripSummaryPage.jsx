@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Grid,
   Stack,
@@ -22,18 +22,43 @@ import {
 import { Carousel } from "@mantine/carousel";
 import {
   IconBubbleFilled,
-  IconMap2,
   IconChevronCompactRight,
   IconChevronCompactLeft,
+  IconShare,
 } from "@tabler/icons-react";
 // TODO: DELETE THIS AFTER BACKEND  IS CONNECTED
 import { LoremIpsum } from "react-lorem-ipsum";
 import { useDisclosure } from "@mantine/hooks";
+import TripPlannerMap from "../components/TripPlannerMap";
 
 // https://pravatar.cc is a random avatar generator btw
 
-const TripSummaryPage = () => {
+
+
+const TripSummaryPage = ({
+  selectedCity,
+  setselectedCity,
+  locations,
+  setLocations,
+  setSelectedPlace,
+  selectedPlace,
+}) => {
   const [opened, { open, close }] = useDisclosure(false);
+  const [googleMapsLink, setGoogleMapsLink] = useState("");
+
+  const handleOpenGoogleMaps = () => {
+    if (googleMapsLink) {
+      window.open(googleMapsLink, '_blank'); // open link in new tab
+    } else {
+      notifications.show({
+        title: 'No Directions Available',
+        message: 'Please ensure a valid trip route is displayed to open in Google Maps.',
+        color: 'red',
+        position: 'bottom-center',
+        autoClose: 5000,
+      });
+    }
+  };
 
   return (
     <>
@@ -98,7 +123,7 @@ const TripSummaryPage = () => {
               </Group>
             </Paper>
 
-            {/* Main Image/Map Placeholder */}
+            {/* Main Image/Map */}
             <Paper
               withBorder
               radius="md"
@@ -119,16 +144,32 @@ const TripSummaryPage = () => {
                   justifyContent: "center",
                   width: "100%",
                   height: "100%",
-                  pointerEvents: "none",
                   position: "absolute",
                   top: 0,
                   left: 0,
                 }}
               >
-                <IconMap2 size={200} />
+                <TripPlannerMap
+                  selectedPlace={selectedPlace}
+                  locations={locations}
+                  selectedCity={selectedCity}
+                  showRoutes={true}
+                  mapHeight="100%"
+                  setGoogleMapsLink={setGoogleMapsLink}
+                ></TripPlannerMap>
               </div>
             </Paper>
-
+            <Group justify="center">
+              <Button
+                variant="light"
+                leftSection={<IconShare size={18} />}
+                mt="md"
+                fullWidth
+                onClick={handleOpenGoogleMaps}
+              >
+                Open In Google Maps
+              </Button>
+            </Group>
             {/* Bottom Image Placeholders / location cards */}
             <Carousel
               withIndicators

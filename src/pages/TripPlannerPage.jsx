@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
 import { Button, Text, Box, Group, Stack, Flex } from "@mantine/core";
-import { useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
 import { useNavigate } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
@@ -11,10 +10,7 @@ import { notifications } from '@mantine/notifications';
 
 
 // TODO: add AI suggested trips
-const TripPlannerPage = ({selectedCity,setSelectedCity}) => {
-  const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
-  const [selectedPlace, setSelectedPlace] = useState(null);
-  const [markerRef, marker] = useAdvancedMarkerRef();
+const TripPlannerPage = ({selectedCity, locations, setLocations, selectedPlace, setSelectedPlace}) => {
   const navigate = useNavigate();
 
   // use effect that adds currently selected place to a locations array
@@ -103,11 +99,10 @@ const TripPlannerPage = ({selectedCity,setSelectedCity}) => {
         >
           <TripPlannerMap
             selectedPlace={selectedPlace}
-            marker={marker}
-            markerRef={markerRef}
             locations={locations}
             selectedCity={selectedCity}
-            setSelectedCity={setSelectedCity}
+            showRoutes={false}
+            mapHeight="50%"
             style={{ flex: "2" }}
           />
 

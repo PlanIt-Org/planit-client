@@ -18,21 +18,54 @@ import SavedTripsPage from "./pages/SavedTripsPage";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 
-function App({isMapsApiLoaded}) {
-
+function App({ isMapsApiLoaded }) {
   const [selectedCity, setSelectedCity] = useState("");
-
+  const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
+  const [selectedPlace, setSelectedPlace] = useState(null);
 
   return (
     <>
       <Notifications position="bottom-center" zIndex={2077} />
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<HomePage selectedCity={selectedCity} setSelectedCity={setSelectedCity} isMapsApiLoaded={isMapsApiLoaded}/>} />
+        <Route
+          path="/home"
+          element={
+            <HomePage
+              selectedCity={selectedCity}
+              setSelectedCity={setSelectedCity}
+              isMapsApiLoaded={isMapsApiLoaded}
+            />
+          }
+        />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/questionnaire" element={<QuestionnairePage />} />
-        <Route path="/tripplanner" element={<TripPlannerPage selectedCity={selectedCity} setSelectedCity={setSelectedCity}/>} />
-        <Route path="/tripsummary" element={<TripSummaryPage />} />
+        <Route
+          path="/tripplanner"
+          element={
+            <TripPlannerPage
+              selectedCity={selectedCity}
+              setSelectedCity={setSelectedCity}
+              locations={locations}
+              setLocations={setLocations}
+              setSelectedPlace={setSelectedPlace}
+              selectedPlace={selectedPlace}
+            />
+          }
+        />
+        <Route
+          path="/tripsummary"
+          element={
+            <TripSummaryPage
+              locations={locations}
+              selectedCity={selectedCity}
+              setSelectedCity={setSelectedCity}
+              setLocations={setLocations}
+              setSelectedPlace={setSelectedPlace}
+              selectedPlace={selectedPlace}
+            />
+          }
+        />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/tripfilter" element={<TripFilterPage />} />

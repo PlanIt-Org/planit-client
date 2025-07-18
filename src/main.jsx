@@ -26,7 +26,7 @@ function Main() {
         <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
           <APIProvider
             apiKey={GOOGLE_MAPS_API_KEY}
-            libraries={["places"]}
+            libraries={["places", "routes"]}
             onLoad={() => {
               console.log(
                 "Google Maps API loaded"
