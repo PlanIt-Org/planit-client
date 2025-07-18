@@ -1,12 +1,10 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom';
 import { Text, Container, Flex, Box} from '@mantine/core';
 import NavBar from '../components/NavBar';
 import TripGrid from '../components/TripGrid';
 
 
 const DiscoverTripsPage = () => {
-  const navigate = useNavigate();
   return (
     <Flex
       style={{

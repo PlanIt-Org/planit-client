@@ -30,6 +30,8 @@ import {
 import { LoremIpsum } from "react-lorem-ipsum";
 import { useDisclosure } from "@mantine/hooks";
 import TripPlannerMap from "../components/TripPlannerMap";
+import { notifications } from '@mantine/notifications';
+
 
 // https://pravatar.cc is a random avatar generator btw
 
@@ -37,14 +39,13 @@ import TripPlannerMap from "../components/TripPlannerMap";
 
 const TripSummaryPage = ({
   selectedCity,
-  setselectedCity,
   locations,
-  setLocations,
-  setSelectedPlace,
   selectedPlace,
 }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [googleMapsLink, setGoogleMapsLink] = useState("");
+  const [filterValue, setFilterValue] = React.useState(null);
+    const combobox = useCombobox({});
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -389,12 +390,7 @@ const TripSummaryPage = ({
                   {(() => {
                     // Filter options
                     const filterOptions = ["Location", "Person", "Comment"];
-
-                    // useCombobox and state
-                    const combobox = useCombobox({
-                      onDropdownClose: () => combobox.resetSelectedOption(),
-                    });
-                    const [filterValue, setFilterValue] = React.useState(null);
+                    
 
                     const options = filterOptions.map((item) => (
                       <Combobox.Option value={item} key={item}>

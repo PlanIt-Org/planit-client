@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  IconCalendarStats,
-  IconDeviceDesktopAnalytics,
-  IconFingerprint,
-  IconGauge,
   IconHome2,
-  IconLogout,
-  IconSettings,
-  IconSwitchHorizontal,
   IconUser,
   IconCompass,
   IconHeart,
@@ -17,7 +10,7 @@ import { Center, Stack, Tooltip, UnstyledButton } from "@mantine/core";
 import { MantineLogo } from "@mantinex/mantine-logo";
 import classes from "../styles/NavBarMinimal.module.css";
 
-function NavbarLink({ icon: Icon, label, active, onClick }) {
+function NavbarLink({ icon, label, active, onClick }) {
   return (
     <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
       <UnstyledButton
@@ -25,7 +18,7 @@ function NavbarLink({ icon: Icon, label, active, onClick }) {
         className={classes.link}
         data-active={active || undefined}
       >
-        <Icon size={20} stroke={1.5} />
+         {icon && <icon.type {...icon.props} size={20} stroke={1.5} />} 
       </UnstyledButton>
     </Tooltip>
   );

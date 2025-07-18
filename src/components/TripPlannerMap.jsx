@@ -1,12 +1,8 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
-  APIProvider,
-  ControlPosition,
-  MapControl,
   AdvancedMarker,
   Map,
   useMap,
-  useAdvancedMarkerRef,
 } from "@vis.gl/react-google-maps";
 
 const GOOGLE_MAPS_STYLING_ID = import.meta.env.VITE_GOOGLE_MAPS_STYLING_ID;

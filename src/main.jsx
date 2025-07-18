@@ -17,7 +17,7 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Add your Clerk Publishable Key to the .env file");
 }
 
-function Main() {
+export function Main() {
   const [isMapsApiLoaded, setIsMapsApiLoaded] = useState(false);
 
   return (
