@@ -10,7 +10,7 @@ import { Center, Stack, Tooltip, UnstyledButton } from "@mantine/core";
 import { MantineLogo } from "@mantinex/mantine-logo";
 import classes from "../styles/NavBarMinimal.module.css";
 
-function NavbarLink({ icon, label, active, onClick }) {
+function NavbarLink({ icon: Icon, label, active, onClick }) {
   return (
     <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
       <UnstyledButton
@@ -18,7 +18,7 @@ function NavbarLink({ icon, label, active, onClick }) {
         className={classes.link}
         data-active={active || undefined}
       >
-         {icon && <icon.type {...icon.props} size={20} stroke={1.5} />} 
+        {Icon && <Icon size={20} stroke={1.5} />}
       </UnstyledButton>
     </Tooltip>
   );
@@ -32,7 +32,7 @@ const mockdata = [
   // { icon: IconFingerprint, label: 'Security' },
 ];
 
-function NavBar({currentPage}) {
+function NavBar({ currentPage }) {
   const [active, setActive] = useState(currentPage); // default to home
   const navigate = useNavigate();
 
@@ -57,7 +57,7 @@ function NavBar({currentPage}) {
           onClick={() => {
             navigate("/");
           }}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
         />
       </Center>
 
