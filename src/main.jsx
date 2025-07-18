@@ -17,7 +17,7 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Add your Clerk Publishable Key to the .env file");
 }
 
-function Main() {
+export function Main() {
   const [isMapsApiLoaded, setIsMapsApiLoaded] = useState(false);
 
   return (
@@ -26,7 +26,7 @@ function Main() {
         <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
           <APIProvider
             apiKey={GOOGLE_MAPS_API_KEY}
-            libraries={["places"]}
+            libraries={["places", "routes"]}
             onLoad={() => {
               console.log(
                 "Google Maps API loaded"
