@@ -243,7 +243,7 @@ const QuestionnairePage = () => {
   ];
 
   const totalSteps = questionnaireSteps.length;
-  const progress = (currentStep / totalSteps) * 100;
+  const progress = ((currentStep + 1) / totalSteps) * 100;
 
   /**
    * Advances the questionnaire to the next step, or logs answers if finished.

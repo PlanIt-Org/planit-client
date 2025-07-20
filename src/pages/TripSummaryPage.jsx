@@ -30,32 +30,26 @@ import {
 import { LoremIpsum } from "react-lorem-ipsum";
 import { useDisclosure } from "@mantine/hooks";
 import TripPlannerMap from "../components/TripPlannerMap";
-import { notifications } from '@mantine/notifications';
-
+import { notifications } from "@mantine/notifications";
 
 // https://pravatar.cc is a random avatar generator btw
 
-
-
-const TripSummaryPage = ({
-  selectedCity,
-  locations,
-  selectedPlace,
-}) => {
+const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
-    const combobox = useCombobox({});
+  const combobox = useCombobox({});
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
-      window.open(googleMapsLink, '_blank'); // open link in new tab
+      window.open(googleMapsLink, "_blank"); // open link in new tab
     } else {
       notifications.show({
-        title: 'No Directions Available',
-        message: 'Please ensure a valid trip route is displayed to open in Google Maps.',
-        color: 'red',
-        position: 'bottom-center',
+        title: "No Directions Available",
+        message:
+          "Please ensure a valid trip route is displayed to open in Google Maps.",
+        color: "red",
+        position: "bottom-center",
         autoClose: 5000,
       });
     }
@@ -390,7 +384,6 @@ const TripSummaryPage = ({
                   {(() => {
                     // Filter options
                     const filterOptions = ["Location", "Person", "Comment"];
-                    
 
                     const options = filterOptions.map((item) => (
                       <Combobox.Option value={item} key={item}>

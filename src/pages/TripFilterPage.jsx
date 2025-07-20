@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React from "react";
 import {
   Title,
@@ -16,7 +15,7 @@ import {
   Flex,
 } from "@mantine/core";
 import TripFilterSearchBox from "../components/TripFilterSearchBox";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { IconUser } from "@tabler/icons-react";
 import NavBar from "../components/NavBar";
@@ -31,40 +30,41 @@ const TripFilterPage = () => {
   const [currentUser, setCurrentUser] = useState("");
 
   //TODO: (Dummy data start) Filler Data so we can see the buttons working, remove this once we have the actual data. Remove existingUser and existingFilters
-  //(START of dummy data)
-  const usersData = {
-    "Emily Johnson": {
-      image:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png",
-      email: "emily92@gmail.com",
-      filter: ["Cafes & Coffee Shops"],
-    },
-    "Ava Rodriguez": {
-      image:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png",
-      email: "ava_rose@gmail.com",
-      filter: ["Restaurants & Dining"],
-    },
-    "Olivia Chen": {
-      image:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-4.png",
-      email: "livvy_globe@gmail.com",
-      filter: ["Bars & Nightlife", "Outdoor Activities & Parks"],
-    },
-    "Ethan Barnes": {
-      image:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
-      email: "ethan_explorer@gmail.com",
-      filter: ["Live Music & Concerts"],
-    },
-    "Mason Taylor": {
-      image:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png",
-      email: "mason_musician@gmail.com",
-      filter: ["Theaters & Performing Arts"],
-    },
-  };
-  //(END of dummy data)
+  const usersData = useMemo(
+    () => ({
+      "Emily Johnson": {
+        image:
+          "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png",
+        email: "emily92@gmail.com",
+        filter: ["Cafes & Coffee Shops"],
+      },
+      "Ava Rodriguez": {
+        image:
+          "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png",
+        email: "ava_rose@gmail.com",
+        filter: ["Restaurants & Dining"],
+      },
+      "Olivia Chen": {
+        image:
+          "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-4.png",
+        email: "livvy_globe@gmail.com",
+        filter: ["Bars & Nightlife", "Outdoor Activities & Parks"],
+      },
+      "Ethan Barnes": {
+        image:
+          "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
+        email: "ethan_explorer@gmail.com",
+        filter: ["Live Music & Concerts"],
+      },
+      "Mason Taylor": {
+        image:
+          "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png",
+        email: "mason_musician@gmail.com",
+        filter: ["Theaters & Performing Arts"],
+      },
+    }),
+    []
+  );
 
   /**
    * Removes a selected user or filter from its corresponding state array.
@@ -131,7 +131,7 @@ const TripFilterPage = () => {
     const uniqueFilters = [...new Set(allFilters)];
 
     setSelectedFilters(uniqueFilters);
-  }, [selectedUsers]);
+  }, [selectedUsers, manuallyAddedFilters, usersData]);
 
   return (
     <Flex
@@ -154,7 +154,7 @@ const TripFilterPage = () => {
             p="xl"
             radius="md"
             withBorder
-            style={{ minHeight: 750 }} 
+            style={{ minHeight: 750 }}
           >
             <Stack gap="xl">
               <Title order={2} ta="center">
@@ -174,7 +174,7 @@ const TripFilterPage = () => {
                 selectedFilters={selectedFilters}
               />
 
-              <Stack gap="xs">
+              <Stack gap="xs" ta="center">
                 <Text size="sm" fw={500}>
                   Selected Guests:
                 </Text>
@@ -193,9 +193,11 @@ const TripFilterPage = () => {
                   {renderMultiSelectButtons(selectedFilters, "filters")}
                 </Group>
               </Stack>
-              <Button w="50%" onClick={() => navigate("/tripplanner")}>
-                Next
-              </Button>
+              <Group justify="center">
+                <Button w="50%" onClick={() => navigate("/tripplanner")}>
+                  Next
+                </Button>
+              </Group>
             </Stack>
           </Card>
         </Container>
