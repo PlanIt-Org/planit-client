@@ -1,20 +1,39 @@
 import React from "react";
 import { UserProfile } from "@clerk/clerk-react";
-import { Container } from "@mantine/core";
+import { Container, Flex, Box } from "@mantine/core";
+import NavBar from "../components/NavBar";
 
 const ProfilePage = () => {
-
   return (
-    <Container
-      h="100vh"
+    <Flex
       style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
+        width: "100%",
+        minHeight: "100vh",
+        alignItems: "stretch",
       }}
     >
-      <UserProfile />
-    </Container>
+      <NavBar currentPage={3} />
+      {/* main content */}
+      <Box
+        style={{
+          flex: 1,
+          minWidth: 0,
+          padding: 20,
+          boxSizing: "border-box",
+        }}
+      >
+        <Container
+          h="100vh"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <UserProfile />
+        </Container>
+      </Box>
+    </Flex>
   );
 };
 
