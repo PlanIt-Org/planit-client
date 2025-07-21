@@ -8,6 +8,8 @@ import "@mantine/core/styles.css";
 import "@mantine/carousel/styles.css";
 import { BrowserRouter } from "react-router-dom";
 import { APIProvider } from "@vis.gl/react-google-maps";
+import { myCustomTheme } from './theme'; 
+
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -17,6 +19,7 @@ export function Main() {
   return (
     <StrictMode>
       <BrowserRouter>
+
         {/* CLERK WRAPPER WAS HERE*/}
         <APIProvider
           apiKey={GOOGLE_MAPS_API_KEY}
@@ -26,7 +29,7 @@ export function Main() {
             setIsMapsApiLoaded(true);
           }}
         >
-          <MantineProvider withGlobalStyles withNormalizeCSS>
+          <MantineProvider withGlobalStyles withNormalizeCSS theme={myCustomTheme}>
             <App isMapsApiLoaded={isMapsApiLoaded} />
           </MantineProvider>
         </APIProvider>
