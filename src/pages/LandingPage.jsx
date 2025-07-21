@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import "../styles/LandingHeader.css";
 import { Button, Text, Box, Group, Stack } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import LandingLearnMore from "../components/LandingLearnMore";
 
 // TODO: change hardcoded text values (fontsize), maybe add typewriter effect to planning a trip has never been easier
 
@@ -77,6 +78,7 @@ const LandingPage = () => {
       <Text fw={700} style={{ fontSize: 32 }}>
         Learn More About us
       </Text>
+      <LandingLearnMore></LandingLearnMore>
       {/* TODO: later add extra stuff for when the user clicks on find out more */}
     </Stack>
     </>

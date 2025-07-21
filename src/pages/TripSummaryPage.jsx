@@ -8,7 +8,6 @@ import {
   Button,
   Avatar,
   Card,
-  MultiSelect,
   Image,
   Box,
   Title,
@@ -34,16 +33,17 @@ import TripPlannerMap from "../components/TripPlannerMap";
 import { notifications } from "@mantine/notifications";
 import NavBar from "../components/NavBar";
 import { useNavigate } from "react-router-dom";
-import CommentGrid from "../components/CommentGrid";
+import LocationCarousel from "../components/LocationCarousel";
+import TripDetails from "../components/TripDetails";
+import TripGuestList from "../components/TripGuestList";
+import TripLocationModal from "../components/TripLocationModal";
 // https://pravatar.cc is a random avatar generator btw
 
 const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
-  const [opened, { open, close }] = useDisclosure(false);
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
   const navigate = useNavigate();
-
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -79,58 +79,29 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
             boxSizing: "border-box",
           }}
         ></Box>
-        {/* Location Modal */}
-        <Modal opened={opened} onClose={close} title="MODAL" centered>
-          <Container>
-            <Card
-              withBorder
-              radius="md"
-              className="relative bg-gray-100 flex items-center justify-center"
-              style={{
-                overflow: "hidden",
-                padding: 0,
-                minWidth: 0,
-              }}
-              onClick={open}
-            >
-              <Card.Section>
-                <Image
-                  src={`https://picsum.photos/300/200?random=`}
-                  alt={`Trip image `}
-                  width="100%"
-                  fit="cover"
-                />
-              </Card.Section>
-              <Box m="md">
-                <Group justify="space-between" mt={4} mb={2}>
-                  <Title fw={500} size="XL">
-                    Title
-                  </Title>
-                </Group>
-                <Text size="m" c="dimmed" component="div">
-                  <ul style={{ margin: 0, paddingLeft: "1.2em" }}>
-                    <li>
-                      <LoremIpsum avgWordsPerSentence={1} p={1} />
-                    </li>
-                    <li>
-                      <LoremIpsum avgWordsPerSentence={1} p={1} />
-                    </li>
-                  </ul>
-                </Text>
-              </Box>
-            </Card>
-          </Container>
-        </Modal>
+
         <Grid gutter="xl" className="p-4" m="xl">
           {/* Left Column */}
           <Grid.Col span={7}>
             <Stack spacing="xl">
-              <Group  style={{ width: "100%" }}>
-                <Button size="md" radius="md" onClick={()=> {
-                   navigate("/tripplanner");
-                }}>Back</Button>
+              <Group style={{ width: "100%" }}>
+                <Button
+                  size="md"
+                  radius="md"
+                  onClick={() => {
+                    navigate("/tripplanner");
+                  }}
+                >
+                  Back
+                </Button>
                 {/* Time Information */}
-                <Paper withBorder radius="md" p="sm" className="bg-white" flex={1}>
+                <Paper
+                  withBorder
+                  radius="md"
+                  p="sm"
+                  className="bg-white"
+                  flex={1}
+                >
                   <Group position="apart" justify="space-between">
                     <Text size="sm" color="dimmed">
                       Start Time:
@@ -193,74 +164,7 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
                 </Button>
               </Group>
               {/* Bottom Image Placeholders / location cards */}
-              <Carousel
-                withIndicators
-                slideGap={{ base: 0, sm: "md" }}
-                slideSize="33.3333%"
-                emblaOptions={{ loop: true, align: "start" }}
-                nextControlIcon={<IconChevronCompactRight size={30} />}
-                previousControlIcon={<IconChevronCompactLeft size={30} />}
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
-                  <Carousel.Slide key={item}>
-                    <Card
-                      withBorder
-                      radius="md"
-                      className="relative bg-gray-100 flex items-center justify-center"
-                      style={{
-                        overflow: "hidden",
-                        padding: 0,
-                        minWidth: 0,
-                        cursor: "pointer",
-                      }}
-                      onClick={open}
-                    >
-                      <Card.Section>
-                        <Image
-                          src={`https://picsum.photos/300/200?random=${item}`}
-                          alt={`Trip image ${item}`}
-                          width="100%"
-                          fit="cover"
-                        />
-                      </Card.Section>
-                      <Box m="md">
-                        <Group justify="space-between" mt={4} mb={2}>
-                          <Title fw={500} size="XL">
-                            Title
-                          </Title>
-                        </Group>
-                        <Text size="m" c="dimmed" component="div">
-                          <ul style={{ margin: 0, paddingLeft: "1.2em" }}>
-                            <li>
-                              <LoremIpsum avgWordsPerSentence={1} p={1} />
-                            </li>
-                            <li>
-                              <LoremIpsum avgWordsPerSentence={1} p={1} />
-                            </li>
-                          </ul>
-                        </Text>
-                      </Box>
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 2,
-                          right: 2,
-                          background: "white",
-                          borderRadius: "50%",
-                          padding: 4,
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                          zIndex: 2,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <IconBubbleFilled size={24} color="#333" />
-                      </div>
-                    </Card>
-                  </Carousel.Slide>
-                ))}
-              </Carousel>
+              <LocationCarousel></LocationCarousel>
             </Stack>
           </Grid.Col>
 
@@ -268,136 +172,84 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
           <Grid.Col span={5}>
             <Stack spacing="xl">
               {/* Trip Details Card */}
-              <Card shadow="sm" p="lg" radius="md" withBorder>
-                <Stack spacing="md">
-                  <Group justify="space-between">
-                    <Button variant="light">Add Hosts</Button>
-                    <Button variant="filled" color="dark">
-                      Leave Trip
-                    </Button>
-                  </Group>
-                  <Stack
-                    className="text-center py-4"
-                    style={{ textAlign: "center" }}
-                  >
-                    <Box
-                      p="md"
-                      style={{
-                        background: "#f8fafc",
-                        borderRadius: 12,
-                        border: "1px solid #e0e0e0",
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.03)",
-                      }}
-                    >
-                      <Title size="xl" weight={700} mb={4}>
-                        Title: THIS WHOLE SECTION WILL BE POPULATED FROM BACKEND
-                      </Title>
-                    </Box>
-                    <Box
-                      p="sm"
-                      style={{
-                        background: "#f3f4f6",
-                        borderRadius: 8,
-                        border: "1px solid #e5e7eb",
-                      }}
-                    >
-                      <Text size="md" color="dimmed">
-                        Trip description: All these boxes are placeholders for
-                        later
-                      </Text>
-                    </Box>
-                    <Group grow spacing="sm">
-                      <Box
-                        p="sm"
-                        style={{
-                          background: "#f9fafb",
-                          borderRadius: 8,
-                          border: "1px solid #e5e7eb",
-                        }}
-                      >
-                        <Text size="sm" color="gray">
-                          Day of the week, Date
-                        </Text>
-                      </Box>
-                    </Group>
-                    <Box
-                      p="sm"
-                      style={{
-                        background: "#f3f4f6",
-                        borderRadius: 8,
-                        border: "1px solid #e5e7eb",
-                      }}
-                    >
-                      <Text size="sm" color="gray" weight={500}>
-                        HOSTED BY: NAME
-                      </Text>
-                    </Box>
-                  </Stack>
-                  <Button variant="light" fullWidth mt="md">
-                    Copy Link
-                  </Button>
-                </Stack>
-              </Card>
-
+              <TripDetails></TripDetails>
+              <TripGuestList></TripGuestList>
               {/* Guest List Section */}
-              <Card
-                shadow="sm"
-                p="lg"
-                radius="md"
-                withBorder
-                style={{
-                  background: "#f3f4f6",
-                  borderRadius: 8,
-                  border: "1px solid #e5e7eb",
-                  textAlign: "center",
-                }}
-              >
+              {/* Comments Section */}
+              <Card shadow="sm" p="lg" radius="md" withBorder>
                 <Stack>
-                  <Text>GUEST LIST: list of Invitees (PLACEHOLDER)</Text>
-                  <Paper p="xs" withBorder>
-                    <Group justify="center">
-                      <Avatar
-                        src={`https://i.pravatar.cc/150?img=1`}
-                        alt={"User 1"}
-                      />
-                      <Avatar
-                        src={`https://i.pravatar.cc/150?img=2`}
-                        alt={"User 2"}
-                      />
-                      <Avatar
-                        src={`https://i.pravatar.cc/150?img=3`}
-                        alt={"User 3"}
-                      />
-                      <Avatar
-                        src={`https://i.pravatar.cc/150?img=4`}
-                        alt={"User 4"}
-                      />
-                      <Avatar
-                        src={`https://i.pravatar.cc/150?img=5`}
-                        alt={"User 5"}
-                      />
-                      <Avatar
-                        src={`https://i.pravatar.cc/150?img=6`}
-                        alt={"User 6"}
-                      />
-                      <Avatar
-                        src={`https://i.pravatar.cc/150?img=7`}
-                        alt={"User 7"}
-                      />
-                      <Avatar
-                        src={`https://i.pravatar.cc/150?img=8`}
-                        alt={"User 8"}
-                      />
-                      <Avatar
-                        src={`https://i.pravatar.cc/150?img=9`}
-                        alt={"User 9"}
-                      />
-                    </Group>
-                  </Paper>
+                  <Group position="apart">
+                    <Text size="lg" weight={300}>
+                      Comments
+                    </Text>
+
+                    {(() => {
+                      // Filter options
+                      const filterOptions = ["Location", "Person", "Comment"];
+
+                      const options = filterOptions.map((item) => (
+                        <Combobox.Option value={item} key={item}>
+                          {item}
+                        </Combobox.Option>
+                      ));
+
+                      return (
+                        <Combobox
+                          store={combobox}
+                          onOptionSubmit={(val) => {
+                            setFilterValue(val);
+                            combobox.closeDropdown();
+                          }}
+                          withinPortal
+                        >
+                          <Combobox.Target>
+                            <InputBase
+                              component="button"
+                              type="button"
+                              pointer
+                              size="xs"
+                              rightSection={<Combobox.Chevron />}
+                              rightSectionPointerEvents="none"
+                              onClick={() => combobox.toggleDropdown()}
+                              style={{ minWidth: 120 }}
+                            >
+                              {filterValue || (
+                                <Input.Placeholder>Filter By</Input.Placeholder>
+                              )}
+                            </InputBase>
+                          </Combobox.Target>
+                          <Combobox.Dropdown>
+                            <Combobox.Options>{options}</Combobox.Options>
+                          </Combobox.Dropdown>
+                        </Combobox>
+                      );
+                    })()}
+                  </Group>
+                  <Stack spacing="md" mt="md">
+                    <Paper p="xs" withBorder radius="md">
+                      <Group>
+                        <Avatar
+                          src={`https://i.pravatar.cc/150?img=1`}
+                          alt={"hi"}
+                          radius="xl"
+                        />
+                        <div>
+                          <Text size="sm" weight={500} component="div">
+                            {<LoremIpsum avgWordsPerSentence={1} p={1} />}
+                          </Text>
+                          <Text size="sm" color="dimmed">
+                            {}
+                          </Text>
+                        </div>
+                      </Group>
+                    </Paper>
+                  </Stack>
                 </Stack>
               </Card>
-
-           <CommentGrid> </CommentGrid>
+              <Group justify="flex-end">
+                <Button>Edit</Button>
+                <Button>Publish</Button>
+              </Group>
             </Stack>
           </Grid.Col>
         </Grid>

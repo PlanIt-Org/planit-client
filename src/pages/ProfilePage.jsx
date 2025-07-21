@@ -1,5 +1,4 @@
 import React from "react";
-import { UserProfile } from "@clerk/clerk-react";
 import { Container, Flex, Box } from "@mantine/core";
 import NavBar from "../components/NavBar";
 
@@ -30,7 +29,21 @@ const ProfilePage = () => {
             alignItems: "center",
           }}
         >
-          <UserProfile />
+          <a href="/questionnaire" style={{ textDecoration: "none" }}>
+            <button
+              style={{
+                padding: "12px 24px",
+                fontSize: "16px",
+                borderRadius: "8px",
+                border: "none",
+                background: "#228be6",
+                color: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              Go to Questionnaire
+            </button>
+          </a>
         </Container>
       </Box>
     </Flex>

@@ -1,8 +1,7 @@
 // src/App.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
-import { AppShell } from "@mantine/core";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LandingPage from "./pages/LandingPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -17,61 +16,154 @@ import DiscoverTripsPage from "./pages/DiscoverTripsPage";
 import SavedTripsPage from "./pages/SavedTripsPage";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
+import { supabase } from "./supabaseClient";
+
+const ProtectedRoute = ({ session, children }) => {
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
 
 function App({ isMapsApiLoaded }) {
   const [selectedCity, setSelectedCity] = useState("");
   const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
   const [selectedPlace, setSelectedPlace] = useState(null);
+  const [session, setSession] = useState(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+  // Debugging statement to check if user is logged in
+  useEffect(() => {
+    console.log("Current session:", session);
+  }, [session]);
 
   return (
     <>
       <Notifications position="bottom-center" zIndex={2077} />
       <Routes>
+        {/* --- PUBLIC ROUTES --- */}
         <Route path="/" element={<LandingPage />} />
+        <Route
+          path="/login"
+          element={session ? <Navigate to="/home" /> : <LoginPage />}
+        />
+        <Route
+          path="/register"
+          element={session ? <Navigate to="/home" /> : <RegisterPage />}
+        />
+        <Route path="*" element={<NotFoundPage />} />
+        {/* --- PROTECTED ROUTES --- */}
         <Route
           path="/home"
           element={
-            <HomePage
-              selectedCity={selectedCity}
-              setSelectedCity={setSelectedCity}
-              isMapsApiLoaded={isMapsApiLoaded}
-            />
+            <ProtectedRoute session={session}>
+              <HomePage
+                selectedCity={selectedCity}
+                setSelectedCity={setSelectedCity}
+                isMapsApiLoaded={isMapsApiLoaded}
+              />
+            </ProtectedRoute>
           }
         />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/questionnaire" element={<QuestionnairePage />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute session={session}>
+              <ProfilePage user={session?.user} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/questionnaire"
+          element={
+            // <ProtectedRoute session={session}>
+            <QuestionnairePage />
+            // </ProtectedRoute>
+          }
+        />
         <Route
           path="/tripplanner"
           element={
-            <TripPlannerPage
-              selectedCity={selectedCity}
-              setSelectedCity={setSelectedCity}
-              locations={locations}
-              setLocations={setLocations}
-              setSelectedPlace={setSelectedPlace}
-              selectedPlace={selectedPlace}
-            />
+            <ProtectedRoute session={session}>
+              <TripPlannerPage
+                selectedCity={selectedCity}
+                setSelectedCity={setSelectedCity}
+                locations={locations}
+                setLocations={setLocations}
+                setSelectedPlace={setSelectedPlace}
+                selectedPlace={selectedPlace}
+              />
+            </ProtectedRoute>
           }
         />
         <Route
           path="/tripsummary"
           element={
-            <TripSummaryPage
-              locations={locations}
-              selectedCity={selectedCity}
-              setSelectedCity={setSelectedCity}
-              setLocations={setLocations}
-              setSelectedPlace={setSelectedPlace}
-              selectedPlace={selectedPlace}
-            />
+            <ProtectedRoute session={session}>
+              <TripSummaryPage
+                locations={locations}
+                selectedCity={selectedCity}
+                setSelectedCity={setSelectedCity}
+                setLocations={setLocations}
+                setSelectedPlace={setSelectedPlace}
+                selectedPlace={selectedPlace}
+              />
+            </ProtectedRoute>
           }
         />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/tripfilter" element={<TripFilterPage />} />
-        <Route path="/discover" element={<DiscoverTripsPage />} />
-        <Route path="/saved" element={<SavedTripsPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        <Route
+          path="/register"
+          element={
+            <ProtectedRoute session={session}>
+              <RegisterPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <ProtectedRoute session={session}>
+              <LoginPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tripfilter"
+          element={
+            <ProtectedRoute session={session}>
+              <TripFilterPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/discover"
+          element={
+            <ProtectedRoute session={session}>
+              <DiscoverTripsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/saved"
+          element={
+            <ProtectedRoute session={session}>
+              <SavedTripsPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </>
   );
