@@ -9,6 +9,8 @@ import "@mantine/carousel/styles.css";
 import { ClerkProvider } from "@clerk/react-router";
 import { BrowserRouter } from "react-router-dom";
 import { APIProvider } from "@vis.gl/react-google-maps";
+import { myCustomTheme } from './theme'; 
+
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
@@ -34,7 +36,7 @@ export function Main() {
               setIsMapsApiLoaded(true);
             }}
           >
-            <MantineProvider withGlobalStyles withNormalizeCSS>
+            <MantineProvider withGlobalStyles withNormalizeCSS theme={myCustomTheme}>
               <App isMapsApiLoaded={isMapsApiLoaded}/>
             </MantineProvider>
           </APIProvider>
