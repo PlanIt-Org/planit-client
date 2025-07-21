@@ -17,6 +17,7 @@ export function Main() {
   return (
     <StrictMode>
       <BrowserRouter>
+        {/* CLERK WRAPPER WAS HERE*/}
         <APIProvider
           apiKey={GOOGLE_MAPS_API_KEY}
           libraries={["places", "routes"]}
