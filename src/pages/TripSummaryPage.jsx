@@ -37,6 +37,7 @@ import LocationCarousel from "../components/LocationCarousel";
 import TripDetails from "../components/TripDetails";
 import TripGuestList from "../components/TripGuestList";
 import TripLocationModal from "../components/TripLocationModal";
+import CommentGrid from "../components/CommentGrid";
 // https://pravatar.cc is a random avatar generator btw
 
 const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
@@ -176,76 +177,7 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
               <TripGuestList></TripGuestList>
               {/* Guest List Section */}
               {/* Comments Section */}
-              <Card shadow="sm" p="lg" radius="md" withBorder>
-                <Stack>
-                  <Group position="apart">
-                    <Text size="lg" weight={300}>
-                      Comments
-                    </Text>
-
-                    {(() => {
-                      // Filter options
-                      const filterOptions = ["Location", "Person", "Comment"];
-
-                      const options = filterOptions.map((item) => (
-                        <Combobox.Option value={item} key={item}>
-                          {item}
-                        </Combobox.Option>
-                      ));
-
-                      return (
-                        <Combobox
-                          store={combobox}
-                          onOptionSubmit={(val) => {
-                            setFilterValue(val);
-                            combobox.closeDropdown();
-                          }}
-                          withinPortal
-                        >
-                          <Combobox.Target>
-                            <InputBase
-                              component="button"
-                              type="button"
-                              pointer
-                              size="xs"
-                              rightSection={<Combobox.Chevron />}
-                              rightSectionPointerEvents="none"
-                              onClick={() => combobox.toggleDropdown()}
-                              style={{ minWidth: 120 }}
-                            >
-                              {filterValue || (
-                                <Input.Placeholder>Filter By</Input.Placeholder>
-                              )}
-                            </InputBase>
-                          </Combobox.Target>
-                          <Combobox.Dropdown>
-                            <Combobox.Options>{options}</Combobox.Options>
-                          </Combobox.Dropdown>
-                        </Combobox>
-                      );
-                    })()}
-                  </Group>
-                  <Stack spacing="md" mt="md">
-                    <Paper p="xs" withBorder radius="md">
-                      <Group>
-                        <Avatar
-                          src={`https://i.pravatar.cc/150?img=1`}
-                          alt={"hi"}
-                          radius="xl"
-                        />
-                        <div>
-                          <Text size="sm" weight={500} component="div">
-                            {<LoremIpsum avgWordsPerSentence={1} p={1} />}
-                          </Text>
-                          <Text size="sm" color="dimmed">
-                            {}
-                          </Text>
-                        </div>
-                      </Group>
-                    </Paper>
-                  </Stack>
-                </Stack>
-              </Card>
+              <CommentGrid> </CommentGrid>
               <Group justify="flex-end">
                 <Button>Edit</Button>
                 <Button>Publish</Button>
