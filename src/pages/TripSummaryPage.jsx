@@ -34,7 +34,7 @@ import TripPlannerMap from "../components/TripPlannerMap";
 import { notifications } from "@mantine/notifications";
 import NavBar from "../components/NavBar";
 import { useNavigate } from "react-router-dom";
-
+import CommentGrid from "../components/CommentGrid";
 // https://pravatar.cc is a random avatar generator btw
 
 const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
@@ -397,80 +397,7 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
                 </Stack>
               </Card>
 
-              {/* Comments Section */}
-              <Card shadow="sm" p="lg" radius="md" withBorder>
-                <Stack>
-                  <Group position="apart">
-                    <Text size="lg" weight={300}>
-                      Comments
-                    </Text>
-                    {/*
-                    Best practice Combobox with state and options, following Mantine's recommended pattern.
-                    Place this code inside your component.
-                  */}
-                    {(() => {
-                      // Filter options
-                      const filterOptions = ["Location", "Person", "Comment"];
-
-                      const options = filterOptions.map((item) => (
-                        <Combobox.Option value={item} key={item}>
-                          {item}
-                        </Combobox.Option>
-                      ));
-
-                      return (
-                        <Combobox
-                          store={combobox}
-                          onOptionSubmit={(val) => {
-                            setFilterValue(val);
-                            combobox.closeDropdown();
-                          }}
-                          withinPortal
-                        >
-                          <Combobox.Target>
-                            <InputBase
-                              component="button"
-                              type="button"
-                              pointer
-                              size="xs"
-                              rightSection={<Combobox.Chevron />}
-                              rightSectionPointerEvents="none"
-                              onClick={() => combobox.toggleDropdown()}
-                              style={{ minWidth: 120 }}
-                            >
-                              {filterValue || (
-                                <Input.Placeholder>Filter By</Input.Placeholder>
-                              )}
-                            </InputBase>
-                          </Combobox.Target>
-                          <Combobox.Dropdown>
-                            <Combobox.Options>{options}</Combobox.Options>
-                          </Combobox.Dropdown>
-                        </Combobox>
-                      );
-                    })()}
-                  </Group>
-                  <Stack spacing="md" mt="md">
-                    <Paper p="xs" withBorder radius="md">
-                      <Group>
-                        <Avatar
-                          src={`https://i.pravatar.cc/150?img=1`}
-                          alt={"hi"}
-                          radius="xl"
-                        />
-                        <div>
-                          <Text size="sm" weight={500} component="div">
-                            {<LoremIpsum avgWordsPerSentence={1} p={1} />}
-                          </Text>
-                          <Text size="sm" color="dimmed">
-                            {}
-                          </Text>
-                        </div>
-                      </Group>
-                    </Paper>
-                  </Stack>
-                </Stack>
-              </Card>
+           <CommentGrid> </CommentGrid>
             </Stack>
           </Grid.Col>
         </Grid>
