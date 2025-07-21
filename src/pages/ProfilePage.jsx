@@ -1,5 +1,4 @@
 import React from "react";
-import { UserProfile } from "@clerk/clerk-react";
 import { Container, Flex, Box } from "@mantine/core";
 import NavBar from "../components/NavBar";
 
