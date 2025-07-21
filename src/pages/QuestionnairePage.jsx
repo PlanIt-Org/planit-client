@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Title,
@@ -12,8 +12,10 @@ import {
   Radio,
   Group,
   Chip,
+  LoadingOverlay,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 /**
  * Renders a single question based on its component type and options.
@@ -87,6 +89,8 @@ function renderQuestion({ question, value, onChange }) {
 const QuestionnairePage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const questionnaireSteps = [
@@ -242,8 +246,89 @@ const QuestionnairePage = () => {
     },
   ];
 
+  useEffect(() => {
+    const fetchPreferences = async () => {
+      try {
+        const { data } = await axios.get("/api/users/preferences");
+        if (data) {
+          const structuredAnswers = {
+            essentials: {
+              age: data.age,
+              dietary: data.dietaryRestrictions,
+              location: data.location,
+            },
+            activities: {
+              activityType: data.activityPreferences,
+              budget: data.budget,
+            },
+            planningStyle: {
+              tripLength: data.typicalTripLength,
+              planningRole: data.planningRole,
+            },
+            personal: {
+              eventAudience: data.typicalAudience,
+              lifestyle: data.lifestyleChoices,
+            },
+          };
+          setAnswers(structuredAnswers);
+        }
+      } catch (error) {
+        if (error.response?.status !== 404) {
+          console.error("Failed to fetch existing preferences:", error);
+        }
+        // It's okay if it's a 404, it just means the user is new.
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPreferences();
+  }, []);
+
   const totalSteps = questionnaireSteps.length;
   const progress = (currentStep / totalSteps) * 100;
+
+  /**
+   * Flattens the nested answers object into a single-level object
+   * suitable for the API endpoint.
+   */
+  const flattenAnswers = (answersToFlatten) => {
+    return Object.values(answersToFlatten).reduce(
+      (acc, current) => ({ ...acc, ...current }),
+      {}
+    );
+  };
+
+  /**
+   * Submits the user's preferences to the backend.
+   * Navigates to the home page on success.
+   */
+  const submitPreferences = async () => {
+    setIsSubmitting(true);
+    const payload = flattenAnswers(answers);
+    console.log("Preparing to submit preferences. Payload:", payload);
+
+    try {
+      console.log("Sending PUT request to /api/users/preferences...");
+      const response = await axios.put("/api/users/preferences", payload);
+      console.log("Request sent. Awaiting response...");
+      console.log(
+        "Preferences saved successfully. Response data:",
+        response.data
+      );
+      navigate("/home");
+    } catch (error) {
+      console.error("Failed to save preferences. Error object:", error);
+      if (error.response) {
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
+      }
+      alert("There was an error saving your preferences. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+      console.log("submitPreferences finished. isSubmitting set to false.");
+    }
+  };
 
   /**
    * Advances the questionnaire to the next step, or logs answers if finished.
@@ -253,7 +338,7 @@ const QuestionnairePage = () => {
       setCurrentStep(currentStep + 1);
     } else {
       console.log("Questionnaire completed!", answers);
-      navigate("/home");
+      submitPreferences();
     }
   };
 
@@ -317,6 +402,15 @@ const QuestionnairePage = () => {
           <Text size="lg" ta="center" c="dimmed">
             {step.content}
           </Text>
+          <Button
+            variant="outline"
+            color="gray"
+            size="md"
+            onClick={() => navigate("/home")}
+            style={{ alignSelf: "center" }}
+          >
+            Skip Questionnaire
+          </Button>
         </Stack>
       );
     }
@@ -325,8 +419,24 @@ const QuestionnairePage = () => {
         <Stack
           align="center"
           spacing="xl"
-          style={{ width: "100%", maxWidth: 600 }}
+          style={{ width: "100%", maxWidth: 600, position: "relative" }}
         >
+          {/* Save & Exit button*/}
+          <Button
+            variant="subtle"
+            color="gray"
+            size="xs"
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              zIndex: 2,
+            }}
+            onClick={submitPreferences}
+            disabled={isSubmitting}
+          >
+            Save & Exit
+          </Button>
           <Title order={2} size="2rem" ta="center">
             {step.title}
           </Title>
@@ -373,6 +483,7 @@ const QuestionnairePage = () => {
         padding: "20px",
       }}
     >
+      <LoadingOverlay visible={isSubmitting || isLoading} overlayBlur={2} />
       {/* Progress Bar */}
       <Progress
         value={progress}
@@ -419,6 +530,7 @@ const QuestionnairePage = () => {
               onClick={handleBack}
               size="lg"
               style={{ minWidth: "120px" }}
+              disabled={isSubmitting}
             >
               BACK
             </Button>
@@ -428,8 +540,8 @@ const QuestionnairePage = () => {
           <Button
             size="lg"
             onClick={handleContinue}
-            disabled={isContinueDisabled()}
             style={{ minWidth: "200px" }}
+            disabled={isContinueDisabled() || isSubmitting}
           >
             {getContinueButtonText()}
           </Button>
