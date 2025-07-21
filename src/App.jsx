@@ -45,6 +45,10 @@ function App({ isMapsApiLoaded }) {
       subscription.unsubscribe();
     };
   }, []);
+  // Debugging statement to check if user is logged in
+  useEffect(() => {
+    console.log("Current session:", session);
+  }, [session]);
 
   return (
     <>
@@ -85,9 +89,9 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/questionnaire"
           element={
-            <ProtectedRoute session={session}>
-              <QuestionnairePage />
-            </ProtectedRoute>
+            // <ProtectedRoute session={session}>
+            <QuestionnairePage />
+            // </ProtectedRoute>
           }
         />
         <Route
