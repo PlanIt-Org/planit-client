@@ -1,3 +1,4 @@
+// src/pages/QuestionnairePage.jsx
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -16,6 +17,7 @@ import {
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import apiClient from "../api/axios";
 
 /**
  * Renders a single question based on its component type and options.
@@ -249,7 +251,7 @@ const QuestionnairePage = () => {
   useEffect(() => {
     const fetchPreferences = async () => {
       try {
-        const { data } = await axios.get("/api/users/preferences");
+        const { data } = await apiClient.get("/users/preferences");
         if (data) {
           const structuredAnswers = {
             essentials: {
@@ -309,7 +311,7 @@ const QuestionnairePage = () => {
 
     try {
       console.log("Sending PUT request to /api/users/preferences...");
-      const response = await axios.put("/api/users/preferences", payload);
+      const response = await apiClient.put("/users/preferences", payload);
       console.log("Request sent. Awaiting response...");
       console.log(
         "Preferences saved successfully. Response data:",
