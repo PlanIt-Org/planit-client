@@ -1,8 +1,7 @@
 // src/pages/LoginPage.jsx
 import React from "react";
 import { Container } from "@mantine/core";
-import { SignIn } from "@clerk/clerk-react";
-const signInRedirectUrl = import.meta.env.VITE_CLERK_SIGN_IN_FORCE_REDIRECT_URL;
+const signInRedirectUrl = "http://localhost:5173/home";
 
 const LoginPage = () => {
   return (

@@ -12,8 +12,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@clerk/clerk-react": "^5.35.0",
-    "@clerk/react-router": "^1.8.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@hello-pangea/dnd": "^18.0.1",

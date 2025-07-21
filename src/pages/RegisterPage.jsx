@@ -1,8 +1,7 @@
 // src/pages/RegisterPage.jsx
 import React from "react";
-import { SignUp } from "@clerk/clerk-react";
 import { Container } from "@mantine/core";
-const signUpRedirectUrl = import.meta.env.VITE_CLERK_SIGN_UP_FORCE_REDIRECT_URL;
+const signUpRedirectUrl = "http://localhost:5173/questionnaire";
 
 const RegisterPage = () => {
   return (
