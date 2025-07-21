@@ -14,6 +14,15 @@ const AutocompleteSearchField = ({ onPlaceSelected }) => {
       if (autocompleteInputRef.current && place.name) {
         autocompleteInputRef.current.value = place.name; // auto fill name
       }
+
+      if (place.photos && place.photos.length > 0) {
+        const firstPhoto = place.photos[0];
+
+        const imageUrl = firstPhoto.getUrl({ maxWidth: 400 }); 
+        console.log("Image URL:", imageUrl);
+      } 
+      // TODO: add place holder image
+
     },
     options: {
       types: ["geocode", "establishment"],
