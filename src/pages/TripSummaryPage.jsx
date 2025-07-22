@@ -49,11 +49,16 @@ import TripLocationModal from "../components/TripLocationModal";
 import CommentGrid from "../components/CommentGrid";
 // https://pravatar.cc is a random avatar generator btw
 
-const TripSummaryPage = ({ selectedCity, locations, selectedPlace, setCurrTripId }) => {
+
+const TripSummaryPage = ({ selectedCity, locations, selectedPlace, setCurrTripId , currTripId, userId}) => {
+
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
   const navigate = useNavigate();
+
+  console.log(currTripId, "currentTirp")
+  console.log(userId, "userId")
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -183,7 +188,12 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace, setCurrTripId
               <TripGuestList></TripGuestList>
               {/* Guest List Section */}
               {/* Comments Section */}
-              <CommentGrid> </CommentGrid>
+              <CommentGrid 
+              currTripId = {currTripId}
+              locations = {locations}
+              userId = {userId}
+              
+              > </CommentGrid>
               <Group justify="flex-end">
                 <Button>Edit</Button>
                 <Button>Publish</Button>
