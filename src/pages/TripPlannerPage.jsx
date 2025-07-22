@@ -38,9 +38,8 @@ const TripPlannerPage = ({
     console.log("new locations order: ", locations);
   }, [locations]);
 
-  const handleLetsGoClick = () => {
+  const handleLetsGoClick = async () => {
     if (locations.length === 0) {
-      // show notification if no locations are selected
       notifications.show({
         title: "No Locations Selected!",
         message:
@@ -49,16 +48,79 @@ const TripPlannerPage = ({
         position: "bottom-center",
         autoClose: 5000,
       });
-    } else {
-      // regular navigation if at least one place selected
-
-      // ADD LOGIC HERE
-
-
-
-
-
+      return;
+    }
+  
+    try {
+      for (const loc of locations) {
+        const locationPayload = {
+          place_id: loc.place_id,
+          name: loc.name,
+          formatted_address: loc.formatted_address,
+          geometry: {
+            location: {
+              lat: loc.geometry.location.lat(),
+              lng: loc.geometry.location.lng(),
+            },
+            viewport: {
+              northeast: {
+                lat: loc.geometry.viewport.getNorthEast().lat(),
+                lng: loc.geometry.viewport.getNorthEast().lng(),
+              },
+              southwest: {
+                lat: loc.geometry.viewport.getSouthWest().lat(),
+                lng: loc.geometry.viewport.getSouthWest().lng(),
+              },
+            },
+          },
+          types: loc.types,
+        };
+  
+        // Step 1: Create the location
+        const createRes = await fetch("http://localhost:3000/api/locations", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(locationPayload),
+        });
+  
+        if (!createRes.ok) {
+          throw new Error(`Failed to create location: ${loc.name}`);
+        }
+  
+        const createdLocation = await createRes.json();
+        const locationId = createdLocation.id;
+  
+        // Step 2: Add it to the trip
+        const addToTripRes = await fetch(
+          `http://localhost:3000/api/trips/${currTripId}/locations`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ locationId }),
+          }
+        );
+  
+        if (!addToTripRes.ok) {
+          throw new Error(`Failed to add ${loc.name} to trip.`);
+        }
+      }
+  
+      // ✅ All done — go to summary page
       navigate("/tripsummary");
+    } catch (error) {
+      console.error("Error creating locations:", error);
+      notifications.show({
+        title: "Error Saving Locations",
+        message:
+          error.message || "An error occurred while saving your locations.",
+        color: "red",
+        position: "bottom-center",
+        autoClose: 5000,
+      });
     }
   };
 

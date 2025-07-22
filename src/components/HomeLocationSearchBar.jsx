@@ -82,6 +82,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, setCurrTripId })
         const formattedStartTime = convertTimeToDate(startTime);
         const formattedEndTime = convertTimeToDate(endTime);
 
+        // CHANGE THIS TO ACTUAL HOST_ID
         const hostId = "user_alice_id";
   
         const tripData = {
