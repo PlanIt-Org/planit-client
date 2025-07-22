@@ -10,28 +10,32 @@ import {
   Card,
   Button,
   Modal,
-  ActionIcon
+  ActionIcon,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconHeart, IconHeartFilled} from "@tabler/icons-react";
+import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import { useState } from "react";
 
-const TripCard = ({onCardClick}) => {
-  const randomId = Math.floor(Math.random() * 10) + 10;
+const TripCard = ({ onCardClick }) => {
   const [isHeartFilled, setIsHeartFilled] = useState(false);
 
-
   const toggleHeart = (event) => {
-    
     event.stopPropagation();
-    setIsHeartFilled(prev => !prev);
+    setIsHeartFilled((prev) => !prev);
   };
 
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder onClick={onCardClick} style={{ cursor: 'pointer' }} >
+    <Card
+      shadow="sm"
+      padding="lg"
+      radius="md"
+      withBorder
+      onClick={onCardClick}
+      style={{ cursor: "pointer" }}
+    >
       <Card.Section>
         <Image
-          src={`https://picsum.photos/id/${randomId}/800/600`}
+          src={`https://picsum.photos/id//800/600`}
           height={160}
           alt="Title of the trip"
         />
@@ -40,11 +44,15 @@ const TripCard = ({onCardClick}) => {
       <Group justify="space-between" mt="md" mb="xs">
         <Text fw={500}>Title</Text>
         {/* Make the heart icon clickable with ActionIcon */}
-        <ActionIcon variant="transparent" onClick={toggleHeart} aria-label="Toggle favorite">
+        <ActionIcon
+          variant="transparent"
+          onClick={toggleHeart}
+          aria-label="Toggle favorite"
+        >
           {isHeartFilled ? (
-            <IconHeartFilled size={30} color="red" /> 
+            <IconHeartFilled size={30} color="red" />
           ) : (
-            <IconHeart size={30} color="black" /> 
+            <IconHeart size={30} color="black" />
           )}
         </ActionIcon>
       </Group>
