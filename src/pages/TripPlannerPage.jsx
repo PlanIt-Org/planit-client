@@ -16,6 +16,7 @@ const TripPlannerPage = ({
   selectedPlace,
   setSelectedPlace,
   currTripId,
+  setCurrTripId,
 }) => {
   const navigate = useNavigate();
 
@@ -132,7 +133,7 @@ const TripPlannerPage = ({
         alignItems: "stretch",
       }}
     >
-      <NavBar />
+      <NavBar setCurrTripId={setCurrTripId}/>
       <Box
         style={{
           flex: 1,

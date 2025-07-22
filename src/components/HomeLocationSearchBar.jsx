@@ -23,7 +23,7 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions();
 
-const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, setCurrTripId }) => {
+const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, setCurrTripId, user }) => {
   const navigate = useNavigate();
 
   const [startTime, setStartTime] = useState("");
@@ -83,7 +83,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, setCurrTripId })
         const formattedEndTime = convertTimeToDate(endTime);
 
         // CHANGE THIS TO ACTUAL HOST_ID
-        const hostId = "user_alice_id";
+        const hostId = user;
   
         const tripData = {
           startTime: formattedStartTime,

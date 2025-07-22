@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const TripGrid = () => {
+const TripGrid = ({userId}) => {
 
   const [opened, { open, close }] = useDisclosure(false);
   const [trips, setTrips] = useState([]);
@@ -20,7 +20,7 @@ const TripGrid = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/trips`);
+        const response = await fetch(`${API_BASE_URL}/api/trips/user/${userId}`);
 
         if (!response.ok) {
           // If the response is not OK (e.g., 404, 500), throw an error
