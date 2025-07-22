@@ -1,5 +1,7 @@
 /* eslint-disable no-unused-vars */
+
 import React from "react";
+
 import {
   Title,
   Container,
@@ -15,16 +17,20 @@ import {
   CloseButton,
   Flex,
 } from "@mantine/core";
+
 import TripFilterSearchBox from "../components/TripFilterSearchBox";
+
 import { useState, useEffect } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import { IconUser } from "@tabler/icons-react";
+
 import NavBar from "../components/NavBar";
 
 const TripFilterPage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
   const [manuallyAddedFilters, setManuallyAddedFilters] = useState([]);
@@ -72,7 +78,6 @@ const TripFilterPage = () => {
    * @param {string} type - Specifies the list to modify, either 'users' or 'filters'.
    * @returns {void} This function does not return a value.
    */
-
   function handleRemove(content, type) {
     if (type === "users") {
       setSelectedUsers(selectedUsers.filter((user) => user !== content));
@@ -89,7 +94,6 @@ const TripFilterPage = () => {
    * @param {string} type - The type ('users' or 'filters') to pass to the handleRemove function for the onClick event.
    * @returns {JSX.Element[]} An array of React Badge components.
    */
-
   function renderMultiSelectButtons(arrayOfContent, type) {
     return arrayOfContent.map((content) => (
       <Badge
@@ -121,15 +125,11 @@ const TripFilterPage = () => {
 
   useEffect(() => {
     let allFilters = [...manuallyAddedFilters];
-
     selectedUsers.forEach((userName) => {
       const userFilters = usersData[userName]?.filter || [];
-
       allFilters.push(...userFilters);
     });
-
     const uniqueFilters = [...new Set(allFilters)];
-
     setSelectedFilters(uniqueFilters);
   }, [selectedUsers]);
 
@@ -142,7 +142,6 @@ const TripFilterPage = () => {
       }}
     >
       <NavBar />
-
       <Flex
         style={{ flex: 1, padding: "2rem" }}
         justify="center"
@@ -154,13 +153,12 @@ const TripFilterPage = () => {
             p="xl"
             radius="md"
             withBorder
-            style={{ minHeight: 750 }} 
+            style={{ minHeight: 750 }}
           >
             <Stack gap="xl">
               <Title order={2} ta="center">
                 Add Guests & Filters
               </Title>
-
               <TripFilterSearchBox
                 justify="center"
                 inputDesc={"Search for User"}
@@ -173,7 +171,6 @@ const TripFilterPage = () => {
                 setSelectedFilters={setSelectedFilters}
                 selectedFilters={selectedFilters}
               />
-
               <Stack gap="xs">
                 <Text size="sm" fw={500}>
                   Selected Guests:
@@ -182,9 +179,7 @@ const TripFilterPage = () => {
                   {renderMultiSelectButtons(selectedUsers, "users")}
                 </Group>
               </Stack>
-
               <Divider />
-
               <Stack gap="xs">
                 <Title order={4} ta="center">
                   Filters Applied
@@ -193,9 +188,19 @@ const TripFilterPage = () => {
                   {renderMultiSelectButtons(selectedFilters, "filters")}
                 </Group>
               </Stack>
-              <Button w="50%" onClick={() => navigate("/tripplanner")}>
-                Next
-              </Button>
+              <Group
+                justify="center"
+                style={{
+                  position: "absolute",
+                  bottom: 32,
+                  left: 0,
+                  width: "100%",
+                }}
+              >
+                <Button w="50%" onClick={() => navigate("/tripplanner")}>
+                  Next
+                </Button>
+              </Group>
             </Stack>
           </Card>
         </Container>
