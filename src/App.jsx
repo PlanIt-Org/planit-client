@@ -17,6 +17,7 @@ import SavedTripsPage from "./pages/SavedTripsPage";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import { supabase } from "./supabaseClient";
+import NavBar from "./components/NavBar";
 
 const ProtectedRoute = ({ session, children }) => {
   if (!session) {
@@ -31,6 +32,7 @@ function App({ isMapsApiLoaded }) {
   const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [session, setSession] = useState(null);
+  const [currTripId, setCurrTripId] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -74,6 +76,7 @@ function App({ isMapsApiLoaded }) {
                 selectedCity={selectedCity}
                 setSelectedCity={setSelectedCity}
                 isMapsApiLoaded={isMapsApiLoaded}
+                setCurrTripId={setCurrTripId}
               />
             </ProtectedRoute>
           }
@@ -105,6 +108,7 @@ function App({ isMapsApiLoaded }) {
                 setLocations={setLocations}
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
+                currTripId={currTripId}
               />
             </ProtectedRoute>
           }
@@ -165,7 +169,7 @@ function App({ isMapsApiLoaded }) {
           }
         />
       </Routes>
-    </>
+         </>
   );
 }
 

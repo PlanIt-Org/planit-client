@@ -15,6 +15,7 @@ const TripPlannerPage = ({
   setLocations,
   selectedPlace,
   setSelectedPlace,
+  currTripId,
 }) => {
   const navigate = useNavigate();
 
@@ -50,6 +51,13 @@ const TripPlannerPage = ({
       });
     } else {
       // regular navigation if at least one place selected
+
+      // ADD LOGIC HERE
+
+
+
+
+
       navigate("/tripsummary");
     }
   };
