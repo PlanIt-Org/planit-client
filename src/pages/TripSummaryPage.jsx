@@ -50,16 +50,14 @@ import CommentGrid from "../components/CommentGrid";
 import RSVPForm from "../components/RSVPForm";
 // https://pravatar.cc is a random avatar generator btw
 
-const TripSummaryPage = ({
-  selectedCity,
-  locations,
-  selectedPlace,
-  currTripId,
-}) => {
+const TripSummaryPage = ({ selectedCity, locations, selectedPlace, setCurrTripId , currTripId, userId}) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
   const navigate = useNavigate();
+
+  console.log(currTripId, "currentTirp")
+  console.log(userId, "userId")
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -85,7 +83,7 @@ const TripSummaryPage = ({
           alignItems: "stretch",
         }}
       >
-        <NavBar />
+        <NavBar setCurrTripId={setCurrTripId}/>
         {/* main content */}
         <Box
           style={{
@@ -94,7 +92,7 @@ const TripSummaryPage = ({
             padding: 20,
             boxSizing: "border-box",
           }}
-        ></Box>
+        >
         <Grid gutter="xl" className="p-4" m="xl">
           {/* Left Column */}
           <Grid.Col span={7}>
@@ -178,7 +176,7 @@ const TripSummaryPage = ({
                 </Button>
               </Group>
               {/* Bottom Image Placeholders / location cards */}
-              <LocationCarousel></LocationCarousel>
+              <LocationCarousel locations={locations}></LocationCarousel>
             </Stack>
           </Grid.Col>
           {/* Right Column */}
@@ -191,7 +189,12 @@ const TripSummaryPage = ({
               {/* Guest List Section */}
               {/* RSVP Form */}
               {/* Comments Section */}
-              <CommentGrid> </CommentGrid>
+              <CommentGrid 
+              currTripId = {currTripId}
+              locations = {locations}
+              userId = {userId}
+              
+              > </CommentGrid>
               <Group justify="flex-end">
                 <Button>Edit</Button>
                 <Button>Publish</Button>
@@ -199,6 +202,7 @@ const TripSummaryPage = ({
             </Stack>
           </Grid.Col>
         </Grid>
+        </Box>
       </Flex>
     </>
   );
