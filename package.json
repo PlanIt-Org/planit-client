@@ -4,14 +4,38 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "start": "vite",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@hello-pangea/dnd": "^18.0.1",
+    "@mantine/carousel": "^8.1.3",
+    "@mantine/core": "^8.1.3",
+    "@mantine/form": "^8.1.3",
+    "@mantine/hooks": "^8.1.3",
+    "@mantine/notifications": "^8.1.3",
+    "@mantinex/mantine-logo": "^2.0.0",
+    "@supabase/supabase-js": "^2.52.0",
+    "@tabler/icons-react": "^3.34.0",
+    "@vis.gl/react-google-maps": "^1.5.4",
+    "axios": "^1.10.0",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
+    "i": "^0.3.7",
+    "npm": "^11.4.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-google-autocomplete": "^2.7.5",
+    "react-lorem-ipsum": "^1.4.10",
+    "react-router": "^7.6.3",
+    "react-router-dom": "^7.6.3",
+    "typewriter-effect": "^2.22.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
@@ -22,6 +46,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
+    "jest": "^30.0.4",
     "vite": "^7.0.0"
   }
 }
