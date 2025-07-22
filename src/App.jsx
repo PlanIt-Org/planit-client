@@ -130,6 +130,8 @@ function App({ isMapsApiLoaded }) {
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
                 setCurrTripId={setCurrTripId}
+                currTripId = {currTripId}
+                userId={session?.user?.id}
               />
             </ProtectedRoute>
           }

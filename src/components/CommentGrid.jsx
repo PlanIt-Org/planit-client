@@ -21,9 +21,29 @@ import { LoremIpsum } from "react-lorem-ipsum";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import axios from "axios";
+import { useEffect } from 'react';
 
 
 //Dummy Comments for testing
+
+/**
+ * Fetches all comments for a specific trip ID.
+ * @param {string} tripId - The ID of the trip.
+ * @returns {Promise<Array>} An array of comment objects.
+ */
+async function fetchAllCommentsForTrip(tripId) {
+  try {
+    // Use the specific route you defined
+    const response = await axios.get(`http://localhost:3000/api/comments/trips/${tripId}`);
+
+    return response.data;
+
+  } catch (error) {
+    console.error("Failed to fetch comments for trip:", error);
+    throw error;
+  }
+}
+
 const mockComments = [
   {
     id: 1,
@@ -52,10 +72,29 @@ const mockLocations = [
   { value: "Napa Valley", label: "Napa Valley" },
 ];
 
-function CommentBox({ onAddComment }) {
+
+function CommentBox({ onAddComment, locations, userId, currTripId }) {
   const [opened, { open, close, toggle }] = useDisclosure(false);
   const [commentText, setCommentText] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [locationsOptions, setLocationsOptions] = useState("");
+
+
+  // Only update locationsOptions when locations changes
+  React.useEffect(() => {
+    if (locations && locations.length > 0) {
+      setLocationsOptions(
+        locations.map(location => ({
+          value: location.formatted_address,
+          label: location.formatted_address,
+        }))
+      );
+    } else {
+      setLocationsOptions([
+        { value: "general", label: "General Comment" }
+      ]);
+    }
+  }, [locations]);
 
   const handleSubmit = () => {
     onAddComment({
@@ -64,6 +103,17 @@ function CommentBox({ onAddComment }) {
     });
 
     setCommentText("");
+
+    const commentDataAPI = {
+      authorId: userId,
+      text: commentText,
+      tripId: currTripId,
+    };
+
+    console.log("try again", commentDataAPI);
+
+    addComments(commentDataAPI);
+
     setSelectedLocation("general");
     close();
   };
@@ -75,7 +125,7 @@ function CommentBox({ onAddComment }) {
           <Select
             label="Select a Location (optional)"
             placeholder="Pick one"
-            data={mockLocations}
+            data={locationsOptions}
             value={selectedLocation}
             onChange={setSelectedLocation}
           />
@@ -99,24 +149,48 @@ function CommentBox({ onAddComment }) {
   );
 }
 
-//TODO: Might be able to implement later not now, once I figure out how to get the trip id
-// async function getComments() {
-//   const comments = await axios.get("http://localhost:3000/comments")
-//     .then((response) => response.json())
-//     .then((data) => {
-//       // console.log(data);
-//     });
-// }
 
 
-// console.log("My comments", getComments());
+/**
+ * Sends a new comment to the server.
+ * @param {object} commentData - The comment object, e.g., { text: "Great trip!", tripId: "xyz-123" }
+ * @returns {Promise<object>} The newly created comment from the server.
+ */
+async function addComments(commentData) {
+  try {
+   
 
-async function addComments(){
-  
+    const response = await axios.post(
+      "http://localhost:3000/api/comments",
+      commentData
+    );
+
+    console.log("Successfully created comment:", response.data);
+    return response.data;
+  } catch (error) {
+    
+    console.error("Failed to post comment:", error);
+    throw error;
+  }
 }
 
-export default function CommentGrid() {
-  const [comments, setComments] = useState(mockComments);
+export default function CommentGrid({ currTripId, userId, locations }) {
+  const [comments, setComments] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState("all");
+  
+  useEffect(() => {
+  
+    if (currTripId) {
+      fetchAllCommentsForTrip(currTripId)
+        .then(data => {
+          setComments(data); 
+        })
+        .catch(error => {
+          console.error("Failed to set comments:", error);
+        });
+    }
+  }, [currTripId]);
+
 
   const handleAddComment = (newCommentData) => {
     console.log("New comment submitted:", comments);
@@ -142,17 +216,23 @@ export default function CommentGrid() {
                 Comments
               </Title>
 
-              <CommentBox onAddComment={handleAddComment} />
+              <CommentBox
+                onAddComment={handleAddComment}
+                userId={userId}
+                currTripId={currTripId}
+                locations={locations}
+              />
             </Group>
 
             <Group justify="space-between">
-              <Title> Filter by Location</Title>
+            
+              {/* <Title> Filter by Location</Title> */}
             </Group>
 
             <Stack spacing="md" mt="md">
               {comments.length > 0 ? (
                 comments.map((comment) => (
-                  <Paper key={comment.id } p="sm" withBorder radius="md">
+                  <Paper key={comment.id} p="sm" withBorder radius="md">
                     <Group>
                       <Avatar
                         src={comment.author.avatar}
