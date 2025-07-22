@@ -20,6 +20,8 @@ import {
 import { LoremIpsum } from "react-lorem-ipsum";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
+import axios from "axios";
+
 
 //Dummy Comments for testing
 const mockComments = [
@@ -36,7 +38,7 @@ const mockComments = [
     location: "Napa Valley",
   },
   {
-    id: 2,
+    id: 3,
     author: { name: "Sarah", avatar: "https://i.pravatar.cc/150?img=2" },
     text: "I am so excited for this trip! I can't wait to see the sights.",
     location: "",
@@ -96,7 +98,22 @@ function CommentBox({ onAddComment }) {
     </>
   );
 }
-// console.log(comment.location)
+
+//TODO: Might be able to implement later not now, once I figure out how to get the trip id
+// async function getComments() {
+//   const comments = await axios.get("http://localhost:3000/comments")
+//     .then((response) => response.json())
+//     .then((data) => {
+//       // console.log(data);
+//     });
+// }
+
+
+// console.log("My comments", getComments());
+
+async function addComments(){
+  
+}
 
 export default function CommentGrid() {
   const [comments, setComments] = useState(mockComments);
@@ -135,7 +152,7 @@ export default function CommentGrid() {
             <Stack spacing="md" mt="md">
               {comments.length > 0 ? (
                 comments.map((comment) => (
-                  <Paper key={comment.id} p="sm" withBorder radius="md">
+                  <Paper key={comment.id } p="sm" withBorder radius="md">
                     <Group>
                       <Avatar
                         src={comment.author.avatar}
