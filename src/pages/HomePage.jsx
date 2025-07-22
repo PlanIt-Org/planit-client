@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import HomeLocationSearchBar from "../components/HomeLocationSearchBar";
 import NavBar from "../components/NavBar";
 
-const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded }) => {
+const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId }) => {
   //TODO: if you want to add a custom avatar, like if the user wants to show there profile, or default, go here: https://mantine.dev/core/avatar/
   //TODO: Once the profile page is created, add the avatar to the profile page
   const navigate = useNavigate();
@@ -46,7 +46,7 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded }) => {
 
         {/* only show search bar when API fully loaded */}
           {isMapsApiLoaded ? (
-            <HomeLocationSearchBar selectedCity={selectedCity} setSelectedCity={setSelectedCity}> </HomeLocationSearchBar>          ) : (
+            <HomeLocationSearchBar selectedCity={selectedCity} setSelectedCity={setSelectedCity} setCurrTripId={setCurrTripId}> </HomeLocationSearchBar>          ) : (
             <Text ta="center" size="md" c="dimmed" mt="lg">
               Loading Google Maps API and Places services...
             </Text>

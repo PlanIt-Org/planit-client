@@ -10,7 +10,7 @@ import { Center, Stack, Tooltip, UnstyledButton } from "@mantine/core";
 import { MantineLogo } from "@mantinex/mantine-logo";
 import classes from "../styles/NavBarMinimal.module.css";
 
-function NavbarLink({ icon: Icon, label, active, onClick }) {
+function NavbarLink({ icon: Icon, label, active, onClick, setCurrTrip }) {
   return (
     <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
       <UnstyledButton
