@@ -182,6 +182,8 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
               <TripDetails></TripDetails>
               <TripGuestList></TripGuestList>
               {/* Guest List Section */}
+              {/* RSVP Form */}
+              <RSVPForm eventId={eventId}></RSVPForm>
               {/* Comments Section */}
               <CommentGrid> </CommentGrid>
               <Group justify="flex-end">
