@@ -220,6 +220,7 @@ const QuestionnairePage = () => {
           id: "eventAudience",
           prompt: "Who do you typically plan events for?",
           component: "Chip.Group",
+          props: { multiple: true },
           options: [
             { value: "family", label: "Family" },
             { value: "friends", label: "Friends" },
@@ -287,7 +288,7 @@ const QuestionnairePage = () => {
   }, []);
 
   const totalSteps = questionnaireSteps.length;
-  const progress = (currentStep / totalSteps) * 100;
+  const progress = ((currentStep + 1) / totalSteps) * 100;
 
   /**
    * Flattens the nested answers object into a single-level object
@@ -304,21 +305,24 @@ const QuestionnairePage = () => {
    * Submits the user's preferences to the backend.
    * Navigates to the home page on success.
    */
-  const submitPreferences = async () => {
+  const submitPreferences = async (req, res) => {
     setIsSubmitting(true);
+    // const userId = req.user && req.user.id;
+    // console.log("Attempting to save preferences for userId:", userId);
     const flattenedAnswers = flattenAnswers(answers);
+    const ageAsNumber = parseInt(flattenedAnswers.age, 10);
     console.log("Preparing to submit preferences. Payload:", flattenedAnswers);
 
     const apiPayload = {
-      age: flattenedAnswers.age,
-      dietaryRestrictions: flattenedAnswers.dietary,
-      location: flattenedAnswers.location,
-      activityPreferences: flattenedAnswers.activityType,
-      budget: flattenedAnswers.budget,
-      typicalTripLength: flattenedAnswers.tripLength,
-      planningRole: flattenedAnswers.planningRole,
-      typicalAudience: flattenedAnswers.eventAudience,
-      lifestyleChoices: flattenedAnswers.lifestyle,
+      age: isNaN(ageAsNumber) ? null : ageAsNumber,
+      dietary: flattenedAnswers.dietary || [],
+      location: flattenedAnswers.location || "",
+      activityType: flattenedAnswers.activityType || [],
+      budget: flattenedAnswers.budget || "",
+      tripLength: flattenedAnswers.tripLength || "",
+      planningRole: flattenedAnswers.planningRole || "",
+      eventAudience: flattenedAnswers.eventAudience || "",
+      lifestyle: flattenedAnswers.lifestyle || [],
     };
 
     try {
@@ -333,9 +337,11 @@ const QuestionnairePage = () => {
     } catch (error) {
       console.error("Failed to save preferences. Error object:", error);
       if (error.response) {
-        console.error("Error response data:", error.response.data);
+        console.error(
+          "!!! Server Error Response:",
+          JSON.stringify(error.response.data, null, 2)
+        );
         console.error("Error response status:", error.response.status);
-        console.error("Error response headers:", error.response.headers);
       }
       alert("There was an error saving your preferences. Please try again.");
     } finally {
