@@ -9,6 +9,7 @@ import {
   Paper,
 } from "@mantine/core";
 import { supabase } from "../supabaseClient";
+import apiClient from "../api/axios";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -33,23 +34,25 @@ const RegisterPage = () => {
   const handleEmailPasswordSignUp = async (event) => {
     event.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        emailRedirectTo: "http://localhost:5173/home",
-      },
-    });
 
-    if (error) {
-      console.error("Error signing up:", error.message);
-      alert(error.message);
-    } else {
+    try {
+      const response = await apiClient.post("/users/create", {
+        email: email,
+        password: password,
+      });
       alert(
         "Registration successful! Please check your email to confirm your account."
       );
+      console.log("User created:", response.data);
+    } catch (error) {
+      console.error(
+        "Error signing up:",
+        error.response?.data?.message || error.message
+      );
+      alert(error.response?.data?.message || "Registration failed.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
