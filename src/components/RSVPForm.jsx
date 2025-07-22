@@ -3,17 +3,17 @@ import React, { useState } from "react";
 import { Button, Stack, Paper, Group } from "@mantine/core";
 import apiClient from "../api/axios";
 
-function RSVPForm({ tripId }) {
+function RSVPForm({ currTripId }) {
   const [submitting, setSubmitting] = useState(false);
 
   const handleRSVP = async (status) => {
-    if (!tripId) {
+    if (!currTripId) {
       console.error("Trip ID is missing.");
       return;
     }
     setSubmitting(true);
     try {
-      await apiClient.post(`/api/rsvps/trip/${tripId}/rsvp`, { status });
+      await apiClient.post(`/trip/${currTripId}/rsvp`, { status });
     } catch (error) {
       console.error("Failed to RSVP:", error);
     } finally {
@@ -22,7 +22,18 @@ function RSVPForm({ tripId }) {
   };
 
   return (
-    <Paper withBorder shadow="sm" p="md" radius="md" maw={400} mx="auto">
+    <Paper
+      shadow="sm"
+      p="lg"
+      radius="md"
+      withBorder
+      style={{
+        background: "#f3f4f6",
+        borderRadius: 8,
+        border: "1px solid #e5e7eb",
+        textAlign: "center",
+      }}
+    >
       <Stack>
         <Group grow>
           <Button
