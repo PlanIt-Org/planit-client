@@ -49,7 +49,7 @@ import TripLocationModal from "../components/TripLocationModal";
 import CommentGrid from "../components/CommentGrid";
 // https://pravatar.cc is a random avatar generator btw
 
-const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
+const TripSummaryPage = ({ selectedCity, locations, selectedPlace, setCurrTripId }) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
@@ -79,7 +79,7 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
           alignItems: "stretch",
         }}
       >
-        <NavBar />
+        <NavBar setCurrTripId={setCurrTripId}/>
         {/* main content */}
         <Box
           style={{
@@ -88,7 +88,7 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
             padding: 20,
             boxSizing: "border-box",
           }}
-        ></Box>
+        >
         <Grid gutter="xl" className="p-4" m="xl">
           {/* Left Column */}
           <Grid.Col span={7}>
@@ -172,7 +172,7 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
                 </Button>
               </Group>
               {/* Bottom Image Placeholders / location cards */}
-              <LocationCarousel></LocationCarousel>
+              <LocationCarousel locations={locations}></LocationCarousel>
             </Stack>
           </Grid.Col>
           {/* Right Column */}
@@ -191,6 +191,7 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
             </Stack>
           </Grid.Col>
         </Grid>
+        </Box>
       </Flex>
     </>
   );

@@ -32,7 +32,7 @@ const mockdata = [
   // { icon: IconFingerprint, label: 'Security' },
 ];
 
-function NavBar({ currentPage }) {
+function NavBar({ currentPage, setCurrTrip }) {
   const [active, setActive] = useState(currentPage); // default to home
   const navigate = useNavigate();
 
@@ -42,8 +42,12 @@ function NavBar({ currentPage }) {
       key={link.label}
       active={index === active}
       onClick={() => {
-        setActive(index); // update local state
-        navigate(link.path); // navigate
+        setActive(index);
+        navigate(link.path);
+
+        if (index === 0 && setCurrTrip) {
+          setCurrTrip(null);
+        }
       }}
     />
   ));
