@@ -4,6 +4,7 @@ import { useState } from "react";
 import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
 import { notifications } from '@mantine/notifications';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // creates all time values once for the right section start time and end time
 const generateTimeOptions = () => {
@@ -27,6 +28,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
 
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [isCreatingTrip, setIsCreatingTrip] = useState(false);
+
 
   const handleCitySelected = (place) => {
     setSelectedCity(place);
@@ -34,7 +37,26 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
   };
 
 
-  const handleGoClick = () => {
+  const convertTimeToDate = (timeString) => {
+    if (!timeString) return null;
+
+    // TODO: fix this hardcoded
+    const fixedDate = '2025-11-15';
+    const [time, period] = timeString.split(' ');
+    let [hours, minutes] = time.split(':').map(Number);
+
+    if (period === 'PM' && hours !== 12) {
+      hours += 12;
+    } else if (period === 'AM' && hours === 12) {
+      hours = 0; // 12 AM is 00 hours
+    }
+    const date = new Date(`${fixedDate}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00Z`);
+    return date.toISOString();
+  };
+
+
+
+  const handleGoClick = async () => {
     // notification if user does not change times
     if (!startTime || !endTime) {
       notifications.show({
@@ -53,9 +75,56 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
         autoClose: 5000,
       });
     } else {
-      // navigate if both times input
-      navigate("/tripfilter");
-    }
+
+      setIsCreatingTrip(true); // Start loading
+
+      try {
+        const formattedStartTime = convertTimeToDate(startTime);
+        const formattedEndTime = convertTimeToDate(endTime);
+
+        const hostId = "user_alice_id";
+  
+        const tripData = {
+          startTime: formattedStartTime,
+          endTime: formattedEndTime,
+          hostId: hostId,
+          city: selectedCity.name,
+          title: `Trip to ${selectedCity.name}`,
+          description: `An exciting trip planned for ${selectedCity.name}!`,
+        };
+  
+        const response = await fetch(`${API_BASE_URL}/api/trips`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(tripData),
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `Failed to create trip. Status: ${response.status}`);
+        }
+  
+        const result = await response.json();
+        console.log("Trip created successfully:", result.trip);
+        
+  
+        navigate("/tripfilter");
+  
+      } catch (error) {
+        console.error("Error creating trip:", error);
+        notifications.show({
+          title: 'Trip Creation Failed!',
+          message: error.message || 'An unexpected error occurred while creating your trip.',
+          color: 'red',
+          position: 'bottom-center',
+          autoClose: 7000,
+        });
+      } finally {
+        setIsCreatingTrip(false); 
+      }
+     }
   };
 
   return (
@@ -144,6 +213,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
             height: 48,
             minHeight: 48,
           }}
+          loading={isCreatingTrip} 
+          disabled={isCreatingTrip} 
         >
           Go
         </Button>
