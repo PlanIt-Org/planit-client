@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import {
   Grid,
   Stack,
@@ -19,18 +20,26 @@ import {
   Input,
   Flex,
 } from "@mantine/core";
+
 import { Carousel } from "@mantine/carousel";
+
 import {
   IconBubbleFilled,
   IconChevronCompactRight,
   IconChevronCompactLeft,
   IconShare,
 } from "@tabler/icons-react";
-// TODO: DELETE THIS AFTER BACKEND  IS CONNECTED
+
+// TODO: DELETE THIS AFTER BACKEND IS CONNECTED
+
 import { LoremIpsum } from "react-lorem-ipsum";
+
 import { useDisclosure } from "@mantine/hooks";
+
 import TripPlannerMap from "../components/TripPlannerMap";
+
 import { notifications } from "@mantine/notifications";
+
 import NavBar from "../components/NavBar";
 import { useNavigate } from "react-router-dom";
 import LocationCarousel from "../components/LocationCarousel";
@@ -80,7 +89,6 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
             boxSizing: "border-box",
           }}
         ></Box>
-
         <Grid gutter="xl" className="p-4" m="xl">
           {/* Left Column */}
           <Grid.Col span={7}>
@@ -116,7 +124,6 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
                   </Group>
                 </Paper>
               </Group>
-
               {/* Main Image/Map */}
               <Paper
                 withBorder
@@ -168,7 +175,6 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
               <LocationCarousel></LocationCarousel>
             </Stack>
           </Grid.Col>
-
           {/* Right Column */}
           <Grid.Col span={5}>
             <Stack spacing="xl">
