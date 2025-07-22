@@ -306,12 +306,24 @@ const QuestionnairePage = () => {
    */
   const submitPreferences = async () => {
     setIsSubmitting(true);
-    const payload = flattenAnswers(answers);
-    console.log("Preparing to submit preferences. Payload:", payload);
+    const flattenedAnswers = flattenAnswers(answers);
+    console.log("Preparing to submit preferences. Payload:", flattenedAnswers);
+
+    const apiPayload = {
+      age: flattenedAnswers.age,
+      dietaryRestrictions: flattenedAnswers.dietary,
+      location: flattenedAnswers.location,
+      activityPreferences: flattenedAnswers.activityType,
+      budget: flattenedAnswers.budget,
+      typicalTripLength: flattenedAnswers.tripLength,
+      planningRole: flattenedAnswers.planningRole,
+      typicalAudience: flattenedAnswers.eventAudience,
+      lifestyleChoices: flattenedAnswers.lifestyle,
+    };
 
     try {
       console.log("Sending PUT request to /api/users/preferences...");
-      const response = await apiClient.put("/users/preferences", payload);
+      const response = await apiClient.put("/users/preferences", apiPayload);
       console.log("Request sent. Awaiting response...");
       console.log(
         "Preferences saved successfully. Response data:",
