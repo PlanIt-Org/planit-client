@@ -47,9 +47,15 @@ import TripDetails from "../components/TripDetails";
 import TripGuestList from "../components/TripGuestList";
 import TripLocationModal from "../components/TripLocationModal";
 import CommentGrid from "../components/CommentGrid";
+import RSVPForm from "../components/RSVPForm";
 // https://pravatar.cc is a random avatar generator btw
 
-const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
+const TripSummaryPage = ({
+  selectedCity,
+  locations,
+  selectedPlace,
+  currTripId,
+}) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
@@ -180,10 +186,10 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace }) => {
             <Stack spacing="xl">
               {/* Trip Details Card */}
               <TripDetails></TripDetails>
+              <RSVPForm currTripId={currTripId}></RSVPForm>
               <TripGuestList></TripGuestList>
               {/* Guest List Section */}
               {/* RSVP Form */}
-              <RSVPForm eventId={eventId}></RSVPForm>
               {/* Comments Section */}
               <CommentGrid> </CommentGrid>
               <Group justify="flex-end">

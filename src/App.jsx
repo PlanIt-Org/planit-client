@@ -124,6 +124,7 @@ function App({ isMapsApiLoaded }) {
                 setLocations={setLocations}
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
+                currTripId={currTripId}
               />
             </ProtectedRoute>
           }
@@ -169,7 +170,7 @@ function App({ isMapsApiLoaded }) {
           }
         />
       </Routes>
-         </>
+    </>
   );
 }
 
