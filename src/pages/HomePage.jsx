@@ -10,6 +10,7 @@ import {
   Flex,
   Text
 } from "@mantine/core";
+import { useEffect } from "react";
 import TripCategory from "../components/TripCategory";
 import TripGrid from "../components/TripGrid";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +22,11 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId
   //TODO: if you want to add a custom avatar, like if the user wants to show there profile, or default, go here: https://mantine.dev/core/avatar/
   //TODO: Once the profile page is created, add the avatar to the profile page
   const navigate = useNavigate();
+
+  // reset seelected city once going back to home page
+  useEffect(() => {
+   setSelectedCity("");
+  }, []);
   
   return (
     <Flex
