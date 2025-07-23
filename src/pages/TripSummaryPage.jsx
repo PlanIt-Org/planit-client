@@ -59,7 +59,6 @@ const TripSummaryPage = ({
   currTripId,
   setCurrTripId,
   setLocations,
-  currTripId,
 }) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
