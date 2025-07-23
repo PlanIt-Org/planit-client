@@ -50,6 +50,8 @@ import CommentGrid from "../components/CommentGrid";
 import { useParams } from "react-router";
 import { useEffect } from "react";
 import NoCarouselLocation from "../components/NoCarouselLocation";
+import RSVPForm from "../components/RSVPForm";
+
 // https://pravatar.cc is a random avatar generator btw
 
 const TripSummaryPage = ({
@@ -191,6 +193,7 @@ const TripSummaryPage = ({
                   </Button>
                 </Group>
                 {/* Bottom Image Placeholders / location cards */}
+
                 {locations.length < 3 ? (
                   <NoCarouselLocation locations={locations} />
                 ) : (
@@ -203,8 +206,9 @@ const TripSummaryPage = ({
               <Stack spacing="xl">
                 {/* Trip Details Card */}
                 <TripDetails currTripId={currTripId}></TripDetails>
+                <RSVPForm currTripId={currTripId}></RSVPForm>
                 <TripGuestList></TripGuestList>
-                {/* Guest List Section */}
+
                 {/* Comments Section */}
                 <CommentGrid
                   currTripId={currTripId}

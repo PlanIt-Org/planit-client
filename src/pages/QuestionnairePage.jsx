@@ -16,7 +16,6 @@ import {
   LoadingOverlay,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import apiClient from "../api/axios";
 
 /**
