@@ -49,23 +49,30 @@ import TripLocationModal from "../components/TripLocationModal";
 import CommentGrid from "../components/CommentGrid";
 import { useParams } from "react-router";
 import { useEffect } from "react";
+import NoCarouselLocation from "../components/NoCarouselLocation";
 // https://pravatar.cc is a random avatar generator btw
 
-const TripSummaryPage = ({ selectedCity, locations, selectedPlace, currTripId ,setCurrTripId, setLocations, userId }) => {
-
+const TripSummaryPage = ({
+  selectedCity,
+  locations,
+  selectedPlace,
+  currTripId,
+  setCurrTripId,
+  setLocations,
+  userId,
+}) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
   const navigate = useNavigate();
-
 
   useEffect(() => {
     if (currTripId) {
       setCurrTripId(currTripId);
     }
   }, [currTripId]);
-  console.log(currTripId, "currentTirp")
-  console.log(userId, "userId")
+  console.log(currTripId, "currentTirp");
+  console.log(userId, "userId");
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -91,7 +98,7 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace, currTripId ,s
           alignItems: "stretch",
         }}
       >
-        <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations}/>
+        <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations} />
         {/* main content */}
         <Box
           style={{
@@ -101,113 +108,118 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace, currTripId ,s
             boxSizing: "border-box",
           }}
         >
-        <Grid gutter="xl" className="p-4" m="xl">
-          {/* Left Column */}
-          <Grid.Col span={7}>
-            <Stack spacing="xl">
-              <Group style={{ width: "100%" }}>
-                <Button
-                  size="md"
-                  radius="md"
-                  onClick={() => {
-                    navigate("/tripplanner");
-                  }}
-                >
-                  Back
-                </Button>
-                {/* Time Information */}
+          <Grid gutter="xl" className="p-4" m="xl">
+            {/* Left Column */}
+            <Grid.Col span={7}>
+              <Stack spacing="xl">
+                <Group style={{ width: "100%" }}>
+                  <Button
+                    size="md"
+                    radius="md"
+                    onClick={() => {
+                      navigate("/tripplanner");
+                    }}
+                  >
+                    Back
+                  </Button>
+                  {/* Time Information */}
+                  <Paper
+                    withBorder
+                    radius="md"
+                    p="sm"
+                    className="bg-white"
+                    flex={1}
+                  >
+                    <Group position="apart" justify="space-between">
+                      <Text size="sm" color="dimmed">
+                        Start Time:
+                      </Text>
+                      <Text size="sm" color="dimmed">
+                        End Time:
+                      </Text>
+                      <Text size="sm" color="dimmed">
+                        Estimated Total Time:
+                      </Text>
+                    </Group>
+                  </Paper>
+                </Group>
+                {/* Main Image/Map */}
                 <Paper
                   withBorder
                   radius="md"
-                  p="sm"
-                  className="bg-white"
-                  flex={1}
-                >
-                  <Group position="apart" justify="space-between">
-                    <Text size="sm" color="dimmed">
-                      Start Time:
-                    </Text>
-                    <Text size="sm" color="dimmed">
-                      End Time:
-                    </Text>
-                    <Text size="sm" color="dimmed">
-                      Estimated Total Time:
-                    </Text>
-                  </Group>
-                </Paper>
-              </Group>
-              {/* Main Image/Map */}
-              <Paper
-                withBorder
-                radius="md"
-                className="bg-gray-100"
-                style={{
-                  height: "350px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <div
+                  className="bg-gray-100"
                   style={{
+                    height: "350px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    width: "100%",
-                    height: "100%",
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
+                    position: "relative",
+                    overflow: "hidden",
                   }}
                 >
-                  <TripPlannerMap
-                    selectedPlace={selectedPlace}
-                    locations={locations}
-                    selectedCity={selectedCity}
-                    showRoutes={true}
-                    mapHeight="100%"
-                    setGoogleMapsLink={setGoogleMapsLink}
-                  ></TripPlannerMap>
-                </div>
-              </Paper>
-              <Group justify="center">
-                <Button
-                  variant="light"
-                  leftSection={<IconShare size={18} />}
-                  mt="md"
-                  fullWidth
-                  onClick={handleOpenGoogleMaps}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      height: "100%",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                    }}
+                  >
+                    <TripPlannerMap
+                      selectedPlace={selectedPlace}
+                      locations={locations}
+                      selectedCity={selectedCity}
+                      showRoutes={true}
+                      mapHeight="100%"
+                      setGoogleMapsLink={setGoogleMapsLink}
+                    ></TripPlannerMap>
+                  </div>
+                </Paper>
+                <Group justify="center">
+                  <Button
+                    variant="light"
+                    leftSection={<IconShare size={18} />}
+                    mt="md"
+                    fullWidth
+                    onClick={handleOpenGoogleMaps}
+                  >
+                    Open In Google Maps
+                  </Button>
+                </Group>
+                {/* Bottom Image Placeholders / location cards */}
+                {locations.length < 3 ? (
+                  <NoCarouselLocation locations={locations} />
+                ) : (
+                  <LocationCarousel locations={locations} />
+                )}
+              </Stack>
+            </Grid.Col>
+            {/* Right Column */}
+            <Grid.Col span={5}>
+              <Stack spacing="xl">
+                {/* Trip Details Card */}
+                <TripDetails></TripDetails>
+                <TripGuestList></TripGuestList>
+                {/* Guest List Section */}
+                {/* Comments Section */}
+                <CommentGrid
+                  currTripId={currTripId}
+                  locations={locations}
+                  userId={userId}
                 >
-                  Open In Google Maps
-                </Button>
-              </Group>
-              {/* Bottom Image Placeholders / location cards */}
-              <LocationCarousel locations={locations}></LocationCarousel>
-            </Stack>
-          </Grid.Col>
-          {/* Right Column */}
-          <Grid.Col span={5}>
-            <Stack spacing="xl">
-              {/* Trip Details Card */}
-              <TripDetails></TripDetails>
-              <TripGuestList></TripGuestList>
-              {/* Guest List Section */}
-              {/* Comments Section */}
-              <CommentGrid 
-              currTripId = {currTripId}
-              locations = {locations}
-              userId = {userId}
-              
-              > </CommentGrid>
-              <Group justify="flex-end">
-                <Button>Edit</Button>
-                <Button>Publish</Button>
-              </Group>
-            </Stack>
-          </Grid.Col>
-        </Grid>
+                  {" "}
+                </CommentGrid>
+                <Group justify="flex-end">
+                  <Button>Edit</Button>
+                  <Button>Publish</Button>
+                </Group>
+              </Stack>
+            </Grid.Col>
+          </Grid>
         </Box>
       </Flex>
     </>
