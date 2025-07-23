@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Card,
   Image,
@@ -6,55 +6,65 @@ import {
   Group,
   Stack,
   Anchor, // For links
-  Box,    // For spacing/layout
-  Title,  // For names
-  Grid,   // To arrange cards in a grid
-  Container
-} from '@mantine/core';
-import { IconBrandLinkedin, IconLink } from '@tabler/icons-react'; // Icons for LinkedIn and general link
+  Box, // For spacing/layout
+  Title, // For names
+  Grid, // To arrange cards in a grid
+  Container,
+} from "@mantine/core";
+import { IconBrandLinkedin, IconLink } from "@tabler/icons-react"; // Icons for LinkedIn and general link
 
 const teamMembers = [
   {
     id: 1,
-    name: 'John Doe',
-    college: 'University of Example',
-    image: 'https://i.pravatar.cc/150?img=68', // Placeholder image
-    linkedin: 'https://www.linkedin.com/in/johndoe',
-    portfolio: 'https://johndoe.com', // Example portfolio link
+    name: "John Doe",
+    college: "University of Example",
+    image: "/assets/E7T5PNK3P-U08SCVAKE3Z-cd93d749916d-512.jpg", // Placeholder image
+    linkedin: "https://www.linkedin.com/in/johndoe",
+    portfolio: "https://johndoe.com", // Example portfolio link
   },
   {
     id: 2,
-    name: 'Jane Smith',
-    college: 'Tech Institute',
-    image: 'https://i.pravatar.cc/150?img=47', // Placeholder image
-    linkedin: 'https://www.linkedin.com/in/janesmith',
-    github: 'https://github.com/janesmith', // Example GitHub link
+    name: "Jane Smith",
+    college: "Tech Institute",
+    image: "/assets/E7T5PNK3P-U08SV91JELA-69ffacaca526-512.jpg", // Placeholder image
+    linkedin: "https://www.linkedin.com/in/janesmith",
+    github: "https://github.com/janesmith", // Example GitHub link
   },
   {
     id: 3,
-    name: 'Alex Johnson',
-    college: 'State University',
-    image: 'https://i.pravatar.cc/150?img=12', // Placeholder image
-    linkedin: 'https://www.linkedin.com/in/alexjohnson',
-    website: 'https://alexjohnson.dev', // Example personal website
+    name: "Alex Johnson",
+    college: "State University",
+    image: "/assets/E7T5PNK3P-U08SD3V9AK1-182c630cdade-512.jpg", // Placeholder image
+    linkedin: "https://www.linkedin.com/in/alexjohnson",
+    website: "https://alexjohnson.dev", // Example personal website
   },
 ];
 
 const MeetOurTeam = () => {
   return (
-    <Container size="xl" py="xl"> {/* Container for overall spacing */}
+    <Container size="xl" py="xl">
+      {" "}
+      {/* Container for overall spacing */}
       <Title order={2} ta="center" mb="xl">
         Meet Our Team
       </Title>
-      <Grid justify="center" align="stretch"> {/* Use Grid to arrange cards */}
+      <Grid justify="center" align="stretch">
+        {" "}
+        {/* Use Grid to arrange cards */}
         {teamMembers.map((member) => (
-          <Grid.Col span={{ base: 12, sm: 6, md: 4 }} key={member.id}> {/* Responsive columns */}
+          <Grid.Col span={{ base: 12, sm: 6, md: 4 }} key={member.id}>
+            {" "}
+            {/* Responsive columns */}
             <Card
               shadow="sm"
               padding="lg"
               radius="md"
               withBorder
-              style={{ height: '100%', display: 'flex', flexDirection: 'column' }} // Ensure cards stretch and content is column-stacked
+              style={{
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+              }} // Ensure cards stretch and content is column-stacked
             >
               {/* Top Half: Picture */}
               <Card.Section>
@@ -67,8 +77,15 @@ const MeetOurTeam = () => {
               </Card.Section>
 
               {/* Bottom Half: Name, College, Links */}
-              <Stack mt="md" style={{ flexGrow: 1, justifyContent: 'space-between' }}> {/* Stack for vertical arrangement */}
-                <Box> {/* Group name and college */}
+              <Stack
+                mt="md"
+                style={{ flexGrow: 1, justifyContent: "space-between" }}
+              >
+                {" "}
+                {/* Stack for vertical arrangement */}
+                <Box>
+                  {" "}
+                  {/* Group name and college */}
                   <Title order={3} size="h4" fw={700} mb="xs">
                     {member.name}
                   </Title>
@@ -76,10 +93,16 @@ const MeetOurTeam = () => {
                     {member.college}
                   </Text>
                 </Box>
-
-                <Stack spacing="xs" mt="md"> {/* Stack for links */}
+                <Stack spacing="xs" mt="md">
+                  {" "}
+                  {/* Stack for links */}
                   {member.linkedin && (
-                    <Anchor href={member.linkedin} target="_blank" rel="noopener noreferrer" size="sm">
+                    <Anchor
+                      href={member.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      size="sm"
+                    >
                       <Group gap="xs">
                         <IconBrandLinkedin size={18} />
                         <Text>LinkedIn</Text>
@@ -87,7 +110,12 @@ const MeetOurTeam = () => {
                     </Anchor>
                   )}
                   {member.portfolio && (
-                    <Anchor href={member.portfolio} target="_blank" rel="noopener noreferrer" size="sm">
+                    <Anchor
+                      href={member.portfolio}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      size="sm"
+                    >
                       <Group gap="xs">
                         <IconLink size={18} />
                         <Text>Portfolio</Text>
@@ -95,15 +123,26 @@ const MeetOurTeam = () => {
                     </Anchor>
                   )}
                   {member.github && (
-                    <Anchor href={member.github} target="_blank" rel="noopener noreferrer" size="sm">
+                    <Anchor
+                      href={member.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      size="sm"
+                    >
                       <Group gap="xs">
-                        <IconLink size={18} /> {/* Using generic link icon for GitHub, or you can import IconBrandGithub */}
+                        <IconLink size={18} />{" "}
+                        {/* Using generic link icon for GitHub, or you can import IconBrandGithub */}
                         <Text>GitHub</Text>
                       </Group>
                     </Anchor>
                   )}
                   {member.website && (
-                    <Anchor href={member.website} target="_blank" rel="noopener noreferrer" size="sm">
+                    <Anchor
+                      href={member.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      size="sm"
+                    >
                       <Group gap="xs">
                         <IconLink size={18} />
                         <Text>Website</Text>
