@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { TextInput, Button, Group, Stack } from "@mantine/core";
 import { useForm, isNotEmpty, hasLength } from "@mantine/form";
+import apiClient from "../api/axios";
 
-function EditDisplayNameForm({ currentDisplayName, onClose, onSubmit }) {
+function EditDisplayNameForm({
+  currentDisplayName,
+  onClose,
+  onSubmit,
+  refreshUserInfo,
+}) {
   const [isLoading, setIsLoading] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+  const [error, setError] = useState("");
 
   const form = useForm({
     initialValues: {
@@ -11,10 +19,15 @@ function EditDisplayNameForm({ currentDisplayName, onClose, onSubmit }) {
     },
     validate: {
       displayName: (value) => {
-        if (isNotEmpty(value) !== null) {
+        if (isNotEmpty("Display name is required.")(value) !== null) {
           return "Display name is required.";
         }
-        if (hasLength({ min: 3, max: 30 }, value) !== null) {
+        if (
+          hasLength(
+            { min: 3, max: 30 },
+            "Name must be between 3 and 30 characters."
+          )(value) !== null
+        ) {
           return "Name must be between 3 and 30 characters.";
         }
         if (value === currentDisplayName) {
@@ -28,10 +41,18 @@ function EditDisplayNameForm({ currentDisplayName, onClose, onSubmit }) {
   const handleSubmit = async (values) => {
     setIsLoading(true);
     try {
-      await onSubmit(values.displayName);
+      const response = await apiClient.put("/users/me", {
+        displayName: values.displayName,
+      });
+      setUserInfo(response.data);
+      if (refreshUserInfo) {
+        await refreshUserInfo();
+      }
       onClose();
     } catch (error) {
-      console.error("Failed to update display name:", error);
+      const errorMessage = error.response?.data?.message || error.message;
+      setError(errorMessage);
+      console.error("Failed to update display name:", errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -59,7 +59,10 @@ const ProfilePage = ({ setCurrTripId, setLocations }) => {
           }}
         >
           {/* Profile Card */}
-          <ProfileCard userInfo={userInfo}></ProfileCard>
+          <ProfileCard
+            userInfo={userInfo}
+            refreshUserInfo={fetchCurrentUser}
+          ></ProfileCard>
           {/* Questionnaire Link */}
           <Divider my="xl" labelPosition="center" style={{ width: 350 }} />
           <a

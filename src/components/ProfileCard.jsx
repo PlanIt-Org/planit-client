@@ -3,7 +3,7 @@ import { Flex, Card, Avatar, Text, Button, Loader, Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import EditProfileModal from "../components/EditProfileModal";
 
-const ProfileCard = ({ userInfo }) => {
+const ProfileCard = ({ userInfo, refreshUserInfo }) => {
   const [opened, { open, close }] = useDisclosure(false);
 
   if (!userInfo) {
@@ -21,6 +21,7 @@ const ProfileCard = ({ userInfo }) => {
           currentDisplayName={userInfo.user_metadata?.name}
           onClose={close}
           onSubmit={handleUpdateName}
+          refreshUserInfo={refreshUserInfo}
         ></EditProfileModal>
       </Modal>
       <Card
@@ -37,7 +38,7 @@ const ProfileCard = ({ userInfo }) => {
             radius={48}
           />
           <Text size="lg" weight={700}>
-            {userInfo.user_metadata?.name || userInfo.email}
+            {userInfo.user_metadata?.display_name || userInfo.email}
           </Text>
 
           <Text color="dimmed" size="sm">
