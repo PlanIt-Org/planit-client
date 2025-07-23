@@ -15,33 +15,28 @@ const TripDetails = ({currTripId}) => {
         close();
       };
 
-    const handleTripCopyLink = async() => {
+      const handleTripCopyLink = async () => {
         try {
-            const res = await fetch(`http://localhost:3000/api/trips/${currTripId}/invite-link`);
-            if (!res.ok) {
-              throw new Error("Failed to fetch invite link");
-            }
-        
-            const data = await res.json();
-            const inviteLink = data.inviteLink;
-        
-            await navigator.clipboard.writeText(inviteLink);
-            notifications.show({
-              title: "Link Copied!",
-              message: "Your invite link has been copied to the clipboard.",
-              color: "green",
-              autoClose: 3000,
-            });
-          } catch (err) {
-            console.error("Error copying invite link:", err);
-            notifications.show({
-              title: "Error",
-              message: "Could not copy invite link. Please try again.",
-              color: "red",
-              autoClose: 3000,
-            });
-          }
-    }
+          const inviteLink = `${window.location.origin}/tripsummary/${currTripId}`;
+      
+          await navigator.clipboard.writeText(inviteLink);
+          notifications.show({
+            title: "Link Copied!",
+            message: "Your invite link has been copied to the clipboard.",
+            color: "green",
+            autoClose: 3000,
+          });
+        } catch (err) {
+          console.error("Error copying invite link:", err);
+          notifications.show({
+            title: "Error",
+            message: "Could not copy invite link. Please try again.",
+            color: "red",
+            autoClose: 3000,
+          });
+        }
+      };
+      
 
   return (
     <Card shadow="sm" p="lg" radius="md" withBorder>

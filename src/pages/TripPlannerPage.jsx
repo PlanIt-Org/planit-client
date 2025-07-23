@@ -110,11 +110,6 @@ const TripPlannerPage = ({
         }
       }
 
-      // addinvite link to trip
-      await fetch(`http://localhost:3000/api/trips/${currTripId}/invite-link`, {
-        method: "POST",
-      });
-
       navigate(`/tripsummary/${currTripId}`);
     } catch (error) {
       console.error("Error creating locations:", error);
