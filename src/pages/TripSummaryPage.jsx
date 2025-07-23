@@ -49,7 +49,9 @@ import TripLocationModal from "../components/TripLocationModal";
 import CommentGrid from "../components/CommentGrid";
 import { useParams } from "react-router";
 import { useEffect } from "react";
+import NoCarouselLocation from "../components/NoCarouselLocation";
 import RSVPForm from "../components/RSVPForm";
+
 // https://pravatar.cc is a random avatar generator btw
 
 const TripSummaryPage = ({
@@ -59,6 +61,7 @@ const TripSummaryPage = ({
   currTripId,
   setCurrTripId,
   setLocations,
+  userId,
 }) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
@@ -190,18 +193,22 @@ const TripSummaryPage = ({
                   </Button>
                 </Group>
                 {/* Bottom Image Placeholders / location cards */}
-                <LocationCarousel locations={locations}></LocationCarousel>
+
+                {locations.length < 3 ? (
+                  <NoCarouselLocation locations={locations} />
+                ) : (
+                  <LocationCarousel locations={locations} />
+                )}
               </Stack>
             </Grid.Col>
             {/* Right Column */}
             <Grid.Col span={5}>
               <Stack spacing="xl">
                 {/* Trip Details Card */}
-                <TripDetails></TripDetails>
+                <TripDetails currTripId={currTripId}></TripDetails>
                 <RSVPForm currTripId={currTripId}></RSVPForm>
                 <TripGuestList></TripGuestList>
-                {/* Guest List Section */}
-                {/* RSVP Form */}
+
                 {/* Comments Section */}
                 <CommentGrid
                   currTripId={currTripId}

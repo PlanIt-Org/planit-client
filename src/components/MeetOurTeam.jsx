@@ -16,27 +16,24 @@ import { IconBrandLinkedin, IconLink } from "@tabler/icons-react"; // Icons for 
 const teamMembers = [
   {
     id: 1,
-    name: "John Doe",
-    college: "University of Example",
-    image: "/assets/E7T5PNK3P-U08SCVAKE3Z-cd93d749916d-512.jpg", // Placeholder image
-    linkedin: "https://www.linkedin.com/in/johndoe",
-    portfolio: "https://johndoe.com", // Example portfolio link
+    name: 'Joshua Cesar Pierre',
+    college: 'University of Texas at Austin',
+    image: "/assets/E7T5PNK3P-U08SV91JELA-69ffacaca526-512.jpg", // Placeholder image
+    linkedin: 'https://www.linkedin.com/in/joshua-cesar-pierre-13624327a/',
   },
   {
     id: 2,
-    name: "Jane Smith",
-    college: "Tech Institute",
-    image: "/assets/E7T5PNK3P-U08SV91JELA-69ffacaca526-512.jpg", // Placeholder image
-    linkedin: "https://www.linkedin.com/in/janesmith",
-    github: "https://github.com/janesmith", // Example GitHub link
+    name: 'Thomas Sibily',
+    college: 'Columbia University',
+    image: "/assets/E7T5PNK3P-U08SD3V9AK1-182c630cdade-512.jpg", // Placeholder image
+    linkedin: 'https://www.linkedin.com/in/thomas-sibilly/',
   },
   {
     id: 3,
-    name: "Alex Johnson",
-    college: "State University",
-    image: "/assets/E7T5PNK3P-U08SD3V9AK1-182c630cdade-512.jpg", // Placeholder image
-    linkedin: "https://www.linkedin.com/in/alexjohnson",
-    website: "https://alexjohnson.dev", // Example personal website
+    name: 'Moosay Hailewold',
+    college: 'University of Maryland',
+    image: "/assets/E7T5PNK3P-U08SCVAKE3Z-cd93d749916d-512.jpg", // Placeholder image
+    linkedin: 'https://www.linkedin.com/in/moosay/',
   },
 ];
 
