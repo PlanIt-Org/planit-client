@@ -3,15 +3,45 @@ import { Card, Stack, Group, Button, Box, Title, Text, Modal, ActionIcon } from 
 import { useDisclosure } from "@mantine/hooks";
 import DateSelector from "./DateSelector";
 import { IconCalendarWeek } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
 
 
-const TripDetails = () => {
+
+const TripDetails = ({currTripId}) => {
     const [opened, { open, close }] = useDisclosure(false);
 
     const handleLeaveTrip = () => {
         console.log("Leaving trip (yes option was clicked)");
         close();
       };
+
+    const handleTripCopyLink = async() => {
+        try {
+            const res = await fetch(`http://localhost:3000/api/trips/${currTripId}/invite-link`);
+            if (!res.ok) {
+              throw new Error("Failed to fetch invite link");
+            }
+        
+            const data = await res.json();
+            const inviteLink = data.inviteLink;
+        
+            await navigator.clipboard.writeText(inviteLink);
+            notifications.show({
+              title: "Link Copied!",
+              message: "Your invite link has been copied to the clipboard.",
+              color: "green",
+              autoClose: 3000,
+            });
+          } catch (err) {
+            console.error("Error copying invite link:", err);
+            notifications.show({
+              title: "Error",
+              message: "Could not copy invite link. Please try again.",
+              color: "red",
+              autoClose: 3000,
+            });
+          }
+    }
 
   return (
     <Card shadow="sm" p="lg" radius="md" withBorder>
@@ -89,7 +119,7 @@ const TripDetails = () => {
             </Text>
           </Box>
         </Stack>
-        <Button variant="light" fullWidth mt="md">
+        <Button variant="light" fullWidth mt="md" onClick={handleTripCopyLink}>
           Copy Link
         </Button>
       </Stack>
