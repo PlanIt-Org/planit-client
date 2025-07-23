@@ -17,7 +17,6 @@ import SavedTripsPage from "./pages/SavedTripsPage";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import { supabase } from "./supabaseClient";
-import NavBar from "./components/NavBar";
 import { useLocation } from "react-router";
 
 const ProtectedRoute = ({ session, children }) => {
@@ -80,6 +79,7 @@ function App({ isMapsApiLoaded }) {
                 setSelectedCity={setSelectedCity}
                 isMapsApiLoaded={isMapsApiLoaded}
                 setCurrTripId={setCurrTripId}
+                setLocations={setLocations}
                 user={session?.user?.id}
               />
             </ProtectedRoute>
@@ -89,7 +89,7 @@ function App({ isMapsApiLoaded }) {
           path="/profile"
           element={
             <ProtectedRoute session={session}>
-              <ProfilePage user={session?.user} setCurrTripId={setCurrTripId}/>
+              <ProfilePage user={session?.user} setCurrTripId={setCurrTripId} setLocations={setLocations}/>
             </ProtectedRoute>
           }
         />
@@ -119,7 +119,7 @@ function App({ isMapsApiLoaded }) {
           }
         />
         <Route
-          path="/tripsummary"
+          path="/tripsummary/:tripId"
           element={
             <ProtectedRoute session={session}>
               <TripSummaryPage
@@ -130,6 +130,7 @@ function App({ isMapsApiLoaded }) {
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
                 setCurrTripId={setCurrTripId}
+                currTripId={currTripId}
               />
             </ProtectedRoute>
           }
@@ -154,7 +155,7 @@ function App({ isMapsApiLoaded }) {
           path="/tripfilter"
           element={
             <ProtectedRoute session={session}>
-              <TripFilterPage setCurrTripId={setCurrTripId}/>
+              <TripFilterPage setCurrTripId={setCurrTripId} setLocations={setLocations}/>
             </ProtectedRoute>
           }
         />
@@ -162,7 +163,7 @@ function App({ isMapsApiLoaded }) {
           path="/discover"
           element={
             <ProtectedRoute session={session}>
-              <DiscoverTripsPage setCurrTripId={setCurrTripId} />
+              <DiscoverTripsPage setCurrTripId={setCurrTripId}  setLocations={setLocations}/>
             </ProtectedRoute>
           }
         />
@@ -170,7 +171,7 @@ function App({ isMapsApiLoaded }) {
           path="/saved"
           element={
             <ProtectedRoute session={session}>
-              <SavedTripsPage  setCurrTripId={setCurrTripId}/>
+              <SavedTripsPage  setCurrTripId={setCurrTripId}  setLocations={setLocations}/>
             </ProtectedRoute>
           }
         />

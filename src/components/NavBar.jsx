@@ -10,7 +10,7 @@ import { Center, Stack, Tooltip, UnstyledButton } from "@mantine/core";
 import { MantineLogo } from "@mantinex/mantine-logo";
 import classes from "../styles/NavBarMinimal.module.css";
 
-function NavbarLink({ icon: Icon, label, active, onClick, setCurrTrip }) {
+function NavbarLink({ icon: Icon, label, active, onClick }) {
   return (
     <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
       <UnstyledButton
@@ -32,7 +32,7 @@ const mockdata = [
   // { icon: IconFingerprint, label: 'Security' },
 ];
 
-function NavBar({ currentPage, setCurrTrip }) {
+function NavBar({ currentPage, setCurrTripId, setLocations }) {
   const [active, setActive] = useState(currentPage); // default to home
   const navigate = useNavigate();
 
@@ -43,11 +43,12 @@ function NavBar({ currentPage, setCurrTrip }) {
       active={index === active}
       onClick={() => {
         setActive(index);
-        navigate(link.path);
 
-        if (index === 0 && setCurrTrip) {
-          setCurrTrip(null);
+        if (index === 0 && setCurrTripId) {
+          setCurrTripId(null);
+          setLocations([]);
         }
+        navigate(link.path);
       }}
     />
   ));

@@ -47,13 +47,21 @@ import TripDetails from "../components/TripDetails";
 import TripGuestList from "../components/TripGuestList";
 import TripLocationModal from "../components/TripLocationModal";
 import CommentGrid from "../components/CommentGrid";
+import { useParams } from "react-router";
+import { useEffect } from "react";
 // https://pravatar.cc is a random avatar generator btw
 
-const TripSummaryPage = ({ selectedCity, locations, selectedPlace, setCurrTripId }) => {
+const TripSummaryPage = ({ selectedCity, locations, selectedPlace, currTripId ,setCurrTripId, setLocations }) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (currTripId) {
+      setCurrTripId(currTripId);
+    }
+  }, [currTripId]);
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -79,7 +87,7 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace, setCurrTripId
           alignItems: "stretch",
         }}
       >
-        <NavBar setCurrTripId={setCurrTripId}/>
+        <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations}/>
         {/* main content */}
         <Box
           style={{
