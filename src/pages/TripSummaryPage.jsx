@@ -52,16 +52,20 @@ import { useEffect } from "react";
 // https://pravatar.cc is a random avatar generator btw
 
 const TripSummaryPage = ({ selectedCity, locations, selectedPlace, currTripId ,setCurrTripId, setLocations }) => {
+
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
   const navigate = useNavigate();
+
 
   useEffect(() => {
     if (currTripId) {
       setCurrTripId(currTripId);
     }
   }, [currTripId]);
+  console.log(currTripId, "currentTirp")
+  console.log(userId, "userId")
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -191,7 +195,12 @@ const TripSummaryPage = ({ selectedCity, locations, selectedPlace, currTripId ,s
               <TripGuestList></TripGuestList>
               {/* Guest List Section */}
               {/* Comments Section */}
-              <CommentGrid> </CommentGrid>
+              <CommentGrid 
+              currTripId = {currTripId}
+              locations = {locations}
+              userId = {userId}
+              
+              > </CommentGrid>
               <Group justify="flex-end">
                 <Button>Edit</Button>
                 <Button>Publish</Button>
