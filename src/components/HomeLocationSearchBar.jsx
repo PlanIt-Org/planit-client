@@ -23,7 +23,7 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions();
 
-const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
+const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, setCurrTripId, user }) => {
   const navigate = useNavigate();
 
   const [startTime, setStartTime] = useState("");
@@ -82,7 +82,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
         const formattedStartTime = convertTimeToDate(startTime);
         const formattedEndTime = convertTimeToDate(endTime);
 
-        const hostId = "user_alice_id";
+        const hostId = user;
   
         const tripData = {
           startTime: formattedStartTime,
@@ -109,7 +109,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity }) => {
         const result = await response.json();
         console.log("Trip created successfully:", result.trip);
         
-  
+        setCurrTripId(result.trip.id);
         navigate("/tripfilter");
   
       } catch (error) {

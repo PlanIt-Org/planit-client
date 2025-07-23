@@ -1,8 +1,31 @@
-import React from "react";
-import { Container, Flex, Box } from "@mantine/core";
+import { useState, useEffect } from "react";
+import { Container, Flex, Box, Divider } from "@mantine/core";
 import NavBar from "../components/NavBar";
+import apiClient from "../api/axios";
+import ProfileTripAccordion from "../components/ProfileTripAccordion";
+import ProfileCard from "../components/ProfileCard";
 
-const ProfilePage = () => {
+const ProfilePage = ({ setCurrTripId, setLocations }) => {
+  const [userInfo, setUserInfo] = useState(null);
+  const [error, setError] = useState("");
+
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await apiClient.get("/users/me");
+
+      setUserInfo(response.data);
+      console.log("Successfully fetched user info:", response.data);
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message;
+      setError(errorMessage);
+      console.error("Error fetching user info:", errorMessage);
+    }
+  };
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
+
   return (
     <Flex
       style={{
@@ -11,7 +34,11 @@ const ProfilePage = () => {
         alignItems: "stretch",
       }}
     >
-      <NavBar currentPage={3} />
+      <NavBar
+        currentPage={3}
+        setCurrTripId={setCurrTripId}
+        setLocations={setLocations}
+      />
       {/* main content */}
       <Box
         style={{
@@ -22,28 +49,28 @@ const ProfilePage = () => {
         }}
       >
         <Container
-          h="100vh"
+          size="sm"
           style={{
             display: "flex",
-            justifyContent: "center",
+            flexDirection: "column",
             alignItems: "center",
+            justifyContent: "center",
+            minHeight: "100vh",
           }}
         >
-          <a href="/questionnaire" style={{ textDecoration: "none" }}>
-            <button
-              style={{
-                padding: "12px 24px",
-                fontSize: "16px",
-                borderRadius: "8px",
-                border: "none",
-                background: "#228be6",
-                color: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              Go to Questionnaire
-            </button>
-          </a>
+          {/* Profile Card */}
+          <ProfileCard
+            userInfo={userInfo}
+            refreshUserInfo={fetchCurrentUser}
+          ></ProfileCard>
+          {/* Questionnaire Link */}
+          <Divider my="xl" labelPosition="center" style={{ width: 350 }} />
+          <a
+            href="/questionnaire"
+            style={{ textDecoration: "none", width: 350 }}
+          ></a>
+          {/* Accordion that lists user trips */}
+          <ProfileTripAccordion></ProfileTripAccordion>
         </Container>
       </Box>
     </Flex>
