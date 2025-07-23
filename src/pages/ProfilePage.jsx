@@ -2,7 +2,7 @@ import React from "react";
 import { Container, Flex, Box } from "@mantine/core";
 import NavBar from "../components/NavBar";
 
-const ProfilePage = () => {
+const ProfilePage = ({setCurrTripId, setLocations}) => {
   return (
     <Flex
       style={{
@@ -11,7 +11,7 @@ const ProfilePage = () => {
         alignItems: "stretch",
       }}
     >
-      <NavBar currentPage={3} />
+      <NavBar currentPage={3} setCurrTripId={setCurrTripId} setLocations={setLocations}/>
       {/* main content */}
       <Box
         style={{

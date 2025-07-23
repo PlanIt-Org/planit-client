@@ -4,7 +4,7 @@ import NavBar from '../components/NavBar';
 import TripGrid from '../components/TripGrid';
 
 
-const DiscoverTripsPage = () => {
+const DiscoverTripsPage = ({setCurrTripId, setLocations}) => {
   return (
     <Flex
       style={{
@@ -13,7 +13,7 @@ const DiscoverTripsPage = () => {
         alignItems: 'stretch', 
       }}
     >
-      <NavBar currentPage={1}/>
+      <NavBar currentPage={1} setCurrTripId={setCurrTripId} setLocations={setLocations}/>
 
         {/* main content */}
       <Box
