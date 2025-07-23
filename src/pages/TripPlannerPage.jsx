@@ -51,7 +51,7 @@ const TripPlannerPage = ({
       });
       return;
     }
-  
+
     try {
       for (const loc of locations) {
         const locationPayload = {
@@ -76,7 +76,7 @@ const TripPlannerPage = ({
           },
           types: loc.types,
         };
-  
+
         // Step 1: Create the location
         const createRes = await fetch("http://localhost:3000/api/locations", {
           method: "POST",
@@ -85,14 +85,14 @@ const TripPlannerPage = ({
           },
           body: JSON.stringify(locationPayload),
         });
-  
+
         if (!createRes.ok) {
           throw new Error(`Failed to create location: ${loc.name}`);
         }
-  
+
         const createdLocation = await createRes.json();
         const locationId = createdLocation.id;
-  
+
         // Step 2: Add it to the trip
         const addToTripRes = await fetch(
           `http://localhost:3000/api/trips/${currTripId}/locations`,
@@ -104,14 +104,13 @@ const TripPlannerPage = ({
             body: JSON.stringify({ locationId }),
           }
         );
-  
+
         if (!addToTripRes.ok) {
           throw new Error(`Failed to add ${loc.name} to trip.`);
         }
       }
-  
-      // ✅ All done — go to summary page
-      navigate("/tripsummary");
+
+      navigate(`/tripsummary/${currTripId}`);
     } catch (error) {
       console.error("Error creating locations:", error);
       notifications.show({
@@ -133,7 +132,7 @@ const TripPlannerPage = ({
         alignItems: "stretch",
       }}
     >
-      <NavBar setCurrTripId={setCurrTripId}/>
+      <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations} />
       <Box
         style={{
           flex: 1,

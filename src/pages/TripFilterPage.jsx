@@ -28,7 +28,7 @@ import { IconUser } from "@tabler/icons-react";
 
 import NavBar from "../components/NavBar";
 
-const TripFilterPage = ({setCurrTripId}) => {
+const TripFilterPage = ({setCurrTripId, setLocations}) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -141,7 +141,7 @@ const TripFilterPage = ({setCurrTripId}) => {
         alignItems: "stretch",
       }}
     >
-      <NavBar setCurrTripId={setCurrTripId}/>
+      <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations}/>
       <Flex
         style={{ flex: 1, padding: "2rem" }}
         justify="center"
