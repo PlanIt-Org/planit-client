@@ -51,7 +51,7 @@ import { useParams } from "react-router";
 import { useEffect } from "react";
 // https://pravatar.cc is a random avatar generator btw
 
-const TripSummaryPage = ({ selectedCity, locations, selectedPlace, currTripId ,setCurrTripId, setLocations }) => {
+const TripSummaryPage = ({ selectedCity, locations, selectedPlace, currTripId ,setCurrTripId, setLocations, userId }) => {
 
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);

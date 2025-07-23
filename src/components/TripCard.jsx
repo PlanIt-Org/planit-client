@@ -74,6 +74,7 @@ const TripCard = ({ onCardClick, trip }) => {
         {formatDate(trip.startTime)}
         </Text>
       </Group>
+      <Text>Status: {trip.status}</Text>
     </Card>
   );
 };
