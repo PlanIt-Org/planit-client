@@ -1,10 +1,21 @@
 import React from "react";
-import { TextInput, Button, Group, Autocomplete, Text } from "@mantine/core";
+import {
+  TextInput,
+  Button,
+  Group,
+  Autocomplete,
+  Text,
+  ActionIcon,
+  rem,
+  Select,
+} from "@mantine/core";
 import { IconSearch } from "@tabler/icons-react";
 import { Avatar } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import { Notification } from "@mantine/core";
 import { useState } from "react";
+import axios from "axios";
+import apiClient from "../api/axios";
 
 const TripFilterSearchBox = ({
   searchQuery,
@@ -17,6 +28,9 @@ const TripFilterSearchBox = ({
   selectedFilters,
 }) => {
   const [showNotification, setShowNotification] = useState(false);
+  const [searchBy, setSearcBy] = useState("name");
+  const [search, setSearch] = useState(false);
+  
 
   const renderAutocompleteOption = ({ option }) => (
     <Group gap="sm">
@@ -29,6 +43,26 @@ const TripFilterSearchBox = ({
       </div>
     </Group>
   );
+
+  async function fetchUsersAPI(searchQuery) {
+    searchQuery.trim();
+
+    try {
+      const response = await apiClient.get(`/users/search`, {
+        params: {
+          by: searchBy,
+          query: searchQuery,
+        },
+      });
+
+      console.log(response.data)
+
+      return response.data;
+      
+    } catch (error) {
+      console.error("Failed to search for users:", error);
+    }
+  }
 
   /**
    * Handles the logic for adding a new user to the selected list.
@@ -54,15 +88,32 @@ const TripFilterSearchBox = ({
   const names = Object.keys(usersData);
   const xIcon = <IconX size={20} />;
 
+  function handleSearch() {
+    searchQuery = searchQuery.trim();
+
+    fetchUsersAPI(searchQuery);
+  }
+
   return (
     <>
-      <Group gap="sm" justify="center">
+      <Group
+        gap="sm"
+        justify="center"
+        align="flex-end"
+        style={{ width: "100%" }}
+      >
+        <Select
+          label="Search By"
+          style={{ width: 100 }}
+          placeholder="Name"
+          data={["email", "name"]}
+          value = {searchBy}
+          onChange = {(newValue) => setSearcBy(newValue)}
+        />
         <Autocomplete
           data={
-            searchQuery.trim().length > 0
-              ? names.filter((user) =>
-                  user.toLowerCase().includes(searchQuery.toLowerCase())
-                )
+            search
+              ? selectedUsers
               : []
           }
           value={searchQuery}
@@ -70,6 +121,16 @@ const TripFilterSearchBox = ({
           onChange={setSearchQuery}
           maxDropdownHeight={300}
           placeholder="Search for User"
+          leftSection={
+            <ActionIcon
+              onClick={handleSearch}
+              variant="transparent"
+              color="gray"
+            >
+              <IconSearch style={{ width: rem(18), height: rem(18) }} />
+            </ActionIcon>
+          }
+          style={{ minWidth: 200 }}
         />
 
         <Button onClick={() => handleAddUser()}> Add </Button>
