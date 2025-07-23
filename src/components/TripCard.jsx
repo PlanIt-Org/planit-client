@@ -26,10 +26,10 @@ const TripCard = ({ onCardClick, trip }) => {
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
     });
   };
 
@@ -44,7 +44,10 @@ const TripCard = ({ onCardClick, trip }) => {
     >
       <Card.Section>
         <Image
-          src={trip.tripImage}
+          src={
+            trip.tripImage ||
+            "https://images.unsplash.com/photo-1499591934245-40b55745b905?q=80&w=2372&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          }
           height={160}
           alt="Title of the trip"
         />
@@ -71,9 +74,10 @@ const TripCard = ({ onCardClick, trip }) => {
           Host By {trip.host.name}
         </Text>
         <Text size="sm" c="dimmed">
-        {formatDate(trip.startTime)}
+          {formatDate(trip.startTime)}
         </Text>
       </Group>
+      <Text>Status: {trip.status}</Text>
     </Card>
   );
 };

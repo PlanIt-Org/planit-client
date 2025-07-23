@@ -16,27 +16,24 @@ import { IconBrandLinkedin, IconLink } from '@tabler/icons-react'; // Icons for 
 const teamMembers = [
   {
     id: 1,
-    name: 'John Doe',
-    college: 'University of Example',
+    name: 'Joshua Cesar Pierre',
+    college: 'University of Texas at Austin',
     image: 'https://i.pravatar.cc/150?img=68', // Placeholder image
-    linkedin: 'https://www.linkedin.com/in/johndoe',
-    portfolio: 'https://johndoe.com', // Example portfolio link
+    linkedin: 'https://www.linkedin.com/in/joshua-cesar-pierre-13624327a/',
   },
   {
     id: 2,
-    name: 'Jane Smith',
-    college: 'Tech Institute',
+    name: 'Thomas Sibily',
+    college: 'Columbia University',
     image: 'https://i.pravatar.cc/150?img=47', // Placeholder image
-    linkedin: 'https://www.linkedin.com/in/janesmith',
-    github: 'https://github.com/janesmith', // Example GitHub link
+    linkedin: 'https://www.linkedin.com/in/thomas-sibilly/',
   },
   {
     id: 3,
-    name: 'Alex Johnson',
-    college: 'State University',
+    name: 'Moosay Hailewold',
+    college: 'University of Maryland',
     image: 'https://i.pravatar.cc/150?img=12', // Placeholder image
-    linkedin: 'https://www.linkedin.com/in/alexjohnson',
-    website: 'https://alexjohnson.dev', // Example personal website
+    linkedin: 'https://www.linkedin.com/in/moosay/',
   },
 ];
 
