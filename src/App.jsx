@@ -89,7 +89,11 @@ function App({ isMapsApiLoaded }) {
           path="/profile"
           element={
             <ProtectedRoute session={session}>
-              <ProfilePage user={session?.user} setCurrTripId={setCurrTripId} setLocations={setLocations}/>
+              <ProfilePage
+                user={session?.user}
+                setCurrTripId={setCurrTripId}
+                setLocations={setLocations}
+              />
             </ProtectedRoute>
           }
         />
@@ -130,7 +134,7 @@ function App({ isMapsApiLoaded }) {
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
                 setCurrTripId={setCurrTripId}
-                currTripId = {currTripId}
+                currTripId={currTripId}
                 userId={session?.user?.id}
               />
             </ProtectedRoute>
@@ -156,7 +160,10 @@ function App({ isMapsApiLoaded }) {
           path="/tripfilter"
           element={
             <ProtectedRoute session={session}>
-              <TripFilterPage setCurrTripId={setCurrTripId} setLocations={setLocations}/>
+              <TripFilterPage
+                setCurrTripId={setCurrTripId}
+                setLocations={setLocations}
+              />
             </ProtectedRoute>
           }
         />
@@ -164,7 +171,10 @@ function App({ isMapsApiLoaded }) {
           path="/discover"
           element={
             <ProtectedRoute session={session}>
-              <DiscoverTripsPage setCurrTripId={setCurrTripId}  setLocations={setLocations}/>
+              <DiscoverTripsPage
+                setCurrTripId={setCurrTripId}
+                setLocations={setLocations}
+              />
             </ProtectedRoute>
           }
         />
@@ -172,7 +182,10 @@ function App({ isMapsApiLoaded }) {
           path="/saved"
           element={
             <ProtectedRoute session={session}>
-              <SavedTripsPage  setCurrTripId={setCurrTripId}  setLocations={setLocations}/>
+              <SavedTripsPage
+                setCurrTripId={setCurrTripId}
+                setLocations={setLocations}
+              />
             </ProtectedRoute>
           }
         />
