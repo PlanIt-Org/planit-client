@@ -110,8 +110,7 @@ const TripPlannerPage = ({
         }
       }
   
-      // ✅ All done — go to summary page
-      navigate("/tripsummary");
+      navigate(`/tripsummary/${currTripId}`);
     } catch (error) {
       console.error("Error creating locations:", error);
       notifications.show({
@@ -133,7 +132,7 @@ const TripPlannerPage = ({
         alignItems: "stretch",
       }}
     >
-      <NavBar setCurrTripId={setCurrTripId}/>
+      <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations}/>
       <Box
         style={{
           flex: 1,
