@@ -30,15 +30,16 @@ const TripFilterSearchBox = ({
   const [showNotification, setShowNotification] = useState(false);
   const [searchBy, setSearcBy] = useState("name");
   const [search, setSearch] = useState(false);
+  const [searchedData, setSearchedData] = useState([])
+
   
 
   const renderAutocompleteOption = ({ option }) => (
     <Group gap="sm">
-      <Avatar src={usersData[option.value].image} size={36} radius="xl" />
       <div>
-        <Text size="sm">{option.value}</Text>
+        <Text size="sm">{option.name}</Text>
         <Text size="xs" opacity={0.5}>
-          {usersData[option.value].email}
+          {option.email}
         </Text>
       </div>
     </Group>
@@ -56,6 +57,8 @@ const TripFilterSearchBox = ({
       });
 
       console.log(response.data)
+      console.log(search)
+    
 
       return response.data;
       
@@ -88,10 +91,18 @@ const TripFilterSearchBox = ({
   const names = Object.keys(usersData);
   const xIcon = <IconX size={20} />;
 
-  function handleSearch() {
+  async function handleSearch() {
+    setSearch(true)
     searchQuery = searchQuery.trim();
 
-    fetchUsersAPI(searchQuery);
+    const usersFromApi = await fetchUsersAPI(searchQuery);
+
+    const formattedData = usersFromApi.map(user => ({
+      ...user, // id, name, email, etc.
+      value: user.id, 
+    }));
+    setSearchedData(formattedData);
+
   }
 
   return (
@@ -111,11 +122,7 @@ const TripFilterSearchBox = ({
           onChange = {(newValue) => setSearcBy(newValue)}
         />
         <Autocomplete
-          data={
-            search
-              ? selectedUsers
-              : []
-          }
+          data={searchedData}
           value={searchQuery}
           renderOption={renderAutocompleteOption}
           onChange={setSearchQuery}

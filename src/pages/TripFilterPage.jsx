@@ -28,7 +28,7 @@ import { IconUser } from "@tabler/icons-react";
 
 import NavBar from "../components/NavBar";
 
-const TripFilterPage = ({setCurrTripId, setLocations}) => {
+const TripFilterPage = ({ setCurrTripId, setLocations }) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -95,6 +95,7 @@ const TripFilterPage = ({setCurrTripId, setLocations}) => {
    * @returns {JSX.Element[]} An array of React Badge components.
    */
   function renderMultiSelectButtons(arrayOfContent, type) {
+    console.log("array of contet", arrayOfContent);
     return arrayOfContent.map((content) => (
       <Badge
         key={content}
@@ -141,7 +142,7 @@ const TripFilterPage = ({setCurrTripId, setLocations}) => {
         alignItems: "stretch",
       }}
     >
-      <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations}/>
+      <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations} />
       <Flex
         style={{ flex: 1, padding: "2rem" }}
         justify="center"
