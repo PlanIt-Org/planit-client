@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Text, Stack, Accordion } from "@mantine/core";
 
-const ProfileTripAccordion = (userInfo) => {
+const ProfileTripAccordion = ({ userInfo }) => {
   return (
     <Accordion mt="xl" style={{ width: 350 }} multiple={false}>
       <Accordion.Item value="trips">
