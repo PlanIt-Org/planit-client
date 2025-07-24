@@ -2,11 +2,10 @@ import { Text, Button, Group, NativeSelect, Box } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
-import { notifications } from '@mantine/notifications';
+import { notifications } from "@mantine/notifications";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// creates all time values once for the right section start time and end time
 const generateTimeOptions = () => {
   const times = [];
   for (let hour = 0; hour < 24; hour++) {
@@ -23,67 +22,71 @@ const generateTimeOptions = () => {
 
 const timeOptions = generateTimeOptions();
 
-const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, setCurrTripId, user }) => {
+const HomeLocationSearchBar = ({
+  selectedCity,
+  setSelectedCity,
+  setCurrTripId,
+  user,
+}) => {
   const navigate = useNavigate();
 
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [isCreatingTrip, setIsCreatingTrip] = useState(false);
 
-
   const handleCitySelected = (place) => {
     setSelectedCity(place);
     console.log("Selected City:", place);
   };
 
-
   const convertTimeToDate = (timeString) => {
     if (!timeString) return null;
 
     // TODO: fix this hardcoded
-    const fixedDate = '2025-11-15';
-    const [time, period] = timeString.split(' ');
-    let [hours, minutes] = time.split(':').map(Number);
+    const fixedDate = "2025-11-15";
+    const [time, period] = timeString.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
 
-    if (period === 'PM' && hours !== 12) {
+    if (period === "PM" && hours !== 12) {
       hours += 12;
-    } else if (period === 'AM' && hours === 12) {
+    } else if (period === "AM" && hours === 12) {
       hours = 0; // 12 AM is 00 hours
     }
-    const date = new Date(`${fixedDate}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00Z`);
+    const date = new Date(
+      `${fixedDate}T${String(hours).padStart(2, "0")}:${String(
+        minutes
+      ).padStart(2, "0")}:00Z`
+    );
     return date.toISOString();
   };
-
-
 
   const handleGoClick = async () => {
     // notification if user does not change times
     if (!startTime || !endTime) {
       notifications.show({
-        title: 'Time Selection Missing!',
-        message: 'Please select both a start and an end time for your trip.',
-        color: 'red',
-        position: 'bottom-center',
+        title: "Time Selection Missing!",
+        message: "Please select both a start and an end time for your trip.",
+        color: "red",
+        position: "bottom-center",
         autoClose: 5000,
       });
     } else if (!selectedCity) {
       notifications.show({
-        title: 'City Selection Missing!',
-        message: 'Please select a city for your trip.',
-        color: 'red',
-        position: 'bottom-center',
+        title: "City Selection Missing!",
+        message: "Please select a city for your trip.",
+        color: "red",
+        position: "bottom-center",
         autoClose: 5000,
       });
     } else {
-
-      setIsCreatingTrip(true); // Start loading
+      setIsCreatingTrip(true);
 
       try {
         const formattedStartTime = convertTimeToDate(startTime);
         const formattedEndTime = convertTimeToDate(endTime);
 
         const hostId = user;
-  
+
         const tripData = {
           startTime: formattedStartTime,
           endTime: formattedEndTime,
@@ -92,39 +95,43 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, setCurrTripId, u
           title: `Trip to ${selectedCity.name}`,
           description: `An exciting trip planned for ${selectedCity.name}!`,
         };
-  
+
         const response = await fetch(`${API_BASE_URL}/api/trips`, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(tripData),
         });
-  
+
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || `Failed to create trip. Status: ${response.status}`);
+          throw new Error(
+            errorData.message ||
+              `Failed to create trip. Status: ${response.status}`
+          );
         }
-  
+
         const result = await response.json();
         console.log("Trip created successfully:", result.trip);
-        
+
         setCurrTripId(result.trip.id);
         navigate("/tripfilter");
-  
       } catch (error) {
         console.error("Error creating trip:", error);
         notifications.show({
-          title: 'Trip Creation Failed!',
-          message: error.message || 'An unexpected error occurred while creating your trip.',
-          color: 'red',
-          position: 'bottom-center',
+          title: "Trip Creation Failed!",
+          message:
+            error.message ||
+            "An unexpected error occurred while creating your trip.",
+          color: "red",
+          position: "bottom-center",
           autoClose: 7000,
         });
       } finally {
-        setIsCreatingTrip(false); 
+        setIsCreatingTrip(false);
       }
-     }
+    }
   };
 
   return (
@@ -204,7 +211,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, setCurrTripId, u
         />
         <Button
           onClick={() => {
-           handleGoClick()
+            handleGoClick();
           }}
           size="lg"
           style={{
@@ -213,8 +220,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, setCurrTripId, u
             height: 48,
             minHeight: 48,
           }}
-          loading={isCreatingTrip} 
-          disabled={isCreatingTrip} 
+          loading={isCreatingTrip}
+          disabled={isCreatingTrip}
         >
           Go
         </Button>

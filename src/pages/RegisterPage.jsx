@@ -41,7 +41,6 @@ const RegisterPage = () => {
         password: password,
       });
       console.log("User created:", response.data);
-      // Redirect to /questionnaire after successful registration
       window.location.href = "/questionnaire";
     } catch (error) {
       console.error(

@@ -10,11 +10,11 @@ const CityAutoCompleteSearchField = ({ onPlaceSelected, styles }) => {
       onPlaceSelected(place);
 
       if (autocompleteInputRef.current && place.formatted_address) {
-        autocompleteInputRef.current.value = place.formatted_address; // auto-fill the input with the city name
+        autocompleteInputRef.current.value = place.formatted_address;
       }
     },
     options: {
-      types: ["(cities)"], // filter by cities
+      types: ["(cities)"],
       fields: ["geometry", "name", "formatted_address", "place_id", "types"],
     },
   });

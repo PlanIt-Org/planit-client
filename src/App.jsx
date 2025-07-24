@@ -37,24 +37,6 @@ function App({ isMapsApiLoaded }) {
   const { session } = useAuth();
   const location = useLocation();
 
-  // useEffect(() => {
-  //   supabase.auth.getSession().then(({ data: { session } }) => {
-  //     setSession(session);
-  //   });
-  //   const {
-  //     data: { subscription },
-  //   } = supabase.auth.onAuthStateChange((_event, session) => {
-  //     setSession(session);
-  //   });
-  //   return () => {
-  //     subscription.unsubscribe();
-  //   };
-  // }, []);
-  // // Debugging statement to check if user is logged in
-  // useEffect(() => {
-  //   console.log("Current session:", session);
-  // }, [session]);
-
   return (
     <>
       <Notifications position="bottom-center" zIndex={2077} />

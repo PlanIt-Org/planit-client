@@ -74,7 +74,6 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
             {userInfo.email}
           </Text>
 
-          {/* Format the timestamp from the backend */}
           <Text>
             Joined{" "}
             {new Date(userInfo.created_at).toLocaleDateString("en-US", {

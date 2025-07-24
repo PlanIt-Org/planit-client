@@ -5,35 +5,35 @@ import {
   Text,
   Group,
   Stack,
-  Anchor, // For links
-  Box, // For spacing/layout
-  Title, // For names
-  Grid, // To arrange cards in a grid
+  Anchor,
+  Box,
+  Title,
+  Grid,
   Container,
 } from "@mantine/core";
-import { IconBrandLinkedin, IconLink } from "@tabler/icons-react"; // Icons for LinkedIn and general link
+import { IconBrandLinkedin, IconLink } from "@tabler/icons-react";
 
 const teamMembers = [
   {
     id: 1,
-    name: 'Joshua Cesar Pierre',
-    college: 'University of Texas at Austin',
-    image: "/assets/E7T5PNK3P-U08SV91JELA-69ffacaca526-512.jpg", // Placeholder image
-    linkedin: 'https://www.linkedin.com/in/joshua-cesar-pierre-13624327a/',
+    name: "Joshua Cesar Pierre",
+    college: "University of Texas at Austin",
+    image: "/assets/E7T5PNK3P-U08SV91JELA-69ffacaca526-512.jpg",
+    linkedin: "https://www.linkedin.com/in/joshua-cesar-pierre-13624327a/",
   },
   {
     id: 2,
-    name: 'Thomas Sibily',
-    college: 'Columbia University',
-    image: "/assets/E7T5PNK3P-U08SD3V9AK1-182c630cdade-512.jpg", // Placeholder image
-    linkedin: 'https://www.linkedin.com/in/thomas-sibilly/',
+    name: "Thomas Sibily",
+    college: "Columbia University",
+    image: "/assets/E7T5PNK3P-U08SD3V9AK1-182c630cdade-512.jpg",
+    linkedin: "https://www.linkedin.com/in/thomas-sibilly/",
   },
   {
     id: 3,
-    name: 'Moosay Hailewold',
-    college: 'University of Maryland',
-    image: "/assets/E7T5PNK3P-U08SCVAKE3Z-cd93d749916d-512.jpg", // Placeholder image
-    linkedin: 'https://www.linkedin.com/in/moosay/',
+    name: "Moosay Hailewold",
+    college: "University of Maryland",
+    image: "/assets/E7T5PNK3P-U08SCVAKE3Z-cd93d749916d-512.jpg",
+    linkedin: "https://www.linkedin.com/in/moosay/",
   },
 ];
 
