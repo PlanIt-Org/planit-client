@@ -52,7 +52,6 @@ const TripFilterPage = ({ setCurrTripId, currTripId }) => {
           value: user.id,
         }));
 
-        console.log("Data being passed to Autocomplete:", formattedData);
         setSearchResults(formattedData);
       }
     } catch (error) {
@@ -60,7 +59,7 @@ const TripFilterPage = ({ setCurrTripId, currTripId }) => {
     }
   };
 
-  // --- This function adds a user to the list ---
+
   const handleAddUser = (userToAdd) => {
 
     if (!selectedUsers.some((user) => user.id === userToAdd.id)) {
@@ -84,7 +83,6 @@ const TripFilterPage = ({ setCurrTripId, currTripId }) => {
     });
     const uniqueFilters = [...new Set(allFilters)];
     setSelectedFilters(uniqueFilters);
-    console.log(uniqueFilters, "Filters");
   }, [selectedUsers]);
 
   /**
@@ -115,7 +113,7 @@ function renderMultiSelectButtons(items, type) {
     return null;
   }
 
-  console.log(selectedUsers, "I")
+
 
 
 
@@ -170,37 +168,12 @@ function renderMultiSelectButtons(items, type) {
   return null; 
 }
 
-// async function fetchAllusersIDs(selectedUsers){
-
-//   //Step 1. We need to get all the users email
-//   const emails = selectedUsers.map(user => user.email);
-
-//   //Step 2. Do our API request to get all the users_id by there email
-
-//   try {
-//     // Step 2: Pass the emails array in the 'params' object
-//     const response = await apiClient.get("/emails", {
-//       params: {
-  
-//         emails: emails
-//       }
-//     });
-
-//     // The response.data should now contain the user IDs
-//     return response.data;
-    
-//   } catch (error) {
-//     console.error("Failed to fetch user IDs:", error);
-//     throw error;
-//   }
-// }
 
 
 
 
 
-
-const handleCreateTripAndNavigate = async () => {
+const handleCreateGuestAndNavigate = async () => {
   const guestData = selectedUsers.map(user => ({
     userId: user.id,
     email: user.email,
@@ -210,7 +183,7 @@ const handleCreateTripAndNavigate = async () => {
 
 
   try {
-    // Make the API call
+
     const response = await apiClient.post(`/trips/${currTripId}/proposed-guests`, guestData);
 
     navigate(`/tripplanner`);
@@ -285,7 +258,7 @@ const handleCreateTripAndNavigate = async () => {
                   width: "100%",
                 }}
               >
-                <Button w="50%" onClick={() => handleCreateTripAndNavigate()}>
+                <Button w="50%" onClick={() => handleCreateGuestAndNavigate()}>
                   Next
                 </Button>
               </Group>
