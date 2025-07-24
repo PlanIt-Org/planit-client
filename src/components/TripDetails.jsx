@@ -54,13 +54,13 @@ const TripDetails = ({ currTripId }) => {
   };
 
   const handleSaveTitle = (newTitle) => {
-    console.log("Saving new title:", newTitle);
+ 
     setInputTitle(newTitle);
     setIsEditingTitle(false);
   };
 
   const handleSaveDesc = (newDesc) => {
-    console.log("Saving new description:", newDesc);
+
     setInputDesc(newDesc);
     setIsEditingDesc(false);
   };
@@ -117,7 +117,7 @@ const TripDetails = ({ currTripId }) => {
               )}
             </ActionIcon>
           </Group>
-          
+
            {/* ---------------THIS IS FOR THE DESC-----------  */}
           <Group wrap="nowrap" align="flex-start">
             {isEditingDesc ? (
