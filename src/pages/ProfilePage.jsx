@@ -4,8 +4,10 @@ import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
 import ProfileTripAccordion from "../components/ProfileTripAccordion";
 import ProfileCard from "../components/ProfileCard";
+import { useAuth } from "../context/AuthContext";
 
 const ProfilePage = ({ setCurrTripId, setLocations }) => {
+  const { session, setSession } = useAuth();
   const [userInfo, setUserInfo] = useState(null);
   const [error, setError] = useState("");
 
@@ -60,6 +62,8 @@ const ProfilePage = ({ setCurrTripId, setLocations }) => {
         >
           {/* Profile Card */}
           <ProfileCard
+            user={session?.user}
+            setUser={setSession}
             userInfo={userInfo}
             refreshUserInfo={fetchCurrentUser}
           ></ProfileCard>
@@ -70,7 +74,7 @@ const ProfilePage = ({ setCurrTripId, setLocations }) => {
             style={{ textDecoration: "none", width: 350 }}
           ></a>
           {/* Accordion that lists user trips */}
-          <ProfileTripAccordion></ProfileTripAccordion>
+          <ProfileTripAccordion userInfo={userInfo}></ProfileTripAccordion>
         </Container>
       </Box>
     </Flex>

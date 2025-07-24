@@ -2,9 +2,18 @@ import { useState, useEffect } from "react";
 import { Flex, Card, Avatar, Text, Button, Loader, Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import EditProfileModal from "../components/EditProfileModal";
-
-const ProfileCard = ({ userInfo, refreshUserInfo }) => {
-  const [opened, { open, close }] = useDisclosure(false);
+import PasswordResetModal from "../components/PasswordResetModal";
+import LogoutButton from "../components/LogoutButton";
+const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
+  const [
+    editProfileOpened,
+    { open: openEditProfile, close: closeEditProfile },
+  ] = useDisclosure(false);
+  const [
+    changePasswordOpened,
+    { open: openChangePassword, close: closeChangePassword },
+  ] = useDisclosure(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!userInfo) {
     return <Loader color="blue" />;
@@ -16,13 +25,33 @@ const ProfileCard = ({ userInfo, refreshUserInfo }) => {
 
   return (
     <>
-      <Modal opened={opened} onClose={close} title="Edit Profile" centered>
+      {/* Edit Profile Modal */}
+      <Modal
+        opened={editProfileOpened}
+        onClose={closeEditProfile}
+        title="Edit Profile"
+        centered
+      >
         <EditProfileModal
           currentDisplayName={userInfo.user_metadata?.name}
-          onClose={close}
+          onClose={closeEditProfile}
           onSubmit={handleUpdateName}
           refreshUserInfo={refreshUserInfo}
-        ></EditProfileModal>
+        />
+      </Modal>
+      {/* Change Password Modal */}
+      <Modal
+        opened={changePasswordOpened}
+        onClose={closeChangePassword}
+        title="Change Password"
+        centered
+      >
+        <PasswordResetModal
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={(data) => {
+            console.log("Password reset successful:", data.message);
+          }}
+        ></PasswordResetModal>
       </Modal>
       <Card
         shadow="md"
@@ -54,7 +83,7 @@ const ProfileCard = ({ userInfo, refreshUserInfo }) => {
             })}
           </Text>
           <Button
-            onClick={open}
+            onClick={openEditProfile}
             variant="outline"
             color="blue"
             mt="md"
@@ -62,13 +91,21 @@ const ProfileCard = ({ userInfo, refreshUserInfo }) => {
           >
             Edit Profile
           </Button>
-          <Button variant="light" color="blue" fullWidth>
+          <Button
+            onClick={openChangePassword}
+            variant="light"
+            color="blue"
+            fullWidth
+          >
             Change Password
           </Button>
-          <Button variant="light" color="red" fullWidth>
-            Logout
-          </Button>
-          <Button fullWidth size="md" color="blue">
+          <LogoutButton></LogoutButton>
+          <Button
+            fullWidth
+            size="md"
+            color="blue"
+            onClick={() => (window.location.href = "/questionnaire")}
+          >
             Edit your Questionnaire
           </Button>
         </Flex>
