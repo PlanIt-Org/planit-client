@@ -3,10 +3,11 @@ import { Container, Grid, Button, Group, Text, Modal, LoadingOverlay, Skeleton  
 import TripCard from "./TripCard";
 import { useDisclosure } from "@mantine/hooks";
 import { useState, useEffect } from "react";
+import CopyTripLink from "./CopyTripLink";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const TripGrid = ({userId}) => {
+const TripGrid = ({userId, setCurrTripId}) => {
 
   const [opened, { open, close }] = useDisclosure(false);
   const [trips, setTrips] = useState([]);
@@ -132,6 +133,7 @@ const TripGrid = ({userId}) => {
                 </ul>
               </div>
             )}
+            <CopyTripLink text={"View this Trip"} tripId={selectedTrip.id}/>
           </div>
         )}
       </Modal>

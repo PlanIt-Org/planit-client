@@ -86,6 +86,7 @@ const HomeLocationSearchBar = ({
         const formattedEndTime = convertTimeToDate(endTime);
 
         const hostId = user;
+        console.log("THIS IS WHAT IS PRINTING: " + user)
 
         const tripData = {
           startTime: formattedStartTime,
