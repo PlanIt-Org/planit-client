@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { Navigate, Routes, Route } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 import HomePage from "./pages/HomePage";
 import LandingPage from "./pages/LandingPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -19,11 +20,11 @@ import "@mantine/notifications/styles.css";
 import { supabase } from "./supabaseClient";
 import { useLocation } from "react-router";
 
-const ProtectedRoute = ({ session, children }) => {
+const ProtectedRoute = ({ children }) => {
+  const { session } = useAuth();
   if (!session) {
     return <Navigate to="/login" replace />;
   }
-
   return children;
 };
 
@@ -31,28 +32,10 @@ function App({ isMapsApiLoaded }) {
   const [selectedCity, setSelectedCity] = useState("");
   const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
   const [selectedPlace, setSelectedPlace] = useState(null);
-  const [session, setSession] = useState(null);
   const [currTripId, setCurrTripId] = useState(null);
 
+  const { session } = useAuth();
   const location = useLocation();
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-  // Debugging statement to check if user is logged in
-  useEffect(() => {
-    console.log("Current session:", session);
-  }, [session]);
 
   return (
     <>
@@ -73,7 +56,7 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/home"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute>
               <HomePage
                 selectedCity={selectedCity}
                 setSelectedCity={setSelectedCity}
@@ -88,7 +71,7 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute>
               <ProfilePage
                 user={session?.user}
                 setCurrTripId={setCurrTripId}
@@ -100,7 +83,7 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/questionnaire"
           element={
-            // <ProtectedRoute session={session}>
+            // <ProtectedRoute>
             <QuestionnairePage />
             // </ProtectedRoute>
           }
@@ -108,7 +91,7 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/tripplanner"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute>
               <TripPlannerPage
                 selectedCity={selectedCity}
                 setSelectedCity={setSelectedCity}
@@ -125,7 +108,7 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/tripsummary/:tripId"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute>
               <TripSummaryPage
                 locations={locations}
                 selectedCity={selectedCity}
@@ -143,7 +126,7 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/register"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute>
               <RegisterPage />
             </ProtectedRoute>
           }
@@ -151,7 +134,7 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/login"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute>
               <LoginPage />
             </ProtectedRoute>
           }
@@ -159,10 +142,11 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/tripfilter"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute>
               <TripFilterPage
                 setCurrTripId={setCurrTripId}
                 setLocations={setLocations}
+                currTripId = {currTripId}
               />
             </ProtectedRoute>
           }
@@ -170,7 +154,7 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/discover"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute>
               <DiscoverTripsPage
                 setCurrTripId={setCurrTripId}
                 setLocations={setLocations}
@@ -181,7 +165,7 @@ function App({ isMapsApiLoaded }) {
         <Route
           path="/saved"
           element={
-            <ProtectedRoute session={session}>
+            <ProtectedRoute>
               <SavedTripsPage
                 setCurrTripId={setCurrTripId}
                 setLocations={setLocations}

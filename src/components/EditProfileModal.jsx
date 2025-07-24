@@ -3,12 +3,12 @@ import { TextInput, Button, Group, Stack } from "@mantine/core";
 import { useForm, isNotEmpty, hasLength } from "@mantine/form";
 import apiClient from "../api/axios";
 
-function EditDisplayNameForm({
+const EditDisplayNameForm = ({
   currentDisplayName,
   onClose,
   onSubmit,
   refreshUserInfo,
-}) {
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [error, setError] = useState("");
@@ -80,6 +80,6 @@ function EditDisplayNameForm({
       </Stack>
     </form>
   );
-}
+};
 
 export default EditDisplayNameForm;
