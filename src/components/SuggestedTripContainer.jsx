@@ -3,18 +3,16 @@ import React, { useState, useEffect } from "react";
 import SuggestedTrip from "./SuggestedTrip";
 import { Stack, Loader, Alert, Title, Text } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
-import { useAuth } from "../context/AuthContext"; // Add this import
+import { useAuth } from "../context/AuthContext";
 
 const SuggestedTripContainer = () => {
   const { session } = useAuth();
   const userId = session?.user?.id;
-  const [suggestions, setSuggestions] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // if (!userId) return;
-
     const fetchSuggestions = async () => {
       try {
         setLoading(true);
@@ -34,8 +32,8 @@ const SuggestedTripContainer = () => {
 
         const data = await response.json();
 
-        if (data.suggestions && Array.isArray(data.suggestions)) {
-          setSuggestions(data.suggestions);
+        if (data.locations && Array.isArray(data.locations)) {
+          setLocations(data.locations);
         } else {
           throw new Error("Invalid data format received from server.");
         }
@@ -75,9 +73,9 @@ const SuggestedTripContainer = () => {
   return (
     <Stack spacing="lg">
       <Title order={2}>AI-Powered Suggestions</Title>
-      {suggestions.length > 0 ? (
-        suggestions.map((trip, index) => (
-          <SuggestedTrip key={index} trip={trip} />
+      {locations.length > 0 ? (
+        locations.map((location, index) => (
+          <SuggestedTrip key={index} location={location} />
         ))
       ) : (
         <Text>No suggestions could be generated at this time.</Text>

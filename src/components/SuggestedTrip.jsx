@@ -1,91 +1,67 @@
 // src/components/SuggestedTrip.jsx
 import React from "react";
-import {
-  Paper,
-  Text,
-  Group,
-  Badge,
-  Stack,
-  ThemeIcon,
-  List,
-} from "@mantine/core";
-import { IconMapPin, IconClock, IconBulb } from "@tabler/icons-react";
+import { Paper, Text, Group, Badge, Stack, ThemeIcon } from "@mantine/core";
+import { IconMapPin, IconTag } from "@tabler/icons-react";
 
-const SuggestedTrip = ({ trip }) => {
-  if (!trip) {
+const SuggestedTrip = ({ location }) => {
+  if (!location) {
     return null;
   }
 
   return (
     <Paper
       shadow="sm"
-      p="md"
+      p="lg"
       radius="md"
       withBorder
       sx={(theme) => ({
-        cursor: "pointer",
         transition: "transform 0.2s ease, box-shadow 0.2s ease",
         "&:hover": {
           transform: "translateY(-2px)",
           boxShadow: theme.shadows.md,
         },
+        height: "100%",
       })}
     >
-      <Stack spacing="sm">
-        {/* Header with Title */}
-        <Text weight={600} size="lg">
-          {trip.title}
-        </Text>
+      <Stack justify="space-between" style={{ height: "100%" }}>
+        {/* Top section with location and description */}
+        <Stack spacing="sm">
+          {/* Header with City Name */}
+          <Group align="center" spacing="sm">
+            <ThemeIcon color="blue" size={24} radius="xl">
+              <IconMapPin size={16} />
+            </ThemeIcon>
+            <Text weight={700} size="xl">
+              {location.city}
+            </Text>
+          </Group>
 
-        {/* Description */}
-        <Text color="dimmed" size="sm">
-          {trip.description}
-        </Text>
-
-        {/* Badges for City and Duration */}
-        <Group spacing="sm">
-          <Badge
-            size="lg"
-            variant="gradient"
-            gradient={{ from: "blue", to: "cyan" }}
-            leftSection={<IconMapPin size={14} />}
-          >
-            {trip.city}
-          </Badge>
-          <Badge
-            size="lg"
-            variant="gradient"
-            gradient={{ from: "orange", to: "yellow" }}
-            leftSection={<IconClock size={14} />}
-          >
-            {trip.duration_days} {trip.duration_days > 1 ? "Days" : "Day"}
-          </Badge>
-        </Group>
-
-        {/* List of Suggested Activities */}
-        <Stack spacing={5}>
-          <Text weight={500} size="sm">
-            Suggested Activities:
+          {/* Description */}
+          <Text color="dimmed" size="sm" mt="xs">
+            {location.description}
           </Text>
-          <List
-            spacing="xs"
-            size="sm"
-            center
-            icon={
-              <ThemeIcon color="teal" size={20} radius="xl">
-                <IconBulb size={12} />
-              </ThemeIcon>
-            }
-          >
-            {trip.suggested_activities.map((activity, index) => (
-              <List.Item key={index}>
-                <Text component="span" weight={500}>
-                  {activity.name}:
-                </Text>{" "}
-                {activity.description}
-              </List.Item>
-            ))}
-          </List>
+        </Stack>
+
+        {/* Bottom section with "Best for" tags */}
+        <Stack spacing="sm" mt="md">
+          <Text weight={500} size="sm">
+            Best for:
+          </Text>
+          <Group spacing="xs">
+            {/* Map over the 'best_for' array to create a Badge for each keyword */}
+            {location.best_for &&
+              location.best_for.map((tag, index) => (
+                <Badge
+                  key={index}
+                  size="sm"
+                  variant="light"
+                  color="teal"
+                  leftSection={<IconTag size={12} />}
+                >
+                  {tag}
+                </Badge>
+              ))}
+          </Group>
         </Stack>
       </Stack>
     </Paper>
