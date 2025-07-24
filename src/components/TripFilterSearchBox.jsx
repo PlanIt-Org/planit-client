@@ -1,6 +1,6 @@
-import React from "react";
+// TripFilterSearchBox.jsx
+import React, { useState, useEffect } from "react";
 import {
-  TextInput,
   Button,
   Group,
   Autocomplete,
@@ -8,102 +8,76 @@ import {
   ActionIcon,
   rem,
   Select,
+  Notification,
 } from "@mantine/core";
-import { IconSearch } from "@tabler/icons-react";
-import { Avatar } from "@mantine/core";
-import { IconX } from "@tabler/icons-react";
-import { Notification } from "@mantine/core";
-import { useState } from "react";
-import axios from "axios";
-import apiClient from "../api/axios";
+import { IconSearch, IconX } from "@tabler/icons-react";
 
 const TripFilterSearchBox = ({
   searchQuery,
   setSearchQuery,
-  usersData,
-  setSelectedUsers,
+  searchBy,
+  setSearchBy,
+  searchResults,
+  onSearch,
+  onAddUser,
   selectedUsers,
-  setCurrentUser,
-  setSelectedFilters,
-  selectedFilters,
+  setSelectedFilters 
 }) => {
+  const [stagedUser, setStagedUser] = useState(null);
   const [showNotification, setShowNotification] = useState(false);
-  const [searchBy, setSearcBy] = useState("name");
-  const [search, setSearch] = useState(false);
-  const [searchedData, setSearchedData] = useState([])
 
-  
+  const renderAutocompleteOption = ({ option }) => {
+    const user = searchResults.find((item) => item.id === option.value);
+    if (!user) return null;
+    return (
+      <Group gap="sm">
+        <div>
+          <Text size="sm">{user.name}</Text>
+          <Text size="xs" opacity={0.5}>
+            {user.email}
+          </Text>
+        </div>
+      </Group>
+    );
+  };
 
-  const renderAutocompleteOption = ({ option }) => (
-    <Group gap="sm">
-      <div>
-        <Text size="sm">{option.name}</Text>
-        <Text size="xs" opacity={0.5}>
-          {option.email}
-        </Text>
-      </div>
-    </Group>
-  );
-
-  async function fetchUsersAPI(searchQuery) {
-    searchQuery.trim();
-
-    try {
-      const response = await apiClient.get(`/users/search`, {
-        params: {
-          by: searchBy,
-          query: searchQuery,
-        },
-      });
-
-      console.log(response.data)
-      console.log(search)
-    
-
-      return response.data;
-      
-    } catch (error) {
-      console.error("Failed to search for users:", error);
-    }
-  }
-
-  /**
-   * Handles the logic for adding a new user to the selected list.
-   * It reads the user's name from the `searchQuery` state. If the user
-   * has already been selected, it shows a warning notification. Otherwise,
-   * it adds the user to the `selectedUsers` array, updates the
-   * `selectedFilters` with the combined unique filters, and sets the `currentUser`.
-   * @returns {void} This function does not return a value; it updates component state.
-   */
-  function handleAddUser() {
-    if (selectedUsers.includes(searchQuery)) {
-      setShowNotification(true);
-      return;
-    }
-    setSelectedUsers([...selectedUsers, searchQuery]);
-    const uniqueFilters = [
-      ...new Set([...selectedFilters, ...usersData[searchQuery].filter]),
-    ];
+  useEffect(() => {
+    const allFilters = [];
+    // This loop goes through every selected user...
+    selectedUsers.forEach((user) => {
+      // ...and adds their activityPreferences to a list.
+      if (user.activityPreferences && user.activityPreferences.length > 0) {
+        allFilters.push(...user.activityPreferences);
+      }
+    });
+    // This creates a unique list of all the filters...
+    const uniqueFilters = [...new Set(allFilters)];
+    // ...and updates the state.
     setSelectedFilters(uniqueFilters);
-    setCurrentUser(searchQuery);
-  }
+  }, [selectedUsers]); // <-- This runs every time selectedUsers changes!
 
-  const names = Object.keys(usersData);
-  const xIcon = <IconX size={20} />;
+  // --- THIS IS THE FIX ---
+  // When a user clicks an option, the 'option' object from Mantine
+  // only has { value, label }. We need to find the full user object.
+  const handleUserSelect = (optionValue) => {
+    const userObject = searchResults.find(user => user.id === optionValue);
+    if (userObject) {
+      setStagedUser(userObject);
+      setSearchQuery(userObject.name); // Fill the input with their name
+    }
+  };
 
-  async function handleSearch() {
-    setSearch(true)
-    searchQuery = searchQuery.trim();
-
-    const usersFromApi = await fetchUsersAPI(searchQuery);
-
-    const formattedData = usersFromApi.map(user => ({
-      ...user, // id, name, email, etc.
-      value: user.id, 
-    }));
-    setSearchedData(formattedData);
-
-  }
+  const handleAddClick = () => {
+    if (stagedUser) {
+      if (selectedUsers.some((user) => user.id === stagedUser.id)) {
+        setShowNotification(true);
+        return;
+      }
+      onAddUser(stagedUser); // Call the function from the parent
+      setSearchQuery(""); // Clear the input
+      setStagedUser(null); // Clear the staged user
+    }
+  };
 
   return (
     <>
@@ -115,37 +89,40 @@ const TripFilterSearchBox = ({
       >
         <Select
           label="Search By"
-          style={{ width: 100 }}
-          placeholder="Name"
-          data={["email", "name"]}
-          value = {searchBy}
-          onChange = {(newValue) => setSearcBy(newValue)}
+          style={{ width: 120 }}
+          data={["name", "email"]}
+          value={searchBy}
+          onChange={setSearchBy}
+          allowDeselect={false}
         />
         <Autocomplete
-          data={searchedData}
+          label="&nbsp;"
+          data={searchResults}
           value={searchQuery}
-          renderOption={renderAutocompleteOption}
           onChange={setSearchQuery}
-          maxDropdownHeight={300}
-          placeholder="Search for User"
+          renderOption={renderAutocompleteOption}
+          onOptionSubmit={handleUserSelect}
+          placeholder="Search for user..."
+          style={{ flexGrow: 1 }}
           leftSection={
-            <ActionIcon
-              onClick={handleSearch}
-              variant="transparent"
-              color="gray"
-            >
+            <ActionIcon onClick={onSearch} variant="transparent" color="gray">
               <IconSearch style={{ width: rem(18), height: rem(18) }} />
             </ActionIcon>
           }
-          style={{ minWidth: 200 }}
+          filter={({ options, search }) => options}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              onSearch();
+            }
+          }}
         />
-
-        <Button onClick={() => handleAddUser()}> Add </Button>
+        <Button onClick={handleAddClick}>Add</Button>
       </Group>
-      <Group gap="sm" justify="center">
+      <Group mt="md">
         {showNotification && (
           <Notification
-            icon={xIcon}
+            icon={<IconX size={20} />}
             color="red"
             title="Error!"
             onClose={() => setShowNotification(false)}

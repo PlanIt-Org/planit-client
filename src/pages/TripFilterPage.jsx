@@ -1,207 +1,128 @@
-/* eslint-disable no-unused-vars */
+// TripFilterPage.jsx
 
-import React from "react";
-
+import React, { useState, useEffect } from "react";
 import {
   Title,
   Container,
-  MultiSelect,
-  Box,
-  Button,
-  Group,
-  Stack,
   Card,
-  Badge,
+  Stack,
+  Group,
   Text,
   Divider,
+  Badge,
   CloseButton,
+  Button,
   Flex,
 } from "@mantine/core";
-
-import TripFilterSearchBox from "../components/TripFilterSearchBox";
-
-import { useState, useEffect } from "react";
-
 import { useNavigate } from "react-router-dom";
-
-import { IconUser } from "@tabler/icons-react";
-
+import TripFilterSearchBox from "../components/TripFilterSearchBox";
 import NavBar from "../components/NavBar";
+import apiClient from "../api/axios";
 
-const TripFilterPage = ({ setCurrTripId, setLocations }) => {
+const TripFilterPage = ({ setCurrTripId }) => {
   const navigate = useNavigate();
+  // State for the search input text
   const [searchQuery, setSearchQuery] = useState("");
+  // State for the search type dropdown ('name' or 'email')
+  const [searchBy, setSearchBy] = useState("name");
+  // State to hold the results from the API call
+  const [searchResults, setSearchResults] = useState([]);
+  // State to hold the users who have been added to the trip
   const [selectedUsers, setSelectedUsers] = useState([]);
+  // State for the combined filters
   const [selectedFilters, setSelectedFilters] = useState([]);
-  const [manuallyAddedFilters, setManuallyAddedFilters] = useState([]);
-  const [currentUser, setCurrentUser] = useState("");
 
-  //TODO: (Dummy data start) Filler Data so we can see the buttons working, remove this once we have the actual data. Remove existingUser and existingFilters
-  //(START of dummy data)
-  const usersData = {
-    "Emily Johnson": {
-      image:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png",
-      email: "emily92@gmail.com",
-      filter: ["Cafes & Coffee Shops"],
-    },
-    "Ava Rodriguez": {
-      image:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png",
-      email: "ava_rose@gmail.com",
-      filter: ["Restaurants & Dining"],
-    },
-    "Olivia Chen": {
-      image:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-4.png",
-      email: "livvy_globe@gmail.com",
-      filter: ["Bars & Nightlife", "Outdoor Activities & Parks"],
-    },
-    "Ethan Barnes": {
-      image:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-1.png",
-      email: "ethan_explorer@gmail.com",
-      filter: ["Live Music & Concerts"],
-    },
-    "Mason Taylor": {
-      image:
-        "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-2.png",
-      email: "mason_musician@gmail.com",
-      filter: ["Theaters & Performing Arts"],
-    },
-  };
-  //(END of dummy data)
-
-  /**
-   * Removes a selected user or filter from its corresponding state array.
-   * @param {string} content - The user name or filter string to be removed.
-   * @param {string} type - Specifies the list to modify, either 'users' or 'filters'.
-   * @returns {void} This function does not return a value.
-   */
-  function handleRemove(content, type) {
-    if (type === "users") {
-      setSelectedUsers(selectedUsers.filter((user) => user !== content));
-    } else {
-      setSelectedFilters(
-        selectedFilters.filter((filter) => filter !== content)
-      );
+  // --- This is the function that fetches the data ---
+  const handleSearch = async () => {
+    const trimmedQuery = searchQuery.trim();
+    if (!trimmedQuery) {
+      setSearchResults([]);
+      return;
     }
-  }
 
-  /**
-   * Renders an array of strings as a list of dismissible Mantine Badge components.
-   * @param {string[]} arrayOfContent - The array of strings (e.g., user names or filters) to display.
-   * @param {string} type - The type ('users' or 'filters') to pass to the handleRemove function for the onClick event.
-   * @returns {JSX.Element[]} An array of React Badge components.
-   */
-  function renderMultiSelectButtons(arrayOfContent, type) {
-    console.log("array of contet", arrayOfContent);
-    return arrayOfContent.map((content) => (
-      <Badge
-        key={content}
-        size="xl"
-        variant="outline"
-        p={0}
-        radius="sm"
-        rightSection={
-          <Group gap="xs" align="center" wrap="nowrap">
-            <Divider orientation="vertical" />
-            <CloseButton
-              size="sm"
-              onClick={() => handleRemove(content, type)}
-              aria-label={`Remove ${content}`}
-            />
-          </Group>
-        }
-      >
-        <Text px="md" size="sm">
-          {content}
-        </Text>
-      </Badge>
-    ));
-  }
+    try {
+      const response = await apiClient.get(`/users/search`, {
+        params: { by: searchBy, query: trimmedQuery },
+      });
+      
+      if (Array.isArray(response.data)) {
+        // Format the data for Mantine Autocomplete
+        const formattedData = response.data.map(user => ({
+          ...user,
+          value: user.id, // Use a unique ID for the key
+        }));
 
-  //TODO: Once the user is created, add the user to the existingUsers array
-  //TODO: Once the filter is created in our json file, add the filter to the existingFilters array
+        console.log("Data being passed to Autocomplete:", formattedData); 
+        setSearchResults(formattedData);
+      }
+    } catch (error) {
+      console.error("Failed to search for users:", error);
+    }
+  };
 
+  // --- This function adds a user to the list ---
+  const handleAddUser = (userToAdd) => {
+    // Prevent adding duplicates
+    if (!selectedUsers.some(user => user.id === userToAdd.id)) {
+      setSelectedUsers([...selectedUsers, userToAdd]);
+    }
+  };
+
+  const handleRemoveUser = (userIdToRemove) => {
+    setSelectedUsers(selectedUsers.filter((user) => user.id !== userIdToRemove));
+  };
+
+  // This effect recalculates filters whenever the selectedUsers list changes
   useEffect(() => {
-    let allFilters = [...manuallyAddedFilters];
-    selectedUsers.forEach((userName) => {
-      const userFilters = usersData[userName]?.filter || [];
-      allFilters.push(...userFilters);
+    const allFilters = [];
+    selectedUsers.forEach((user) => {
+      if (user.activityPreferences && user.activityPreferences.length > 0) {
+        allFilters.push(...user.activityPreferences);
+      }
     });
     const uniqueFilters = [...new Set(allFilters)];
     setSelectedFilters(uniqueFilters);
+    console.log(uniqueFilters, "Filters")
   }, [selectedUsers]);
 
   return (
-    <Flex
-      style={{
-        width: "100%",
-        minHeight: "100vh",
-        alignItems: "stretch",
-      }}
-    >
-      <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations} />
-      <Flex
-        style={{ flex: 1, padding: "2rem" }}
-        justify="center"
-        align="center"
-      >
+    <Flex style={{ width: "100%", minHeight: "100vh", alignItems: "stretch" }}>
+      <NavBar setCurrTripId={setCurrTripId} />
+      <Flex style={{ flex: 1, padding: "2rem" }} justify="center" align="center">
         <Container size="md" w="100%">
-          <Card
-            shadow="sm"
-            p="xl"
-            radius="md"
-            withBorder
-            style={{ minHeight: 750 }}
-          >
+          <Card shadow="sm" p="xl" radius="md" withBorder style={{ minHeight: 750 }}>
             <Stack gap="xl">
               <Title order={2} ta="center">
                 Add Guests & Filters
               </Title>
+              
+              {/* --- HERE is where you pass everything down as props --- */}
               <TripFilterSearchBox
-                justify="center"
-                inputDesc={"Search for User"}
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
-                setSelectedUsers={setSelectedUsers}
-                selectedUsers={selectedUsers}
-                usersData={usersData}
-                setCurrentUser={setCurrentUser}
-                setSelectedFilters={setSelectedFilters}
-                selectedFilters={selectedFilters}
+                searchBy={searchBy}
+                setSearchBy={setSearchBy}
+                searchResults={searchResults} // Pass the API results down
+                onSearch={handleSearch}      // Pass the search function down
+                onAddUser={handleAddUser}      // Pass the add function down
+                selectedUsers={selectedUsers} 
+                setSelectedFilters = {setSelectedFilters}
               />
+
               <Stack gap="xs">
                 <Text size="sm" fw={500}>
                   Selected Guests:
                 </Text>
                 <Group>
-                  {renderMultiSelectButtons(selectedUsers, "users")}
+                  {/* Updated rendering logic for user objects */}
+                  {selectedUsers.map((user) => (
+                    <Badge key={user.id} /* ... */ >
+                      <Text px="md" size="sm">{user.name}</Text>
+                    </Badge>
+                  ))}
                 </Group>
               </Stack>
-              <Divider />
-              <Stack gap="xs">
-                <Title order={4} ta="center">
-                  Filters Applied
-                </Title>
-                <Group justify="center" gap="sm">
-                  {renderMultiSelectButtons(selectedFilters, "filters")}
-                </Group>
-              </Stack>
-              <Group
-                justify="center"
-                style={{
-                  position: "absolute",
-                  bottom: 32,
-                  left: 0,
-                  width: "100%",
-                }}
-              >
-                <Button w="50%" onClick={() => navigate("/tripplanner")}>
-                  Next
-                </Button>
-              </Group>
+              {/* ... rest of your JSX ... */}
             </Stack>
           </Card>
         </Container>
