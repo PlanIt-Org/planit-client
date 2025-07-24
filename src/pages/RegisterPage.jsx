@@ -40,10 +40,8 @@ const RegisterPage = () => {
         email: email,
         password: password,
       });
-      alert(
-        "Registration successful! Please check your email to confirm your account."
-      );
       console.log("User created:", response.data);
+      window.location.href = "/questionnaire";
     } catch (error) {
       console.error(
         "Error signing up:",

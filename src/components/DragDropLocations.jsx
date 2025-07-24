@@ -9,7 +9,6 @@ import { useEffect } from "react";
 function DragDropLocations({ locations, setLocations }) {
   const [internalLocations, internalHandlers] = useListState(locations);
 
-  // Tkeeps the internal state in sync with external changes to `locations
   useEffect(() => {
     internalHandlers.setState(locations);
   }, [locations, internalHandlers]);
@@ -51,7 +50,7 @@ function DragDropLocations({ locations, setLocations }) {
             variant="transparent"
             color="red"
             size="md"
-            onClick={() => handleRemove(index)} // remove the location when clicking on X
+            onClick={() => handleRemove(index)}
             aria-label={`Remove ${location.name}`}
           >
             <IconX size={36} stroke={1.5} />
@@ -69,7 +68,6 @@ function DragDropLocations({ locations, setLocations }) {
     newOrder.splice(destination.index, 0, reorderedItem);
     internalHandlers.setState(newOrder);
 
-    // change the order of locations on array
     setLocations(newOrder);
   };
 
