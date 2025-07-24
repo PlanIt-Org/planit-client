@@ -21,7 +21,8 @@ const TripFilterSearchBox = ({
   onSearch,
   onAddUser,
   selectedUsers,
-  setSelectedFilters 
+  setSelectedFilters ,
+  setSearchResults,
 }) => {
   const [stagedUser, setStagedUser] = useState(null);
   const [showNotification, setShowNotification] = useState(false);
@@ -43,27 +44,26 @@ const TripFilterSearchBox = ({
 
   useEffect(() => {
     const allFilters = [];
-    // This loop goes through every selected user...
+
     selectedUsers.forEach((user) => {
-      // ...and adds their activityPreferences to a list.
+
       if (user.activityPreferences && user.activityPreferences.length > 0) {
         allFilters.push(...user.activityPreferences);
       }
     });
-    // This creates a unique list of all the filters...
-    const uniqueFilters = [...new Set(allFilters)];
-    // ...and updates the state.
-    setSelectedFilters(uniqueFilters);
-  }, [selectedUsers]); // <-- This runs every time selectedUsers changes!
 
-  // --- THIS IS THE FIX ---
-  // When a user clicks an option, the 'option' object from Mantine
-  // only has { value, label }. We need to find the full user object.
+    const uniqueFilters = [...new Set(allFilters)];
+
+    setSelectedFilters(uniqueFilters);
+  }, [selectedUsers]);
+
+
+
   const handleUserSelect = (optionValue) => {
     const userObject = searchResults.find(user => user.id === optionValue);
     if (userObject) {
       setStagedUser(userObject);
-      setSearchQuery(userObject.name); // Fill the input with their name
+      setSearchQuery(userObject.name); 
     }
   };
 
@@ -73,9 +73,10 @@ const TripFilterSearchBox = ({
         setShowNotification(true);
         return;
       }
-      onAddUser(stagedUser); // Call the function from the parent
-      setSearchQuery(""); // Clear the input
-      setStagedUser(null); // Clear the staged user
+      onAddUser(stagedUser);
+      setSearchQuery("");
+      setStagedUser(null); 
+      setSearchResults("");
     }
   };
 

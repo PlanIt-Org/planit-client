@@ -19,20 +19,20 @@ import TripFilterSearchBox from "../components/TripFilterSearchBox";
 import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
 
-const TripFilterPage = ({ setCurrTripId }) => {
+const TripFilterPage = ({ setCurrTripId, currTripId }) => {
   const navigate = useNavigate();
-  // State for the search input text
+
   const [searchQuery, setSearchQuery] = useState("");
-  // State for the search type dropdown ('name' or 'email')
+
   const [searchBy, setSearchBy] = useState("name");
-  // State to hold the results from the API call
+
   const [searchResults, setSearchResults] = useState([]);
-  // State to hold the users who have been added to the trip
+
   const [selectedUsers, setSelectedUsers] = useState([]);
-  // State for the combined filters
+
   const [selectedFilters, setSelectedFilters] = useState([]);
 
-  // --- This is the function that fetches the data ---
+
   const handleSearch = async () => {
     const trimmedQuery = searchQuery.trim();
     if (!trimmedQuery) {
@@ -44,15 +44,15 @@ const TripFilterPage = ({ setCurrTripId }) => {
       const response = await apiClient.get(`/users/search`, {
         params: { by: searchBy, query: trimmedQuery },
       });
-      
+
       if (Array.isArray(response.data)) {
         // Format the data for Mantine Autocomplete
-        const formattedData = response.data.map(user => ({
+        const formattedData = response.data.map((user) => ({
           ...user,
-          value: user.id, // Use a unique ID for the key
+          value: user.id,
         }));
 
-        console.log("Data being passed to Autocomplete:", formattedData); 
+        console.log("Data being passed to Autocomplete:", formattedData);
         setSearchResults(formattedData);
       }
     } catch (error) {
@@ -62,17 +62,19 @@ const TripFilterPage = ({ setCurrTripId }) => {
 
   // --- This function adds a user to the list ---
   const handleAddUser = (userToAdd) => {
-    // Prevent adding duplicates
-    if (!selectedUsers.some(user => user.id === userToAdd.id)) {
+
+    if (!selectedUsers.some((user) => user.id === userToAdd.id)) {
       setSelectedUsers([...selectedUsers, userToAdd]);
     }
   };
 
   const handleRemoveUser = (userIdToRemove) => {
-    setSelectedUsers(selectedUsers.filter((user) => user.id !== userIdToRemove));
+    setSelectedUsers(
+      selectedUsers.filter((user) => user.id !== userIdToRemove)
+    );
   };
 
-  // This effect recalculates filters whenever the selectedUsers list changes
+
   useEffect(() => {
     const allFilters = [];
     selectedUsers.forEach((user) => {
@@ -82,31 +84,176 @@ const TripFilterPage = ({ setCurrTripId }) => {
     });
     const uniqueFilters = [...new Set(allFilters)];
     setSelectedFilters(uniqueFilters);
-    console.log(uniqueFilters, "Filters")
+    console.log(uniqueFilters, "Filters");
   }, [selectedUsers]);
+
+  /**
+   * Removes a selected user by their ID.
+   * @param {string} idToRemove - The unique ID of the user to be removed.
+   * @param {string} type - Specifies the list to modify ('users' or 'filters').
+   */
+  function handleRemove(idToRemove, type) {
+    if (type === "users") {
+   
+      setSelectedUsers(selectedUsers.filter((user) => user.id !== idToRemove));
+    } else {
+
+      setSelectedFilters(
+        selectedFilters.filter((filter) => filter !== idToRemove)
+      );
+    }
+  }
+
+/**
+   * Renders an array of items (either user objects or filter strings) as dismissible Badges.
+   * @param {Array<object|string>} items - The array of items to display.
+   * @param {string} type - The type ('users' or 'filters') to determine how to render.
+   * @returns {JSX.Element[] | null} An array of React Badge components or null.
+   */
+function renderMultiSelectButtons(items, type) {
+  if (!items || items.length === 0) {
+    return null;
+  }
+
+  console.log(selectedUsers, "I")
+
+
+
+  if (type === "users") {
+    return items.map((user) => (
+      <Badge
+        key={user.id}
+        size="xl"
+        variant="outline"
+        p={0}
+        radius="sm"
+        rightSection={
+          <Group gap="xs" align="center" wrap="nowrap">
+            <Divider orientation="vertical" />
+            <CloseButton
+              size="sm"
+              onClick={() => handleRemove(user.id, "users")}
+              aria-label={`Remove ${user.name}`}
+            />
+          </Group>
+        }
+      >
+        <Text px="md" size="sm">
+          {user.name}
+        </Text>
+      </Badge>
+    ));
+  }
+
+  if (type === "filters") {
+    return items.map((filter) => (
+      <Badge
+        key={filter}
+        variant="filled" 
+        color="blue"
+        radius="sm"
+        rightSection={
+          <Group gap="xs" align="center" wrap="nowrap">
+            <Divider orientation="vertical" />
+            <CloseButton
+              size="sm"
+              onClick={() => handleRemove(filter, "filter")}
+            />
+          </Group>
+        }
+      >
+        {filter}
+      </Badge>
+    ));
+  }
+
+  return null; 
+}
+
+// async function fetchAllusersIDs(selectedUsers){
+
+//   //Step 1. We need to get all the users email
+//   const emails = selectedUsers.map(user => user.email);
+
+//   //Step 2. Do our API request to get all the users_id by there email
+
+//   try {
+//     // Step 2: Pass the emails array in the 'params' object
+//     const response = await apiClient.get("/emails", {
+//       params: {
+  
+//         emails: emails
+//       }
+//     });
+
+//     // The response.data should now contain the user IDs
+//     return response.data;
+    
+//   } catch (error) {
+//     console.error("Failed to fetch user IDs:", error);
+//     throw error;
+//   }
+// }
+
+
+
+
+
+
+const handleCreateTripAndNavigate = async () => {
+  const guestData = selectedUsers.map(user => ({
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+  }));
+
+
+
+  try {
+    // Make the API call
+    const response = await apiClient.post(`/trips/${currTripId}/proposed-guests`, guestData);
+
+    navigate(`/tripplanner`);
+
+  } catch (error) {
+    console.error("Failed to create trip:", error);
+    alert("Could not create the trip. Please try again.");
+  }
+};
 
   return (
     <Flex style={{ width: "100%", minHeight: "100vh", alignItems: "stretch" }}>
       <NavBar setCurrTripId={setCurrTripId} />
-      <Flex style={{ flex: 1, padding: "2rem" }} justify="center" align="center">
+      <Flex
+        style={{ flex: 1, padding: "2rem" }}
+        justify="center"
+        align="center"
+      >
         <Container size="md" w="100%">
-          <Card shadow="sm" p="xl" radius="md" withBorder style={{ minHeight: 750 }}>
+          <Card
+            shadow="sm"
+            p="xl"
+            radius="md"
+            withBorder
+            style={{ minHeight: 750 }}
+          >
             <Stack gap="xl">
               <Title order={2} ta="center">
                 Add Guests & Filters
               </Title>
-              
-              {/* --- HERE is where you pass everything down as props --- */}
+
+           
               <TripFilterSearchBox
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
                 searchBy={searchBy}
                 setSearchBy={setSearchBy}
                 searchResults={searchResults} // Pass the API results down
-                onSearch={handleSearch}      // Pass the search function down
-                onAddUser={handleAddUser}      // Pass the add function down
-                selectedUsers={selectedUsers} 
-                setSelectedFilters = {setSelectedFilters}
+                onSearch={handleSearch} // Pass the search function down
+                onAddUser={handleAddUser} // Pass the add function down
+                selectedUsers={selectedUsers}
+                setSelectedFilters={setSelectedFilters}
+                setSearchResults={setSearchResults}
               />
 
               <Stack gap="xs">
@@ -114,16 +261,35 @@ const TripFilterPage = ({ setCurrTripId }) => {
                   Selected Guests:
                 </Text>
                 <Group>
-                  {/* Updated rendering logic for user objects */}
-                  {selectedUsers.map((user) => (
-                    <Badge key={user.id} /* ... */ >
-                      <Text px="md" size="sm">{user.name}</Text>
-                    </Badge>
-                  ))}
+                  {renderMultiSelectButtons(selectedUsers, "users")}
                 </Group>
               </Stack>
-              {/* ... rest of your JSX ... */}
+              <Divider />
+              <Stack gap="xs">
+                <Title order={4} ta="center">
+                  Filters Applied
+                </Title>
+                <Group justify="center" gap="sm">
+                  {renderMultiSelectButtons(selectedFilters, "filters")}
+                </Group>
+              </Stack>
+    
             </Stack>
+
+            <Group
+                justify="center"
+                style={{
+                  position: "absolute",
+                  bottom: 32,
+                  left: 0,
+                  width: "100%",
+                }}
+              >
+                <Button w="50%" onClick={() => handleCreateTripAndNavigate()}>
+                  Next
+                </Button>
+              </Group>
+            
           </Card>
         </Container>
       </Flex>

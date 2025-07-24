@@ -163,6 +163,7 @@ function App({ isMapsApiLoaded }) {
               <TripFilterPage
                 setCurrTripId={setCurrTripId}
                 setLocations={setLocations}
+                currTripId = {currTripId}
               />
             </ProtectedRoute>
           }
