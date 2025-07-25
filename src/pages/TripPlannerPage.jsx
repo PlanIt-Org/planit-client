@@ -1,3 +1,4 @@
+// // src/components/SuggestedTripContainer.jsx
 import React, { useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
 import { Button, Text, Box, Group, Stack, Flex } from "@mantine/core";
