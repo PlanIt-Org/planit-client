@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TextInput, Button, Group, Stack } from "@mantine/core";
 import { useForm, isNotEmpty, hasLength } from "@mantine/form";
 import apiClient from "../api/axios";
+import useUpdateDisplayName from "../hooks/useUpdateDisplayName";
 
 const EditDisplayNameForm = ({
   currentDisplayName,
@@ -9,9 +10,7 @@ const EditDisplayNameForm = ({
   onSubmit,
   refreshUserInfo,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
-  const [error, setError] = useState("");
+  const [updateDisplayName, { isLoading, error }] = useUpdateDisplayName();
 
   const form = useForm({
     initialValues: {
@@ -39,22 +38,12 @@ const EditDisplayNameForm = ({
   });
 
   const handleSubmit = async (values) => {
-    setIsLoading(true);
-    try {
-      const response = await apiClient.put("/users/me", {
-        displayName: values.displayName,
-      });
-      setUserInfo(response.data);
+    const result = await updateDisplayName(values.displayName);
+    if (result.success) {
       if (refreshUserInfo) {
         await refreshUserInfo();
       }
       onClose();
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message;
-      setError(errorMessage);
-      console.error("Failed to update display name:", errorMessage);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -66,6 +55,7 @@ const EditDisplayNameForm = ({
           label="Display Name"
           placeholder="Your new display name"
           data-autofocus
+          error={error}
           {...form.getInputProps("displayName")}
         />
 
