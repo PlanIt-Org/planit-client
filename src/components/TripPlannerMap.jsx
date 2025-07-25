@@ -4,10 +4,12 @@ import {
   Map,
   useMap,
 } from "@vis.gl/react-google-maps";
+import apiClient from "../api/axios";
 
 const GOOGLE_MAPS_STYLING_ID = import.meta.env.VITE_GOOGLE_MAPS_STYLING_ID;
 
 const TripPlannerMap = ({
+  tripId,
   selectedPlace,
   locations,
   selectedCity,
@@ -41,6 +43,7 @@ const TripPlannerMap = ({
       </Map>
 
       <MapHandler
+      tripId={tripId}
         selectedPlace={selectedPlace}
         locations={locations}
         selectedCity={selectedCity}
@@ -52,6 +55,7 @@ const TripPlannerMap = ({
 };
 
 const MapHandler = ({
+  tripId,
   selectedPlace,
   locations,
   selectedCity,
@@ -141,6 +145,35 @@ const MapHandler = ({
               });
               const totalDurationText = formatDuration(totalDurationSeconds);
               console.log("Total Trip Duration:", totalDurationText);
+
+              async function updateTripEstimatedTime(currentTripId, estimatedTimeString) {
+                if (!currentTripId) {
+                  console.warn("No tripId provided, skipping time update.");
+                  return;
+                }
+              
+                try {
+                  const payload = {
+                    estimatedTime: estimatedTimeString,
+                  };
+              
+                  const response = await apiClient.post(
+                    `/trips/${currentTripId}/estimated-time`,
+                    payload
+                  );
+              
+                  console.log("Successfully updated estimated time:", response.data);
+                  return response.data;
+                } catch (error) {
+                  console.error(
+                    "Failed to update estimated time:",
+                    error.response?.data || error.message
+                  );
+                }
+              }
+              // Call the function with the tripId and calculated duration
+              updateTripEstimatedTime(tripId, totalDurationText);
+
 
               const getPointStringForUrl = (locObj) => {
                 if (locObj.place_id) {

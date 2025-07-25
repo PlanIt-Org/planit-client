@@ -51,10 +51,12 @@ import { useParams } from "react-router";
 import { useEffect } from "react";
 import NoCarouselLocation from "../components/NoCarouselLocation";
 import RSVPForm from "../components/RSVPForm";
+import TripTimes from "../components/TripTimes";
 
 // https://pravatar.cc is a random avatar generator btw
 
 const TripSummaryPage = ({
+
   selectedCity,
   locations,
   selectedPlace,
@@ -132,17 +134,7 @@ const TripSummaryPage = ({
                     className="bg-white"
                     flex={1}
                   >
-                    <Group position="apart" justify="space-between">
-                      <Text size="sm" color="dimmed">
-                        Start Time:
-                      </Text>
-                      <Text size="sm" color="dimmed">
-                        End Time:
-                      </Text>
-                      <Text size="sm" color="dimmed">
-                        Estimated Total Time:
-                      </Text>
-                    </Group>
+                    <TripTimes currTripId={currTripId}/>
                   </Paper>
                 </Group>
                 {/* Main Image/Map */}
@@ -178,6 +170,7 @@ const TripSummaryPage = ({
                       showRoutes={true}
                       mapHeight="100%"
                       setGoogleMapsLink={setGoogleMapsLink}
+                      tripId={currTripId}
                     ></TripPlannerMap>
                   </div>
                 </Paper>
