@@ -17,6 +17,8 @@ import {
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
+import { useUserPreferences } from "../hooks/useUserPreferences";
+import useUpdateDisplayName from "../hooks/useUpdateDisplayName";
 
 /**
  * Renders a single question based on its component type and options.
@@ -91,8 +93,11 @@ const QuestionnairePage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const { preferences: initialPreferences, isLoading: isLoadingPreferences } =
+    useUserPreferences();
+  const [updateDisplayName, { isLoading: isLoadingUpdateName, error }] =
+    useUpdateDisplayName();
 
   const questionnaireSteps = [
     {
@@ -106,6 +111,12 @@ const QuestionnairePage = () => {
       type: "question",
       title: "ABOUT YOU",
       questions: [
+        {
+          id: "name",
+          prompt: "What is your name?",
+          component: "TextInput",
+          required: true,
+        },
         {
           id: "age",
           prompt: "What is your age?",
@@ -249,42 +260,10 @@ const QuestionnairePage = () => {
   ];
 
   useEffect(() => {
-    const fetchPreferences = async () => {
-      try {
-        const { data } = await apiClient.get("/users/preferences");
-        if (data) {
-          const structuredAnswers = {
-            essentials: {
-              age: data.age,
-              dietary: data.dietaryRestrictions,
-              location: data.location,
-            },
-            activities: {
-              activityType: data.activityPreferences,
-              budget: data.budget,
-            },
-            planningStyle: {
-              tripLength: data.typicalTripLength,
-              planningRole: data.planningRole,
-            },
-            personal: {
-              eventAudience: data.typicalAudience,
-              lifestyle: data.lifestyleChoices,
-            },
-          };
-          setAnswers(structuredAnswers);
-        }
-      } catch (error) {
-        if (error.response?.status !== 404) {
-          console.error("Failed to fetch existing preferences:", error);
-        }
-        // It's okay if it's a 404, it just means the user is new.
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchPreferences();
-  }, []);
+    if (initialPreferences) {
+      setAnswers(initialPreferences);
+    }
+  }, [initialPreferences]);
 
   const totalSteps = questionnaireSteps.length;
   const progress = ((currentStep + 1) / totalSteps) * 100;
@@ -304,13 +283,14 @@ const QuestionnairePage = () => {
    * Submits the user's preferences to the backend.
    * Navigates to the home page on success.
    */
-  const submitPreferences = async (req, res) => {
+  const submitPreferences = async () => {
     setIsSubmitting(true);
-    // const userId = req.user && req.user.id;
-    // console.log("Attempting to save preferences for userId:", userId);
     const flattenedAnswers = flattenAnswers(answers);
     const ageAsNumber = parseInt(flattenedAnswers.age, 10);
     console.log("Preparing to submit preferences. Payload:", flattenedAnswers);
+
+    // Extract name for display name update, do not include in apiPayload
+    const displayName = flattenedAnswers.name;
 
     const apiPayload = {
       age: isNaN(ageAsNumber) ? null : ageAsNumber,
@@ -327,6 +307,17 @@ const QuestionnairePage = () => {
     try {
       console.log("Sending PUT request to /api/users/preferences...");
       const response = await apiClient.put("/users/preferences", apiPayload);
+      if (displayName) {
+        try {
+          await updateDisplayName(displayName);
+          console.log("Display name updated successfully.");
+        } catch (nameError) {
+          console.error(
+            "Failed to update display name, but preferences were saved.",
+            nameError
+          );
+        }
+      }
       console.log("Request sent. Awaiting response...");
       console.log(
         "Preferences saved successfully. Response data:",
@@ -502,7 +493,10 @@ const QuestionnairePage = () => {
         padding: "20px",
       }}
     >
-      <LoadingOverlay visible={isSubmitting || isLoading} overlayBlur={2} />
+      <LoadingOverlay
+        visible={isSubmitting || isLoadingPreferences}
+        overlayBlur={2}
+      />
       {/* Progress Bar */}
       <Progress
         value={progress}

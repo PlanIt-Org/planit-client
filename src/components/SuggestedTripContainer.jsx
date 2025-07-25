@@ -72,7 +72,6 @@ const SuggestedTripContainer = () => {
 
   return (
     <Stack spacing="lg">
-      <Title order={2}>AI-Powered Suggestions</Title>
       {locations.length > 0 ? (
         locations.map((location, index) => (
           <SuggestedTrip key={index} location={location} />
