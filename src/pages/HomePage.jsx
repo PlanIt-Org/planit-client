@@ -60,8 +60,8 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId
             </Text>
           )}
           <TripCategory></TripCategory>
-          {/*  Your Trips */}
-          <TripGrid userId={user}></TripGrid>
+          {/*  Your Trips */}x
+          <TripGrid userId={user} setCurrTripId={setCurrTripId}></TripGrid>
 
           {/* Public Trips, TODO: make this filter based off the user's location */}
           {/* <TripGrid title="Discover Trips"></TripGrid> */}

@@ -14,7 +14,7 @@ import {
   rem,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import DateSelector from "./DateSelector";
+import CopyTripLink from "./CopyTripLink";
 import { IconCalendarWeek, IconPencil, IconCheck } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
@@ -30,11 +30,15 @@ const TripDetails = ({ currTripId }) => {
     console.log("Leaving trip (yes option was clicked)");
     close();
   };
+  
+   const handleLeaveTrip = () => {
+        console.log("Leaving trip (yes option was clicked)");
+        close();
+      };
 
   const handleTripCopyLink = async () => {
     try {
       const inviteLink = `${window.location.origin}/tripsummary/${currTripId}`;
-
       await navigator.clipboard.writeText(inviteLink);
       notifications.show({
         title: "Link Copied!",
@@ -171,9 +175,7 @@ const TripDetails = ({ currTripId }) => {
             </Text>
           </Box>
         </Stack>
-        <Button variant="light" fullWidth mt="md" onClick={handleTripCopyLink}>
-          Copy Link
-        </Button>
+        <CopyTripLink tripId={currTripId}/>
       </Stack>
       {/* Leave Trip Confirmation Modal */}
       <Modal
