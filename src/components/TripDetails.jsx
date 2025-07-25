@@ -26,10 +26,6 @@ const TripDetails = ({ currTripId }) => {
   const [inputTitle, setInputTitle] = useState("");
   const [inputDesc, setInputDesc] = useState("");
 
-  const handleLeaveTrip = () => {
-    console.log("Leaving trip (yes option was clicked)");
-    close();
-  };
   
    const handleLeaveTrip = () => {
         console.log("Leaving trip (yes option was clicked)");
