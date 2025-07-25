@@ -78,8 +78,8 @@ function CommentBox({ onAddComment, locations, userId, currTripId }) {
     if (locations && locations.length > 0) {
       setLocationsOptions(
         locations.map((location) => ({
-          value: location.formatted_address,
-          label: location.formatted_address,
+          value: location.name,
+          label: location.name,
         }))
       );
     } else {

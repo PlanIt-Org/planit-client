@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { notifications } from "@mantine/notifications";
 
 const CopyTripLink = ({tripId, text}) => {
-
     const handleTripCopyLink = async () => {
         try {
           const inviteLink = `${window.location.origin}/tripsummary/${tripId}`;
