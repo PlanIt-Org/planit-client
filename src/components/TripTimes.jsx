@@ -48,7 +48,7 @@ const TripTimes = ({ currTripId }) => {
     };
   
     fetchTripTimes(); // Initial fetch
-    intervalId = setInterval(fetchTripTimes, 2000); // Poll every 2s
+    intervalId = setInterval(fetchTripTimes, 1000); // Poll every 1s
   
     return () => clearInterval(intervalId);
   }, [currTripId]);

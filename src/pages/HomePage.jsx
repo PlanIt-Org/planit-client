@@ -16,12 +16,22 @@ import TripGrid from "../components/TripGrid";
 import { useNavigate } from "react-router-dom";
 import HomeLocationSearchBar from "../components/HomeLocationSearchBar";
 import NavBar from "../components/NavBar";
-
+import { useState } from "react";
 
 const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId, user, setLocations }) => {
   //TODO: if you want to add a custom avatar, like if the user wants to show there profile, or default, go here: https://mantine.dev/core/avatar/
   //TODO: Once the profile page is created, add the avatar to the profile page
   const navigate = useNavigate();
+
+  const categories = [
+    "Upcoming",
+    "Drafts",
+    "Invited Trips",
+    "Hosting",
+    "Past Events",
+  ];
+
+  const [active, setActive] = useState(categories[0]);
 
   // reset seelected city once going back to home page
   useEffect(() => {
@@ -59,9 +69,9 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId
               Loading Google Maps API and Places services...
             </Text>
           )}
-          <TripCategory></TripCategory>
-          {/*  Your Trips */}x
-          <TripGrid userId={user} setCurrTripId={setCurrTripId}></TripGrid>
+          <TripCategory categories={categories} active={active} setActive={setActive}></TripCategory>
+          {/*  Your Trips */}
+          <TripGrid userId={user} setCurrTripId={setCurrTripId} active={active}></TripGrid>
 
           {/* Public Trips, TODO: make this filter based off the user's location */}
           {/* <TripGrid title="Discover Trips"></TripGrid> */}

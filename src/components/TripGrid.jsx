@@ -6,11 +6,15 @@ import { useState, useEffect } from "react";
 import CopyTripLink from "./CopyTripLink";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const PAGE_SIZE = 6;
+
 
 const TripGrid = ({userId, setCurrTripId}) => {
 
   const [opened, { open, close }] = useDisclosure(false);
-  const [trips, setTrips] = useState([]);
+  const [allTrips, setAllTrips] = useState([]);
+  const [visibleTrips, setVisibleTrips] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTrip, setSelectedTrip] = useState(null); // State to hold the trip data for the modal
@@ -29,9 +33,10 @@ const TripGrid = ({userId, setCurrTripId}) => {
           throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
-        setTrips(data.trips); 
-        console.log(data.trips);
+        const data = await response.json(); 
+        setAllTrips(data.trips || []);
+        setVisibleTrips(data.trips.slice(0, PAGE_SIZE)); // Show first page
+        setPage(1);
       } catch (err) {
         console.error("Failed to fetch trips:", err);
         setError(err.message);
@@ -47,6 +52,13 @@ const TripGrid = ({userId, setCurrTripId}) => {
   const handleCardClick = (trip) => {
     setSelectedTrip(trip);
     open(); 
+  };
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    const nextTrips = allTrips.slice(0, nextPage * PAGE_SIZE);
+    setVisibleTrips(nextTrips);
+    setPage(nextPage);
   };
 
   if (loading) {
@@ -76,7 +88,7 @@ const TripGrid = ({userId, setCurrTripId}) => {
     );
   }
 
-  if (trips.length === 0) {
+  if (allTrips.length === 0) {
     return (
       <Container size="xl" py="lg">
         <Text ta="center">No trips found. Start by creating some trips in your database!</Text>
@@ -87,16 +99,18 @@ const TripGrid = ({userId, setCurrTripId}) => {
   return (
     <Container size="xl" py="lg">
       <Grid gutter="md" rowgap="xl" columngap="xl">
-        {trips.map((trip) => (
+        {visibleTrips.map((trip) => (
           <Grid.Col key={trip.id} span={{ base: 12, sm: 6, md: 4, lg: 4 }}>
             <TripCard trip={trip} onCardClick={() => handleCardClick(trip)} />
           </Grid.Col>
         ))}
       </Grid>
-      <Group justify="center" mt="lg">
-        {/* TODO: Implement Load More logic*/}
-        <Button >Load More</Button>
-      </Group>
+
+      {visibleTrips.length < allTrips.length && (
+        <Group justify="center" mt="lg">
+          <Button onClick={loadMore}>Load More</Button>
+        </Group>
+      )}
 
       <Modal opened={opened} onClose={close} title={selectedTrip?.title || "Trip Details"} centered size="lg"> {/* Changed size to "lg" for larger horizontal */}
         {selectedTrip && (

@@ -2,16 +2,7 @@ import React from "react";
 import { Button, Group, Text } from "@mantine/core";
 import { useState } from "react";
 
-const categories = [
-  "Upcoming",
-  "Drafts",
-  "Invited Trips",
-  "Hosting",
-  "Past Events",
-];
-
-const TripCategory = () => {
-  const [active, setActive] = useState(categories[0]);
+const TripCategory = ({categories, active, setActive}) => {
 
   return (
     <>

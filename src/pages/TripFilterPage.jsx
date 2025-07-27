@@ -19,7 +19,7 @@ import TripFilterSearchBox from "../components/TripFilterSearchBox";
 import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
 
-const TripFilterPage = ({ setCurrTripId, currTripId }) => {
+const TripFilterPage = ({ setCurrTripId, currTripId, setLocations }) => {
   const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -196,7 +196,7 @@ const handleCreateGuestAndNavigate = async () => {
 
   return (
     <Flex style={{ width: "100%", minHeight: "100vh", alignItems: "stretch" }}>
-      <NavBar setCurrTripId={setCurrTripId} />
+      <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations}/>
       <Flex
         style={{ flex: 1, padding: "2rem" }}
         justify="center"
