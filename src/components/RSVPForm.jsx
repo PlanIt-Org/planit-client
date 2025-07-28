@@ -3,8 +3,12 @@ import React, { useState } from "react";
 import { Button, Stack, Paper, Group } from "@mantine/core";
 import apiClient from "../api/axios";
 
-function RSVPForm({ tripId }) {
+function RSVPForm({ tripId, ownTrip }) {
   const [submitting, setSubmitting] = useState(false);
+
+  if (ownTrip) {
+    return null;
+  }
 
   const handleRSVP = async (status) => {
     if (!tripId) {

@@ -18,17 +18,42 @@ import CopyTripLink from "./CopyTripLink";
 import { IconCalendarWeek, IconPencil, IconCheck } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
+import { useDeleteTrip } from "../hooks/useDeleteTrip";
 
-const TripDetails = ({ tripId }) => {
+const TripDetails = ({ tripId, ownTrip }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [inputTitle, setInputTitle] = useState("");
   const [inputDesc, setInputDesc] = useState("");
+  const { deleteTrip } = useDeleteTrip();
 
   const handleLeaveTrip = () => {
     console.log("Leaving trip (yes option was clicked)");
     close();
+  };
+
+  const handleDeleteTrip = async () => {
+    if (!confirm("Are you sure you want to delete this trip?")) return;
+
+    await deleteTrip({
+      id: tripId,
+      onSuccess: () => {
+        notifications.show({
+          title: "Trip deleted",
+          message: `"${inputTitle || "Your trip"}" was deleted successfully.`,
+          color: "green",
+        });
+        close();
+      },
+      onError: () => {
+        notifications.show({
+          title: "Error",
+          message: "Failed to delete the trip.",
+          color: "red",
+        });
+      },
+    });
   };
 
   const handleTripCopyLink = async () => {
@@ -66,17 +91,20 @@ const TripDetails = ({ tripId }) => {
     <Card shadow="sm" p="lg" radius="md" withBorder>
       <Stack spacing="md">
         <Group justify="space-between">
-          <Button variant="light">Add Hosts</Button>
-          <Button variant="filled" color="dark" onClick={open}>
-            Leave Trip
+          {ownTrip && <Button variant="light">Add Hosts</Button>}
+
+          <Button
+            variant="filled"
+            color={ownTrip ? "red" : "black"}
+            onClick={open}
+          >
+            {ownTrip ? "Delete Trip" : "Leave Trip"}
           </Button>
         </Group>
         <Stack className="text-center py-4" style={{ textAlign: "center" }}>
           {/* ---------------THIS IS FOR THE Title-----------  */}
           <Group>
-            {isEditingTitle ? (
-              // --- EDIT MODE ---
-
+            {ownTrip && isEditingTitle ? (
               <TextInput
                 value={inputTitle}
                 onChange={(event) => setInputTitle(event.target.value)}
@@ -88,37 +116,35 @@ const TripDetails = ({ tripId }) => {
                 style={{ flexGrow: 1 }}
               />
             ) : (
-              // --- VIEW MODE ---
-
               <Text style={{ flexGrow: 1 }} size="lg">
                 {inputTitle || "No title provided."}
               </Text>
             )}
 
-            {/* This icon also switches based on the isEditing state */}
-            <ActionIcon
-              onClick={() => {
-                if (isEditingTitle) {
-                  handleSaveTitle(inputTitle);
-                } else {
-                  setIsEditingTitle(true);
-                }
-              }}
-              variant="subtle"
-              color="gray"
-            >
-              {isEditingTitle ? (
-                <IconCheck style={{ width: rem(18) }} />
-              ) : (
-                <IconPencil style={{ width: rem(18) }} />
-              )}
-            </ActionIcon>
+            {ownTrip && (
+              <ActionIcon
+                onClick={() => {
+                  if (isEditingTitle) {
+                    handleSaveTitle(inputTitle);
+                  } else {
+                    setIsEditingTitle(true);
+                  }
+                }}
+                variant="subtle"
+                color="gray"
+              >
+                {isEditingTitle ? (
+                  <IconCheck style={{ width: rem(18) }} />
+                ) : (
+                  <IconPencil style={{ width: rem(18) }} />
+                )}
+              </ActionIcon>
+            )}
           </Group>
 
           {/* ---------------THIS IS FOR THE DESC-----------  */}
           <Group wrap="nowrap" align="flex-start">
-            {isEditingDesc ? (
-              // --- EDIT MODE ---
+            {ownTrip && isEditingDesc ? (
               <Textarea
                 value={inputDesc}
                 onChange={(event) => setInputDesc(event.currentTarget.value)}
@@ -128,7 +154,6 @@ const TripDetails = ({ tripId }) => {
                 minRows={3}
               />
             ) : (
-              // --- VIEW MODE ---
               <Text
                 c="dimmed"
                 style={{ flexGrow: 1, whiteSpace: "pre-wrap" }}
@@ -138,23 +163,25 @@ const TripDetails = ({ tripId }) => {
               </Text>
             )}
 
-            <ActionIcon
-              onClick={() => {
-                if (isEditingDesc) {
-                  handleSaveDesc(inputDesc);
-                } else {
-                  setIsEditingDesc(true);
-                }
-              }}
-              variant="subtle"
-              color="gray"
-            >
-              {isEditingDesc ? (
-                <IconCheck style={{ width: rem(18) }} />
-              ) : (
-                <IconPencil style={{ width: rem(18) }} />
-              )}
-            </ActionIcon>
+            {ownTrip && (
+              <ActionIcon
+                onClick={() => {
+                  if (isEditingDesc) {
+                    handleSaveDesc(inputDesc);
+                  } else {
+                    setIsEditingDesc(true);
+                  }
+                }}
+                variant="subtle"
+                color="gray"
+              >
+                {isEditingDesc ? (
+                  <IconCheck style={{ width: rem(18) }} />
+                ) : (
+                  <IconPencil style={{ width: rem(18) }} />
+                )}
+              </ActionIcon>
+            )}
           </Group>
 
           <Box
@@ -176,16 +203,23 @@ const TripDetails = ({ tripId }) => {
       <Modal
         opened={opened}
         onClose={close}
-        title="Confirm Leave Trip"
+        title={`Confirm ${ownTrip ? "Delete" : "Leave"} Trip`}
         centered
       >
-        <Text>Are you sure you want to leave this trip?</Text>
+        <Text>
+          {ownTrip
+            ? "Are you sure you want to delete this trip? This action cannot be undone."
+            : "Are you sure you want to leave this trip?"}
+        </Text>
         <Group mt="md" justify="flex-end">
           <Button variant="default" onClick={close}>
             No
           </Button>
-          <Button color="red" onClick={handleLeaveTrip}>
-            Yes, Leave Trip
+          <Button
+            color="red"
+            onClick={ownTrip ? handleDeleteTrip : handleLeaveTrip}
+          >
+            {ownTrip ? "Yes, Delete Trip" : "Yes, Leave Trip"}
           </Button>
         </Group>
       </Modal>

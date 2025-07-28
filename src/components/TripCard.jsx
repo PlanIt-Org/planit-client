@@ -16,34 +16,22 @@ import { IconHeart, IconHeartFilled, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import api from "../api/axios";
 import { showNotification } from "@mantine/notifications";
+import { useDeleteTrip } from "../hooks/useDeleteTrip";
+
 
 const TripCard = ({ onCardClick, onDelete, trip }) => {
   const [isHeartFilled, setIsHeartFilled] = useState(false);
+  const { deleteTrip } = useDeleteTrip();
+
 
   const toggleHeart = (event) => {
     event.stopPropagation();
     setIsHeartFilled((prev) => !prev);
   };
 
-  const handleDelete = async (e) => {
+  const handleDelete = (e) => {
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this trip?")) return;
-    try {
-      await api.delete(`/trips/${trip.id}`);
-      showNotification({
-        title: "Trip deleted",
-        message: `"${trip.title}" was deleted successfully.`,
-        color: "green",
-      });
-      onDelete?.(trip.id);
-    } catch (err) {
-      console.error(err);
-      showNotification({
-        title: "Error",
-        message: "Failed to delete the trip.",
-        color: "red",
-      });
-    }
+    deleteTrip(trip, onDelete);
   };
 
   const formatDate = (dateString) => {

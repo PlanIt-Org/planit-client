@@ -12,7 +12,7 @@ import { useState } from "react";
 import apiClient from "../api/axios";
 import { supabase } from "../supabaseClient";
 
-const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const TripPlannerPage = ({
   selectedCity,
@@ -22,9 +22,10 @@ const TripPlannerPage = ({
   setSelectedPlace,
   currTripId,
   setCurrTripId,
+  ownTrip,
+  setOwnTrip,
 }) => {
   const navigate = useNavigate();
-  const [ownTrip, setOwnTrip] = useState(true);
   const { id } = useParams();
 
   useEffect(() => {
@@ -122,7 +123,7 @@ const TripPlannerPage = ({
         return;
       }
 
-      let tripId = currTripId;
+      let tripId = currTripId || id;
 
       // If it's not your trip, make a copy of it
       if (!ownTrip) {

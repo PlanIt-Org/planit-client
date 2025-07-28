@@ -23,7 +23,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useEffect } from "react";
 
-const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Fetches all comments for a specific trip ID.

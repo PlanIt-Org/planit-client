@@ -32,7 +32,7 @@ function App({ isMapsApiLoaded }) {
   const [selectedCity, setSelectedCity] = useState("");
   const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
   const [selectedPlace, setSelectedPlace] = useState(null);
-
+  const [ownTrip, setOwnTrip] = useState(true);
   const { session } = useAuth();
   const location = useLocation();
 
@@ -93,6 +93,8 @@ function App({ isMapsApiLoaded }) {
                 setLocations={setLocations}
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
+                ownTrip={ownTrip}
+                setOwnTrip={setOwnTrip}
               />
             </ProtectedRoute>
           }
@@ -109,6 +111,8 @@ function App({ isMapsApiLoaded }) {
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
                 userId={session?.user?.id}
+                ownTrip={ownTrip}
+                setOwnTrip={setOwnTrip}
               />
             </ProtectedRoute>
           }
