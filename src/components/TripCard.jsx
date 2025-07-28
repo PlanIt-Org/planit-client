@@ -12,15 +12,38 @@ import {
   Modal,
   ActionIcon,
 } from "@mantine/core";
-import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
+import { IconHeart, IconHeartFilled, IconX } from "@tabler/icons-react";
 import { useState } from "react";
+import api from "../api/axios";
+import { showNotification } from "@mantine/notifications";
 
-const TripCard = ({ onCardClick, trip }) => {
+const TripCard = ({ onCardClick, onDelete, trip }) => {
   const [isHeartFilled, setIsHeartFilled] = useState(false);
 
   const toggleHeart = (event) => {
     event.stopPropagation();
     setIsHeartFilled((prev) => !prev);
+  };
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this trip?")) return;
+    try {
+      await api.delete(`/trips/${trip.id}`);
+      showNotification({
+        title: "Trip deleted",
+        message: `"${trip.title}" was deleted successfully.`,
+        color: "green",
+      });
+      onDelete?.(trip.id);
+    } catch (err) {
+      console.error(err);
+      showNotification({
+        title: "Error",
+        message: "Failed to delete the trip.",
+        color: "red",
+      });
+    }
   };
 
   const formatDate = (dateString) => {
@@ -77,7 +100,15 @@ const TripCard = ({ onCardClick, trip }) => {
           {formatDate(trip.startTime)}
         </Text>
       </Group>
-      <Text>Status: {trip.status}</Text>
+
+      <Group justify="space-between" align="center">
+        <Text>Status: {trip.status}</Text>
+        {trip.status === "PLANNING" && (
+          <Button onClick={handleDelete} color="red" size="xs" variant="light">
+            Delete Trip
+          </Button>
+        )}
+      </Group>
     </Card>
   );
 };

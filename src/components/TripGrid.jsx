@@ -48,6 +48,14 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
   }, []); 
 
 
+
+  const handleDeleteTrip = (tripId) => {
+    setAllTrips(prev => prev.filter(t => t.id !== tripId));
+    setVisibleTrips(prev => prev.filter(t => t.id !== tripId));
+  };
+  
+
+
   // reset stuff when changing categories 
   useEffect(() => {
     if (!allTrips.length) return;
@@ -91,27 +99,21 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
   }, [active, allTrips]);
 
 
-  const getFilteredTrips = () => {
+  const getFilteredTrips = (trips = allTrips) => {
     const now = new Date();
     switch (active) {
       case "Drafts":
-        return allTrips.filter(trip => trip.status === "PLANNING");
+        return trips.filter(trip => trip.status === "PLANNING");
       case "Upcoming":
-        return allTrips.filter(
-          trip => trip.status === "ACTIVE" && new Date(trip.endTime) >= now
-        );
+        return trips.filter(trip => trip.status === "ACTIVE" && new Date(trip.endTime) >= now);
       case "Past Events":
-        return allTrips.filter(
-          trip => trip.status === "COMPLETED" || new Date(trip.endTime) < now
-        );
+        return trips.filter(trip => trip.status === "COMPLETED" || new Date(trip.endTime) < now);
       case "Invited Trips":
-        return allTrips.filter(
-          trip => trip.invitedUsers?.some(user => user.id === userId)
-        );
+        return trips.filter(trip => trip.invitedUsers?.some(user => user.id === userId));
       case "Hosting":
-        return allTrips.filter(trip => trip.hostId === userId);
+        return trips.filter(trip => trip.hostId === userId);
       default:
-        return allTrips;
+        return trips;
     }
   };
 
@@ -169,7 +171,7 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
       <Grid gutter="md" rowgap="xl" columngap="xl">
         {visibleTrips.map((trip) => (
           <Grid.Col key={trip.id} span={{ base: 12, sm: 6, md: 4, lg: 4 }}>
-            <TripCard trip={trip} onCardClick={() => handleCardClick(trip)} planning={planning} />
+            <TripCard trip={trip} onCardClick={() => handleCardClick(trip)} onDelete={() => handleDeleteTrip(trip.id)} />
           </Grid.Col>
         ))}
       </Grid>
