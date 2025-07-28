@@ -19,8 +19,6 @@ import NavBar from "../components/NavBar";
 import { useState } from "react";
 
 const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId, user, setLocations }) => {
-  //TODO: if you want to add a custom avatar, like if the user wants to show there profile, or default, go here: https://mantine.dev/core/avatar/
-  //TODO: Once the profile page is created, add the avatar to the profile page
   const navigate = useNavigate();
 
   const categories = [
@@ -58,7 +56,7 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId
       >
         <Container size="mid" py="0">
           <Title order={1} ta="center" size={70} mb="lg">
-            Welcome {user}!
+            Welcome User!
           </Title>
 
         {/* only show search bar when API fully loaded */}

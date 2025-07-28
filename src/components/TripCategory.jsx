@@ -6,8 +6,6 @@ const TripCategory = ({categories, active, setActive}) => {
 
   return (
     <>
-      {/* TODO: make this text bigger, currently when making it bigger it shifts other stuff down???? */}
-      {/* <Text ta="center" fw={700}>Your Trips</Text>  */}
       <Group gap="sm" justify="center">
         {categories.map((category) => (
           <Button
