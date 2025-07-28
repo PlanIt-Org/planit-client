@@ -56,6 +56,8 @@ const TripSummaryPage = ({
   selectedPlace,
   setLocations,
   userId,
+  ownTrip,
+  setOwnTrip,
 }) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
@@ -101,6 +103,13 @@ const TripSummaryPage = ({
         }));
 
         setLocations(transformed);
+
+        const hostRes = await apiClient.get(`/trips/${currTripId}/host`);
+        const { hostId } = hostRes.data;
+
+        if (hostId !== userId) {
+          setOwnTrip(false);
+        }
       } catch (err) {
         console.error("Failed to fetch locations:", err);
       }
@@ -206,7 +215,7 @@ const TripSummaryPage = ({
                   </div>
                 </Paper>
                 <Group justify="center">
-                  <Button
+                  {/* <Button
                     variant="light"
                     leftSection={<IconShare size={18} />}
                     mt="md"
@@ -214,7 +223,7 @@ const TripSummaryPage = ({
                     onClick={handleOpenGoogleMaps}
                   >
                     Open In Google Maps
-                  </Button>
+                  </Button> */}
                 </Group>
                 {/* Bottom Image Placeholders / location cards */}
 
@@ -229,8 +238,8 @@ const TripSummaryPage = ({
             <Grid.Col span={5}>
               <Stack spacing="xl">
                 {/* Trip Details Card */}
-                <TripDetails tripId={id}></TripDetails>
-                <RSVPForm tripId={id}></RSVPForm>
+                <TripDetails tripId={id} ownTrip={ownTrip}></TripDetails>
+                <RSVPForm tripId={id} ownTrip={ownTrip}></RSVPForm>
                 <TripGuestList></TripGuestList>
 
                 {/* Comments Section */}

@@ -22,9 +22,10 @@ const TripPlannerPage = ({
   setSelectedPlace,
   currTripId,
   setCurrTripId,
+  ownTrip,
+  setOwnTrip,
 }) => {
   const navigate = useNavigate();
-  const [ownTrip, setOwnTrip] = useState(true);
   const { id } = useParams();
 
   useEffect(() => {
