@@ -6,20 +6,22 @@ import { IconPlus, IconSearch } from "@tabler/icons-react";
 const AutocompleteSearchField = ({ onPlaceSelected }) => {
   const { ref: autocompleteInputRef } = usePlacesWidget({
     onPlaceSelected: (place) => {
-      console.log("Place selected by react-google-autocomplete:", place);
-      onPlaceSelected(place);
+      const imageUrl =
+        place.photos && place.photos.length > 0
+          ? place.photos[0].getUrl({ maxWidth: 400 })
+          : null;
+
+      const placeWithImage = {
+        ...place,
+        imageUrl,
+      };
+
+      console.log("Place selected with image URL:", placeWithImage);
+      onPlaceSelected(placeWithImage);
 
       if (autocompleteInputRef.current && place.name) {
         autocompleteInputRef.current.value = place.name;
       }
-
-      if (place.photos && place.photos.length > 0) {
-        const firstPhoto = place.photos[0];
-
-        const imageUrl = firstPhoto.getUrl({ maxWidth: 400 });
-        console.log("Image URL:", imageUrl);
-      }
-      // TODO: add place holder image
     },
     options: {
       types: ["geocode", "establishment"],

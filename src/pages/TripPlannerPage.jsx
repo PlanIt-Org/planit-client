@@ -76,6 +76,7 @@ const TripPlannerPage = ({
             },
           },
           types: loc.types,
+          image_url: loc.imageUrl || null,
         };
 
         // Step 1: Create the location
