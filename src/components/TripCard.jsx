@@ -71,7 +71,7 @@ const TripCard = ({ onCardClick, trip }) => {
 
       <Group justify="space-between" mt="md" mb="xs">
         <Text size="sm" c="dimmed">
-          Host By {trip.host.name}
+          Hosted By {trip.host.name}
         </Text>
         <Text size="sm" c="dimmed">
           {formatDate(trip.startTime)}

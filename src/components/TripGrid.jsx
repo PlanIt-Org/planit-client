@@ -9,7 +9,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PAGE_SIZE = 6;
 
 
-const TripGrid = ({userId, setCurrTripId}) => {
+const TripGrid = ({userId, setCurrTripId, active}) => {
 
   const [opened, { open, close }] = useDisclosure(false);
   const [allTrips, setAllTrips] = useState([]);
@@ -18,7 +18,6 @@ const TripGrid = ({userId, setCurrTripId}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTrip, setSelectedTrip] = useState(null); // State to hold the trip data for the modal
-
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -49,6 +48,74 @@ const TripGrid = ({userId, setCurrTripId}) => {
   }, []); 
 
 
+  // reset stuff when changing categories 
+  useEffect(() => {
+    if (!allTrips.length) return;
+  
+    const now = new Date();
+  
+    let filtered = [];
+  
+    switch (active) {
+      case "Drafts":
+        filtered = allTrips.filter(trip => trip.status === "PLANNING");
+        break;
+      case "Upcoming":
+        filtered = allTrips.filter(
+          trip =>
+            trip.status === "ACTIVE" &&
+            new Date(trip.endTime) >= now
+        );
+        break;
+      case "Past Events":
+        filtered = allTrips.filter(
+          trip =>
+            trip.status === "COMPLETED" ||
+            new Date(trip.endTime) < now
+        );
+        break;
+      case "Invited Trips":
+        filtered = allTrips.filter(
+          trip => trip.invitedUsers?.some(user => user.id === userId)
+        );
+        break;
+      case "Hosting":
+        filtered = allTrips.filter(trip => trip.hostId === userId);
+        break;
+      default:
+        filtered = allTrips;
+    }
+  
+    setVisibleTrips(filtered.slice(0, PAGE_SIZE));
+    setPage(1);
+  }, [active, allTrips]);
+
+
+  const getFilteredTrips = () => {
+    const now = new Date();
+    switch (active) {
+      case "Drafts":
+        return allTrips.filter(trip => trip.status === "PLANNING");
+      case "Upcoming":
+        return allTrips.filter(
+          trip => trip.status === "ACTIVE" && new Date(trip.endTime) >= now
+        );
+      case "Past Events":
+        return allTrips.filter(
+          trip => trip.status === "COMPLETED" || new Date(trip.endTime) < now
+        );
+      case "Invited Trips":
+        return allTrips.filter(
+          trip => trip.invitedUsers?.some(user => user.id === userId)
+        );
+      case "Hosting":
+        return allTrips.filter(trip => trip.hostId === userId);
+      default:
+        return allTrips;
+    }
+  };
+
+
   const handleCardClick = (trip) => {
     setSelectedTrip(trip);
     open(); 
@@ -56,7 +123,8 @@ const TripGrid = ({userId, setCurrTripId}) => {
 
   const loadMore = () => {
     const nextPage = page + 1;
-    const nextTrips = allTrips.slice(0, nextPage * PAGE_SIZE);
+    const filtered = getFilteredTrips();
+    const nextTrips = filtered.slice(0, nextPage * PAGE_SIZE);
     setVisibleTrips(nextTrips);
     setPage(nextPage);
   };
@@ -101,12 +169,12 @@ const TripGrid = ({userId, setCurrTripId}) => {
       <Grid gutter="md" rowgap="xl" columngap="xl">
         {visibleTrips.map((trip) => (
           <Grid.Col key={trip.id} span={{ base: 12, sm: 6, md: 4, lg: 4 }}>
-            <TripCard trip={trip} onCardClick={() => handleCardClick(trip)} />
+            <TripCard trip={trip} onCardClick={() => handleCardClick(trip)} planning={planning} />
           </Grid.Col>
         ))}
       </Grid>
 
-      {visibleTrips.length < allTrips.length && (
+      {visibleTrips.length < getFilteredTrips().length && (
         <Group justify="center" mt="lg">
           <Button onClick={loadMore}>Load More</Button>
         </Group>
