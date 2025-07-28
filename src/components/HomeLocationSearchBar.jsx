@@ -5,7 +5,7 @@ import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
 import { notifications } from "@mantine/notifications";
 import DatePickerPopover from "./DatePickerPopover";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
 const generateTimeOptions = () => {
   const times = [];
@@ -22,13 +22,7 @@ const generateTimeOptions = () => {
 };
 
 const timeOptions = generateTimeOptions();
-
-const HomeLocationSearchBar = ({
-  selectedCity,
-  setSelectedCity,
-  setCurrTripId,
-  user,
-}) => {
+const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   const navigate = useNavigate();
 
   const [startTime, setStartTime] = useState("");
@@ -105,7 +99,7 @@ const HomeLocationSearchBar = ({
           description: `An exciting trip planned for ${selectedCity.name}!`,
         };
 
-        const response = await fetch(`${API_BASE_URL}/api/trips`, {
+        const response = await fetch(`${API_BASE_URL}trips`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -123,9 +117,7 @@ const HomeLocationSearchBar = ({
 
         const result = await response.json();
         console.log("Trip created successfully:", result.trip);
-
-        setCurrTripId(result.trip.id);
-        navigate("/tripfilter");
+        navigate(`/tripfilter/${result.trip.id}`);
       } catch (error) {
         console.error("Error creating trip:", error);
 

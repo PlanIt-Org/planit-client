@@ -33,18 +33,24 @@ PlanIt is a modern, user-friendly web application that streamlines the process o
 ## Getting Started
 
 1. **Clone the repository:**
+
    ```bash
    git clone <repo-url>
    cd planit-client
    ```
+
 2. **Install dependencies:**
+
    ```bash
    npm install
    ```
+
 3. **Start the development server:**
+
    ```bash
    npm run dev
    ```
+
 4. **Open your browser:**
    Visit [http://localhost:5173](http://localhost:5173) (or the port shown in your terminal).
 
@@ -54,7 +60,7 @@ PlanIt is a modern, user-friendly web application that streamlines the process o
 
 ## Project Structure
 
-```
+```bash
 planit-client/
 ├── public/                # Static assets
 ├── src/

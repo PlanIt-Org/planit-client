@@ -3,7 +3,7 @@ import { Button } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
 import { supabase } from "../supabaseClient";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 const LogoutButton = () => {
   const { session, setSession } = useAuth();

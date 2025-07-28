@@ -8,7 +8,7 @@ import {
   Avatar,
   Button,
   Flex,
-  Text
+  Text,
 } from "@mantine/core";
 import { useEffect } from "react";
 import TripCategory from "../components/TripCategory";
@@ -18,7 +18,14 @@ import HomeLocationSearchBar from "../components/HomeLocationSearchBar";
 import NavBar from "../components/NavBar";
 import { useState } from "react";
 
-const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId, user, setLocations }) => {
+const HomePage = ({
+  selectedCity,
+  setSelectedCity,
+  isMapsApiLoaded,
+  setCurrTripId,
+  user,
+  setLocations,
+}) => {
   const navigate = useNavigate();
 
   const categories = [
@@ -33,9 +40,9 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId
 
   // reset seelected city once going back to home page
   useEffect(() => {
-   setSelectedCity("");
+    setSelectedCity("");
   }, []);
-  
+
   return (
     <Flex
       style={{
@@ -44,7 +51,7 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId
         alignItems: "stretch",
       }}
     >
-      <NavBar currentPage={0} setCurrTripId={setCurrTripId} setLocations={setLocations}/>
+      <NavBar currentPage={0} setLocations={setLocations} />
       {/* main content */}
       <Box
         style={{
@@ -58,17 +65,29 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId
           <Title order={1} ta="center" size={70} mb="lg">
             Welcome User!
           </Title>
-
-        {/* only show search bar when API fully loaded */}
+          {/* only show search bar when API fully loaded */}
           {isMapsApiLoaded ? (
-            <HomeLocationSearchBar selectedCity={selectedCity} setSelectedCity={setSelectedCity} setCurrTripId={setCurrTripId} user={user}> </HomeLocationSearchBar>          ) : (
+            <HomeLocationSearchBar
+              selectedCity={selectedCity}
+              setSelectedCity={setSelectedCity}
+              user={user}
+            />
+          ) : (
             <Text ta="center" size="md" c="dimmed" mt="lg">
               Loading Google Maps API and Places services...
             </Text>
           )}
-          <TripCategory categories={categories} active={active} setActive={setActive}></TripCategory>
+          <TripCategory
+            categories={categories}
+            active={active}
+            setActive={setActive}
+          ></TripCategory>
           {/*  Your Trips */}
-          <TripGrid userId={user} setCurrTripId={setCurrTripId} active={active}></TripGrid>
+          <TripGrid
+            userId={user}
+            setCurrTripId={setCurrTripId}
+            active={active}
+          ></TripGrid>
 
           {/* Public Trips, TODO: make this filter based off the user's location */}
           {/* <TripGrid title="Discover Trips"></TripGrid> */}

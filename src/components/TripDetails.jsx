@@ -19,22 +19,21 @@ import { IconCalendarWeek, IconPencil, IconCheck } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 
-const TripDetails = ({ currTripId }) => {
+const TripDetails = ({ tripId }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [inputTitle, setInputTitle] = useState("");
   const [inputDesc, setInputDesc] = useState("");
 
-  
-   const handleLeaveTrip = () => {
-        console.log("Leaving trip (yes option was clicked)");
-        close();
-      };
+  const handleLeaveTrip = () => {
+    console.log("Leaving trip (yes option was clicked)");
+    close();
+  };
 
   const handleTripCopyLink = async () => {
     try {
-      const inviteLink = `${window.location.origin}/tripsummary/${currTripId}`;
+      const inviteLink = `${window.location.origin}/tripsummary/${tripId}`;
       await navigator.clipboard.writeText(inviteLink);
       notifications.show({
         title: "Link Copied!",
@@ -171,7 +170,7 @@ const TripDetails = ({ currTripId }) => {
             </Text>
           </Box>
         </Stack>
-        <CopyTripLink tripId={currTripId}/>
+        <CopyTripLink tripId={tripId} />
       </Stack>
       {/* Leave Trip Confirmation Modal */}
       <Modal

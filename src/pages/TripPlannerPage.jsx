@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
 import { Button, Text, Box, Group, Stack, Flex } from "@mantine/core";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
 import SuggestedTripContainer from "../components/SuggestedTripContainer";
 import NavBar from "../components/NavBar";
@@ -12,7 +12,8 @@ import { useState } from "react";
 import apiClient from "../api/axios";
 import { supabase } from "../supabaseClient";
 
-// TODO: add AI suggested trips
+const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
+
 const TripPlannerPage = ({
   selectedCity,
   locations,
@@ -26,7 +27,6 @@ const TripPlannerPage = ({
   const [ownTrip, setOwnTrip] = useState(true);
   const { id } = useParams();
 
-
   useEffect(() => {
     // --- UPDATED LOGIC ---
     // If there's no ID, the page was accessed incorrectly. Redirect home.
@@ -36,15 +36,17 @@ const TripPlannerPage = ({
         message: "This page requires a trip ID. Redirecting...",
         color: "orange",
       });
-      navigate('/'); // Redirect to the home page
+      navigate("/"); // Redirect to the home page
       return; // Stop execution of the effect
     }
 
     const fetchTripAndCheckOwnership = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         const loggedInUserId = session?.user?.id;
-        
+
         const res = await apiClient.get(`/trips/${id}`);
         const tripData = res.data;
 
@@ -58,7 +60,6 @@ const TripPlannerPage = ({
         // Set the current state based on the fetched trip
         setCurrTripId(tripData.id);
         setLocations(tripData.locations || []);
-
       } catch (error) {
         console.error("Failed to fetch trip data:", error);
         notifications.show({
@@ -66,13 +67,12 @@ const TripPlannerPage = ({
           message: `Could not load the trip with ID: ${id}.`,
           color: "red",
         });
-        navigate('/'); // Redirect home if the trip ID is invalid
+        navigate("/"); // Redirect home if the trip ID is invalid
       }
     };
 
     fetchTripAndCheckOwnership();
   }, [id, navigate, setCurrTripId, setLocations]);
-
 
   // use effect that adds currently selected place to a locations array
   useEffect(() => {
@@ -173,7 +173,8 @@ const TripPlannerPage = ({
           image_url: loc.imageUrl || null,
         };
 
-        const createRes = await fetch("http://localhost:3000/api/locations", {
+        // Step 1: Create the location
+        const createRes = await fetch(`${API_BASE_URL}locations`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(locationPayload),
@@ -187,7 +188,7 @@ const TripPlannerPage = ({
         const locationId = createdLocation.id;
 
         const addToTripRes = await fetch(
-          `http://localhost:3000/api/trips/${tripId}/locations`,
+          `${API_BASE_URL}trips/${tripId}/locations`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -222,7 +223,7 @@ const TripPlannerPage = ({
         alignItems: "stretch",
       }}
     >
-      <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations} />
+      <NavBar setLocations={setLocations} />
       <Box
         style={{
           flex: 1,

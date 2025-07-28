@@ -13,27 +13,27 @@ import TripCard from "./TripCard";
 import { useDisclosure } from "@mantine/hooks";
 import { useState, useEffect } from "react";
 import CopyTripLink from "./CopyTripLink";
+import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
 const PAGE_SIZE = 6;
 
-const TripGrid = ({ userId, setCurrTripId, active }) => {
+const TripGrid = ({ userId, tripId, active }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [allTrips, setAllTrips] = useState([]);
   const [visibleTrips, setVisibleTrips] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedTrip, setSelectedTrip] = useState(null); // State to hold the trip data for the modal
+  const [selectedTrip, setSelectedTrip] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTrips = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/api/trips/user/${userId}`
-        );
+        const response = await fetch(`${API_BASE_URL}trips/user/${userId}`);
 
         if (!response.ok) {
           // If the response is not OK (e.g., 404, 500), throw an error
@@ -203,12 +203,7 @@ const TripGrid = ({ userId, setCurrTripId, active }) => {
         </Group>
       )}
 
-      <Modal
-        opened={opened}
-        onClose={close}
-        centered
-        size="lg"
-      >
+      <Modal opened={opened} onClose={close} centered size="lg">
         {/* Changed size to "lg" for larger horizontal */}
         {selectedTrip && (
           <div className="space-y-4">
