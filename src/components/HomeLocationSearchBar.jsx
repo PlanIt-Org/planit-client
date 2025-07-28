@@ -120,16 +120,30 @@ const HomeLocationSearchBar = ({
         navigate("/tripfilter");
       } catch (error) {
         console.error("Error creating trip:", error);
-        notifications.show({
-          title: "Trip Creation Failed!",
-          message:
-            error.message ||
-            "An unexpected error occurred while creating your trip.",
-          color: "red",
-          position: "bottom-center",
-          autoClose: 7000,
-        });
-      } finally {
+      
+        const backendMessage = error.message || "";
+      
+        if (backendMessage.includes("only have up to 5 planning")) {
+          notifications.show({
+            title: "Limit Reached!",
+            message: "You can only have up to 5 planning trips. Finish or delete one first.",
+            color: "red",
+            position: "bottom-center",
+            autoClose: 6000,
+          });
+        } else {
+          notifications.show({
+            title: "Trip Creation Failed!",
+            message:
+              backendMessage ||
+              "An unexpected error occurred while creating your trip.",
+            color: "red",
+            position: "bottom-center",
+            autoClose: 7000,
+          });
+        }
+      }
+       finally {
         setIsCreatingTrip(false);
       }
     }
