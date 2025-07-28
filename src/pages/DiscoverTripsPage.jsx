@@ -24,12 +24,7 @@ const DiscoverTripsPage = ({ setLocations }) => {
         }}
       >
         <Container size="mid" py="0">
-          <Text
-            ta="center"
-            fw={700}
-            // TODO: change this size
-            size="xl"
-          >
+          <Text ta="center" fw={700} size="xl">
             Discover Trips
           </Text>
           <Text ta="center" size="xl">

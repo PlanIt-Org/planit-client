@@ -45,6 +45,8 @@ import TripLocationModal from "../components/TripLocationModal";
 import CommentGrid from "../components/CommentGrid";
 import NoCarouselLocation from "../components/NoCarouselLocation";
 import RSVPForm from "../components/RSVPForm";
+import TripTimes from "../components/TripTimes";
+import apiClient from "../api/axios";
 
 // https://pravatar.cc is a random avatar generator btw
 
@@ -59,15 +61,47 @@ const TripSummaryPage = ({
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
   const navigate = useNavigate();
-  const { tripId } = useParams();
+  const { id } = useParams();
+
+  const [currTripId, setCurrTripId] = useState(null);
 
   useEffect(() => {
-    if (tripId) {
-      console.log("Current trip ID from URL:", tripId);
+    if (id) {
+      setCurrTripId(id);
     }
-  }, [tripId]);
+    console.log("This is the ID:", id);
+  }, [id]);
 
-  console.log(userId, "userId");
+  useEffect(() => {
+    if (!currTripId) return;
+
+    const fetchLocations = async () => {
+      try {
+        const response = await apiClient.get(`/trips/${currTripId}/locations`);
+        const dbLocations = response.data.locations;
+
+        const transformed = dbLocations.map((loc) => ({
+          name: loc.name,
+          formatted_address: loc.address,
+          place_id: loc.googlePlaceId,
+          imageUrl: loc.image,
+          types: loc.types,
+          geometry: {
+            location: {
+              lat: loc.latitude,
+              lng: loc.longitude,
+            },
+          },
+        }));
+
+        setLocations(transformed);
+      } catch (err) {
+        console.error("Failed to fetch locations:", err);
+      }
+    };
+
+    fetchLocations();
+  }, [currTripId]);
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -112,7 +146,7 @@ const TripSummaryPage = ({
                     size="md"
                     radius="md"
                     onClick={() => {
-                      navigate(`/tripplanner/${tripId}`);
+                      navigate(`/tripplanner/${id}`);
                     }}
                   >
                     Back
@@ -125,17 +159,7 @@ const TripSummaryPage = ({
                     className="bg-white"
                     flex={1}
                   >
-                    <Group position="apart" justify="space-between">
-                      <Text size="sm" color="dimmed">
-                        Start Time:
-                      </Text>
-                      <Text size="sm" color="dimmed">
-                        End Time:
-                      </Text>
-                      <Text size="sm" color="dimmed">
-                        Estimated Total Time:
-                      </Text>
-                    </Group>
+                    <TripTimes currTripId={currTripId} />
                   </Paper>
                 </Group>
                 {/* Main Image/Map */}
@@ -171,6 +195,7 @@ const TripSummaryPage = ({
                       showRoutes={true}
                       mapHeight="100%"
                       setGoogleMapsLink={setGoogleMapsLink}
+                      tripId={currTripId}
                     ></TripPlannerMap>
                   </div>
                 </Paper>

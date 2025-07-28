@@ -4,8 +4,6 @@ import { Button, Text, Box, Group, Stack } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import LandingLearnMore from "../components/LandingLearnMore";
 
-// TODO: change hardcoded text values (fontsize), maybe add typewriter effect to planning a trip has never been easier
-
 const LandingPage = () => {
   const navigate = useNavigate();
 

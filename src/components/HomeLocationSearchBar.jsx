@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
 import { notifications } from "@mantine/notifications";
+import DatePickerPopover from "./DatePickerPopover";
 
 const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
@@ -27,6 +28,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [isCreatingTrip, setIsCreatingTrip] = useState(false);
+  const [tripDate, setTripDate] = useState(null);
 
   const handleCitySelected = (place) => {
     setSelectedCity(place);
@@ -34,23 +36,20 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   };
 
   const convertTimeToDate = (timeString) => {
-    if (!timeString) return null;
+    if (!timeString || !tripDate) return null;
 
-    // TODO: fix this hardcoded
-    const fixedDate = "2025-11-15";
     const [time, period] = timeString.split(" ");
     let [hours, minutes] = time.split(":").map(Number);
 
     if (period === "PM" && hours !== 12) {
       hours += 12;
     } else if (period === "AM" && hours === 12) {
-      hours = 0; // 12 AM is 00 hours
+      hours = 0;
     }
-    const date = new Date(
-      `${fixedDate}T${String(hours).padStart(2, "0")}:${String(
-        minutes
-      ).padStart(2, "0")}:00Z`
-    );
+
+    const date = new Date(tripDate);
+    date.setHours(hours, minutes, 0, 0);
+
     return date.toISOString();
   };
 
@@ -72,6 +71,15 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         position: "bottom-center",
         autoClose: 5000,
       });
+    } else if (!tripDate) {
+      notifications.show({
+        title: "Trip Date Missing!",
+        message: "Please select a date for your trip.",
+        color: "red",
+        position: "bottom-center",
+        autoClose: 5000,
+      });
+      return;
     } else {
       setIsCreatingTrip(true);
 
@@ -112,15 +120,29 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         navigate(`/tripfilter/${result.trip.id}`);
       } catch (error) {
         console.error("Error creating trip:", error);
-        notifications.show({
-          title: "Trip Creation Failed!",
-          message:
-            error.message ||
-            "An unexpected error occurred while creating your trip.",
-          color: "red",
-          position: "bottom-center",
-          autoClose: 7000,
-        });
+
+        const backendMessage = error.message || "";
+
+        if (backendMessage.includes("only have up to 5 planning")) {
+          notifications.show({
+            title: "Limit Reached!",
+            message:
+              "You can only have up to 5 planning trips. Finish or delete one first.",
+            color: "red",
+            position: "bottom-center",
+            autoClose: 6000,
+          });
+        } else {
+          notifications.show({
+            title: "Trip Creation Failed!",
+            message:
+              backendMessage ||
+              "An unexpected error occurred while creating your trip.",
+            color: "red",
+            position: "bottom-center",
+            autoClose: 7000,
+          });
+        }
       } finally {
         setIsCreatingTrip(false);
       }
@@ -167,7 +189,6 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
             },
           }}
         />
-
         {/* Time Selectors and Go Button */}
 
         <NativeSelect
@@ -202,6 +223,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
             },
           }}
         />
+        <DatePickerPopover tripDate={tripDate} setTripDate={setTripDate} />
         <Button
           onClick={() => {
             handleGoClick();

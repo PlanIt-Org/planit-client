@@ -83,7 +83,7 @@ function App({ isMapsApiLoaded }) {
           }
         />
         <Route
-          path="/tripplanner/:tripId"
+          path="/tripplanner/:id"
           element={
             <ProtectedRoute>
               <TripPlannerPage
@@ -98,7 +98,7 @@ function App({ isMapsApiLoaded }) {
           }
         />
         <Route
-          path="/tripsummary/:tripId"
+          path="/tripsummary/:id"
           element={
             <ProtectedRoute>
               <TripSummaryPage
