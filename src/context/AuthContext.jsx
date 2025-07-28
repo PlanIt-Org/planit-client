@@ -1,9 +1,6 @@
-// src/context/AuthContext.jsx
-
-import { createContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
-
-export const AuthContext = createContext();
+import { AuthContext } from "./authContext";
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
