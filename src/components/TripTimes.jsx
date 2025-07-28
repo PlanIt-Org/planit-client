@@ -48,7 +48,7 @@ const TripTimes = ({ currTripId }) => {
     };
   
     fetchTripTimes(); // Initial fetch
-    intervalId = setInterval(fetchTripTimes, 2000); // Poll every 2s
+    intervalId = setInterval(fetchTripTimes, 1000); // Poll every 1s
   
     return () => clearInterval(intervalId);
   }, [currTripId]);
@@ -83,7 +83,7 @@ const TripTimes = ({ currTripId }) => {
         End Time: <strong>{formatDateTime(tripData?.endTime)}</strong>
       </Text>
       <Text size="sm" c="dimmed">
-        Estimated Time:{" "}
+        Estimated Travel Time:
         <strong>
           {tripData?.estimatedTime ? tripData.estimatedTime : "Not set"}
         </strong>

@@ -52,16 +52,14 @@ import { useEffect } from "react";
 import NoCarouselLocation from "../components/NoCarouselLocation";
 import RSVPForm from "../components/RSVPForm";
 import TripTimes from "../components/TripTimes";
+import apiClient from "../api/axios";
 
 // https://pravatar.cc is a random avatar generator btw
 
 const TripSummaryPage = ({
-
   selectedCity,
   locations,
   selectedPlace,
-  currTripId,
-  setCurrTripId,
   setLocations,
   userId,
 }) => {
@@ -69,14 +67,50 @@ const TripSummaryPage = ({
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
   const navigate = useNavigate();
+  const { id } = useParams();
+
+  const [currTripId, setCurrTripId] = useState(null);
+
 
   useEffect(() => {
-    if (currTripId) {
-      setCurrTripId(currTripId);
+    if (id) {
+      setCurrTripId(id);
     }
+    console.log("This is the ID:",id)
+  }, [id]); 
+
+
+  useEffect(() => {
+    if (!currTripId) return;
+
+    const fetchLocations = async () => {
+      try {
+        const response = await apiClient.get(`/trips/${currTripId}/locations`);
+        const dbLocations = response.data.locations;
+
+        const transformed = dbLocations.map((loc) => ({
+          name: loc.name,
+          formatted_address: loc.address,
+          place_id: loc.googlePlaceId,
+          imageUrl: loc.image,
+          types: loc.types,
+          geometry: {
+            location: {
+              lat: loc.latitude,
+              lng: loc.longitude,
+            },
+          },
+        }));
+
+        setLocations(transformed);
+      } catch (err) {
+        console.error("Failed to fetch locations:", err);
+      }
+    };
+
+    fetchLocations();
   }, [currTripId]);
-  console.log(currTripId, "currentTirp");
-  console.log(userId, "userId");
+
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -121,7 +155,7 @@ const TripSummaryPage = ({
                     size="md"
                     radius="md"
                     onClick={() => {
-                      navigate("/tripplanner");
+                      navigate(`/tripplanner/${id}`);
                     }}
                   >
                     Back
@@ -134,7 +168,7 @@ const TripSummaryPage = ({
                     className="bg-white"
                     flex={1}
                   >
-                    <TripTimes currTripId={currTripId}/>
+                    <TripTimes currTripId={currTripId} />
                   </Paper>
                 </Group>
                 {/* Main Image/Map */}

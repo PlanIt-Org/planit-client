@@ -12,15 +12,38 @@ import {
   Modal,
   ActionIcon,
 } from "@mantine/core";
-import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
+import { IconHeart, IconHeartFilled, IconX } from "@tabler/icons-react";
 import { useState } from "react";
+import api from "../api/axios";
+import { showNotification } from "@mantine/notifications";
 
-const TripCard = ({ onCardClick, trip }) => {
+const TripCard = ({ onCardClick, onDelete, trip }) => {
   const [isHeartFilled, setIsHeartFilled] = useState(false);
 
   const toggleHeart = (event) => {
     event.stopPropagation();
     setIsHeartFilled((prev) => !prev);
+  };
+
+  const handleDelete = async (e) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this trip?")) return;
+    try {
+      await api.delete(`/trips/${trip.id}`);
+      showNotification({
+        title: "Trip deleted",
+        message: `"${trip.title}" was deleted successfully.`,
+        color: "green",
+      });
+      onDelete?.(trip.id);
+    } catch (err) {
+      console.error(err);
+      showNotification({
+        title: "Error",
+        message: "Failed to delete the trip.",
+        color: "red",
+      });
+    }
   };
 
   const formatDate = (dateString) => {
@@ -45,7 +68,7 @@ const TripCard = ({ onCardClick, trip }) => {
       <Card.Section>
         <Image
           src={
-            trip.tripImage ||
+            trip.locations?.[0]?.image ||
             "https://images.unsplash.com/photo-1499591934245-40b55745b905?q=80&w=2372&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           }
           height={160}
@@ -71,13 +94,21 @@ const TripCard = ({ onCardClick, trip }) => {
 
       <Group justify="space-between" mt="md" mb="xs">
         <Text size="sm" c="dimmed">
-          Host By {trip.host.name}
+          Hosted By {trip.host.name}
         </Text>
         <Text size="sm" c="dimmed">
           {formatDate(trip.startTime)}
         </Text>
       </Group>
-      <Text>Status: {trip.status}</Text>
+
+      <Group justify="space-between" align="center">
+        <Text>Status: {trip.status}</Text>
+        {trip.status === "PLANNING" && (
+          <Button onClick={handleDelete} color="red" size="xs" variant="light">
+            Delete Trip
+          </Button>
+        )}
+      </Group>
     </Card>
   );
 };

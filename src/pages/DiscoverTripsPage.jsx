@@ -28,7 +28,6 @@ const DiscoverTripsPage = ({setCurrTripId, setLocations}) => {
         <Text
             ta="center"
             fw={700}
-            // TODO: change this size
             size="xl" 
           >
             Discover Trips
