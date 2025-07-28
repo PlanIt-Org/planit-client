@@ -14,6 +14,8 @@ import { useDisclosure } from "@mantine/hooks";
 import { useState, useEffect } from "react";
 import CopyTripLink from "./CopyTripLink";
 import { useNavigate } from "react-router-dom";
+import { useDeleteTrip } from "../hooks/useDeleteTrip";
+import apiClient from "../api/axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PAGE_SIZE = 6;
@@ -27,23 +29,16 @@ const TripGrid = ({ userId, tripId, active }) => {
   const [error, setError] = useState(null);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const navigate = useNavigate();
+  const { deleteTrip } = useDeleteTrip();
 
   useEffect(() => {
     const fetchTrips = async () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_BASE_URL}trips/user/${userId}`);
+        const response = await apiClient.get(`/trips/user/${userId}`);
+        const data = response.data;
 
-        if (!response.ok) {
-          // If the response is not OK (e.g., 404, 500), throw an error
-          const errorData = await response.json();
-          throw new Error(
-            errorData.message || `HTTP error! status: ${response.status}`
-          );
-        }
-
-        const data = await response.json();
         setAllTrips(data.trips || []);
         setVisibleTrips(data.trips.slice(0, PAGE_SIZE)); // Show first page
         setPage(1);
@@ -58,9 +53,21 @@ const TripGrid = ({ userId, tripId, active }) => {
     fetchTrips();
   }, []);
 
-  const handleDeleteTrip = (tripId) => {
-    setAllTrips((prev) => prev.filter((t) => t.id !== tripId));
-    setVisibleTrips((prev) => prev.filter((t) => t.id !== tripId));
+  const handleDeleteTrip = async (tripId) => {
+    const trip = allTrips.find((t) => t.id === tripId);
+    if (!trip) return;
+
+    await deleteTrip({
+      id: tripId,
+      onSuccess: () => {
+        const updatedTrips = allTrips.filter((t) => t.id !== tripId);
+        setAllTrips(updatedTrips); // this triggers useEffect
+        setPage(1); // reset pagination
+      },
+      onError: (err) => {
+        console.error("Error deleting trip:", err);
+      },
+    });
   };
 
   // reset stuff when changing categories

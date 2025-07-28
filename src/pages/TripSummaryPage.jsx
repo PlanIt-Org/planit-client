@@ -31,7 +31,6 @@ import {
   IconShare,
 } from "@tabler/icons-react";
 
-// TODO: DELETE THIS AFTER BACKEND IS CONNECTED
 import { LoremIpsum } from "react-lorem-ipsum";
 import { useDisclosure } from "@mantine/hooks";
 import TripPlannerMap from "../components/TripPlannerMap";
@@ -129,6 +128,28 @@ const TripSummaryPage = ({
         color: "red",
         position: "bottom-center",
         autoClose: 5000,
+      });
+    }
+  };
+
+
+  const handlePublish = async (tripId) => {
+    try {
+      const response = await apiClient.put(`/trips/${tripId}/status`, {
+        status: "ACTIVE",
+      });
+  
+      notifications.show({
+        title: "Trip Published",
+        message: "Your trip is now live!",
+        color: "green",
+      });      
+    } catch (err) {
+      console.error("Failed to publish trip:", err);
+      notifications.show({
+        title: "Error",
+        message: "Could not publish the trip.",
+        color: "red",
       });
     }
   };
@@ -247,8 +268,7 @@ const TripSummaryPage = ({
                   {" "}
                 </CommentGrid>
                 <Group justify="flex-end">
-                  <Button>Edit</Button>
-                  <Button>Publish</Button>
+                {ownTrip && <Button color="green" onClick={() => handlePublish(currTripId)}>Publish</Button>}
                 </Group>
               </Stack>
             </Grid.Col>
