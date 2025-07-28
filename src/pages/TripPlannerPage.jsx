@@ -20,6 +20,8 @@ const TripPlannerPage = ({
   setLocations,
   selectedPlace,
   setSelectedPlace,
+  currTripId,
+  setCurrTripId,
 }) => {
   const navigate = useNavigate();
   const [ownTrip, setOwnTrip] = useState(true);

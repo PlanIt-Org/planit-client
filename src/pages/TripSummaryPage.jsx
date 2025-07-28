@@ -195,7 +195,7 @@ const TripSummaryPage = ({
                       showRoutes={true}
                       mapHeight="100%"
                       setGoogleMapsLink={setGoogleMapsLink}
-                      tripId={currTripId}
+                      tripId={id}
                     ></TripPlannerMap>
                   </div>
                 </Paper>
@@ -223,16 +223,12 @@ const TripSummaryPage = ({
             <Grid.Col span={5}>
               <Stack spacing="xl">
                 {/* Trip Details Card */}
-                <TripDetails tripId={tripId}></TripDetails>
-                <RSVPForm tripId={tripId}></RSVPForm>
+                <TripDetails tripId={id}></TripDetails>
+                <RSVPForm tripId={id}></RSVPForm>
                 <TripGuestList></TripGuestList>
 
                 {/* Comments Section */}
-                <CommentGrid
-                  tripId={tripId}
-                  locations={locations}
-                  userId={userId}
-                >
+                <CommentGrid tripId={id} locations={locations} userId={userId}>
                   {" "}
                 </CommentGrid>
                 <Group justify="flex-end">
