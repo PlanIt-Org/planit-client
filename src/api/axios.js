@@ -7,18 +7,23 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(
-  (config) => {
-    return supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.access_token) {
-        config.headers = config.headers || {};
-        config.headers.Authorization = `Bearer ${session.access_token}`;
-      }
-      return config;
-    });
+  async (config) => {
+    console.log("Axios Interceptor: Firing before request to", config.url);
+    const data = await supabase.auth.getSession();
+    const session = data.session;
+
+    if (session?.access_token) {
+      console.log("Axios Interceptor: Token found, attaching to headers."); // Debug: Confirm token is found
+      config.headers["Authorization"] = `Bearer ${session.access_token}`;
+    } else {
+      console.warn("Axios Interceptor: No session token found."); // Debug: Warn if no token
+    }
+
+    return config;
   },
   (error) => {
     return Promise.reject(error);
   }
 );
 
-export { apiClient as default };
+export default apiClient;
