@@ -165,10 +165,16 @@ export default function CommentGrid({ tripId, userId, locations }) {
     if (tripId) {
       fetchAllCommentsForTrip(tripId)
         .then((data) => {
-          setComments(data);
+          if (Array.isArray(data)) {
+            setComments(data);
+          } else {
+            console.warn("Unexpected comments shape:", data);
+            setComments([]);
+          }
         })
         .catch((error) => {
           console.error("Failed to set comments:", error);
+          setComments([]);
         });
     }
   }, [tripId]);

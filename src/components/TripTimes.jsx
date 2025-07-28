@@ -74,6 +74,19 @@ const TripTimes = ({ currTripId }) => {
     );
   }
 
+  if (!tripData) {
+    return (
+      <Alert
+        icon={<IconAlertCircle size="1rem" />}
+        title="Trip Info Not Available"
+        color="yellow"
+        variant="light"
+      >
+        No trip time data found. Please check back later.
+      </Alert>
+    );
+  }
+
   return (
     <Group justify="space-between">
       <Text size="sm" c="dimmed">

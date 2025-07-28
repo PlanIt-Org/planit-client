@@ -15,7 +15,7 @@ import { useState, useEffect } from "react";
 import CopyTripLink from "./CopyTripLink";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PAGE_SIZE = 6;
 
 const TripGrid = ({ userId, tripId, active }) => {

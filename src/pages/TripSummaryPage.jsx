@@ -80,6 +80,12 @@ const TripSummaryPage = ({
         const response = await apiClient.get(`/trips/${currTripId}/locations`);
         const dbLocations = response.data.locations;
 
+        if (!Array.isArray(dbLocations)) {
+          console.error("Invalid response format:", response.data);
+          setLocations([]);
+          return;
+        }
+
         const transformed = dbLocations.map((loc) => ({
           name: loc.name,
           formatted_address: loc.address,

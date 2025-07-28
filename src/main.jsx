@@ -8,7 +8,7 @@ import "@mantine/core/styles.css";
 import "@mantine/carousel/styles.css";
 import { BrowserRouter } from "react-router-dom";
 import { APIProvider } from "@vis.gl/react-google-maps";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext.jsx";
 import { myCustomTheme } from "./theme";
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
