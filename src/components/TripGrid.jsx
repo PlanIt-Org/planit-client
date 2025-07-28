@@ -263,7 +263,8 @@ const TripGrid = ({ userId, tripId, active }) => {
                 </ul>
               </div>
             )}
-            <CopyTripLink text={"View this Trip"} tripId={selectedTrip.id} />
+            <CopyTripLink goto={true} tripId={selectedTrip.id} />
+
           </div>
         )}
       </Modal>
