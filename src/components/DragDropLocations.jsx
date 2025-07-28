@@ -19,7 +19,7 @@ function DragDropLocations({ locations, setLocations, id }) {
     const placeId = locationToRemove.place_id;
 
     try {
-      await apiClient.delete(`/${tripId}/locations/${placeId}`);
+      await apiClient.delete(`/${id}/locations/${placeId}`);
     } catch (err) {
       console.error("Failed to remove location from trip:", err);
       return; // Don't update local state if server fails
