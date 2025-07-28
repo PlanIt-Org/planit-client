@@ -9,7 +9,7 @@ import {
 } from "@mantine/core";
 import { useForm, isNotEmpty, hasLength } from "@mantine/form";
 import apiClient from "../api/axios";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 const PasswordResetModal = ({ onClose, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);

@@ -23,6 +23,7 @@ const TripGrid = ({ userId, tripId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTrip, setSelectedTrip] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTrips = async () => {

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { Navigate, Routes, Route } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./hooks/useAuth.js";
 import HomePage from "./pages/HomePage";
 import LandingPage from "./pages/LandingPage";
 import ProfilePage from "./pages/ProfilePage";

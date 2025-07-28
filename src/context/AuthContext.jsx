@@ -1,8 +1,9 @@
 // src/context/AuthContext.jsx
-import { createContext, useState, useEffect, useContext } from "react";
+
+import { createContext, useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
@@ -36,8 +37,4 @@ export const AuthProvider = ({ children }) => {
       {!loading && children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  return useContext(AuthContext);
 };

@@ -4,7 +4,7 @@ import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
 import ProfileTripAccordion from "../components/ProfileTripAccordion";
 import ProfileCard from "../components/ProfileCard";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 const ProfilePage = ({ setLocations }) => {
   const { session, setSession } = useAuth();
