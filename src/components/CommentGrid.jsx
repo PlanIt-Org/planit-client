@@ -218,15 +218,18 @@ export default function CommentGrid({ currTripId, userId, locations }) {
                   <Paper key={comment.id} p="sm" withBorder radius="md">
                     <Group>
                       <Avatar
-                        src={comment.author.avatar}
-                        alt={comment.author.name}
+                        src={
+                          comment.author?.avatar ||
+                          "https://i.pravatar.cc/150?img=0"
+                        }
+                        alt={comment.author?.name || "Unknown"}
                         radius="xl"
                       />
                       <div>
                         <Text size="sm" fw={500}>
-                          {comment.author.name}
+                          {comment.author?.name || "Unknown"}
                         </Text>
-                        {comment.location.length > 0 && (
+                        {comment.location?.length > 0 && (
                           <Text size="xs" c="dimmed">
                             on {comment.location}
                           </Text>

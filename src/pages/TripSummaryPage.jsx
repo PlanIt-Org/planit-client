@@ -112,8 +112,6 @@ const TripSummaryPage = ({
   }, [currTripId]);
 
 
-  console.log(currTripId, "current Trip Id");
-
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
       window.open(googleMapsLink, "_blank"); // open link in new tab
@@ -157,7 +155,7 @@ const TripSummaryPage = ({
                     size="md"
                     radius="md"
                     onClick={() => {
-                      navigate("/tripplanner");
+                      navigate(`/tripplanner/${id}`);
                     }}
                   >
                     Back

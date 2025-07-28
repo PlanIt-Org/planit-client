@@ -186,7 +186,7 @@ const handleCreateGuestAndNavigate = async () => {
 
     const response = await apiClient.post(`/trips/${currTripId}/proposed-guests`, guestData);
 
-    navigate(`/tripplanner`);
+    navigate(`/tripplanner/${currTripId}`);
 
   } catch (error) {
     console.error("Failed to create trip:", error);

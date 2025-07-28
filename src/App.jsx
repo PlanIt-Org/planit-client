@@ -89,7 +89,7 @@ function App({ isMapsApiLoaded }) {
           }
         />
         <Route
-          path="/tripplanner"
+          path="/tripplanner/:id"
           element={
             <ProtectedRoute>
               <TripPlannerPage
