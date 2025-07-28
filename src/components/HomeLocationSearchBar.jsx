@@ -109,8 +109,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
 
         const result = await response.json();
         console.log("Trip created successfully:", result.trip);
-        navigate(`/tripfilter`);
-        // navigate(`/tripsummary/${result.trip.id}`);
+        navigate(`/tripfilter/${result.trip.id}`);
       } catch (error) {
         console.error("Error creating trip:", error);
         notifications.show({

@@ -22,7 +22,7 @@ const TripGrid = ({ userId, tripId }) => {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedTrip, setSelectedTrip] = useState(null); // State to hold the trip data for the modal
+  const [selectedTrip, setSelectedTrip] = useState(null);
 
   useEffect(() => {
     const fetchTrips = async () => {
@@ -53,9 +53,8 @@ const TripGrid = ({ userId, tripId }) => {
     fetchTrips();
   }, []);
 
-  const handleCardClick = (tripId) => {
-    setSelectedTrip(tripId);
-    open();
+  const handleCardClick = (trip) => {
+    navigate(`/tripsummary/${trip.id}`);
   };
 
   if (loading) {
@@ -116,7 +115,7 @@ const TripGrid = ({ userId, tripId }) => {
         {/* TODO: Implement Load More logic*/}
         <Button>Load More</Button>
       </Group>
-
+      {/* TODO: Consider getting rid of modal in favor of rerouting to tripsummary/:tripId  ? */}
       <Modal
         opened={opened}
         onClose={close}

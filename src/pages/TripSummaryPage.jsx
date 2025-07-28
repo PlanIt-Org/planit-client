@@ -112,7 +112,7 @@ const TripSummaryPage = ({
                     size="md"
                     radius="md"
                     onClick={() => {
-                      navigate("/tripplanner");
+                      navigate(`/tripplanner/${tripId}`);
                     }}
                   >
                     Back

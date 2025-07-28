@@ -14,22 +14,18 @@ import {
   Button,
   Flex,
 } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import TripFilterSearchBox from "../components/TripFilterSearchBox";
 import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
 
 const TripFilterPage = ({ setLocations }) => {
   const navigate = useNavigate();
-
+  const { tripId } = useParams();
   const [searchQuery, setSearchQuery] = useState("");
-
   const [searchBy, setSearchBy] = useState("name");
-
   const [searchResults, setSearchResults] = useState([]);
-
   const [selectedUsers, setSelectedUsers] = useState([]);
-
   const [selectedFilters, setSelectedFilters] = useState([]);
 
   const handleSearch = async () => {
@@ -167,11 +163,11 @@ const TripFilterPage = ({ setLocations }) => {
 
     try {
       const response = await apiClient.post(
-        `/trips/${currTripId}/proposed-guests`,
+        `/trips/${tripId}/proposed-guests`,
         guestData
       );
 
-      navigate(`/tripplanner`);
+      navigate(`/tripplanner/${tripId}`);
     } catch (error) {
       console.error("Failed to create trip:", error);
       alert("Could not create the trip. Please try again.");

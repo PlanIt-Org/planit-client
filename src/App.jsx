@@ -130,7 +130,7 @@ function App({ isMapsApiLoaded }) {
           }
         />
         <Route
-          path="/tripfilter"
+          path="/tripfilter/:tripId"
           element={
             <ProtectedRoute>
               <TripFilterPage setLocations={setLocations} />
