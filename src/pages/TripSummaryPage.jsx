@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 import {
   Grid,
@@ -31,15 +32,10 @@ import {
 } from "@tabler/icons-react";
 
 // TODO: DELETE THIS AFTER BACKEND IS CONNECTED
-
 import { LoremIpsum } from "react-lorem-ipsum";
-
 import { useDisclosure } from "@mantine/hooks";
-
 import TripPlannerMap from "../components/TripPlannerMap";
-
 import { notifications } from "@mantine/notifications";
-
 import NavBar from "../components/NavBar";
 import { useNavigate } from "react-router-dom";
 import LocationCarousel from "../components/LocationCarousel";
@@ -47,8 +43,6 @@ import TripDetails from "../components/TripDetails";
 import TripGuestList from "../components/TripGuestList";
 import TripLocationModal from "../components/TripLocationModal";
 import CommentGrid from "../components/CommentGrid";
-import { useParams } from "react-router";
-import { useEffect } from "react";
 import NoCarouselLocation from "../components/NoCarouselLocation";
 import RSVPForm from "../components/RSVPForm";
 
@@ -58,8 +52,6 @@ const TripSummaryPage = ({
   selectedCity,
   locations,
   selectedPlace,
-  currTripId,
-  setCurrTripId,
   setLocations,
   userId,
 }) => {
@@ -67,13 +59,14 @@ const TripSummaryPage = ({
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
   const navigate = useNavigate();
+  const { tripId } = useParams();
 
   useEffect(() => {
-    if (currTripId) {
-      setCurrTripId(currTripId);
+    if (tripId) {
+      console.log("Current trip ID from URL:", tripId);
     }
-  }, [currTripId]);
-  console.log(currTripId, "currentTirp");
+  }, [tripId]);
+
   console.log(userId, "userId");
 
   const handleOpenGoogleMaps = () => {
@@ -100,7 +93,7 @@ const TripSummaryPage = ({
           alignItems: "stretch",
         }}
       >
-        <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations} />
+        <NavBar setLocations={setLocations} />
         {/* main content */}
         <Box
           style={{
@@ -205,13 +198,13 @@ const TripSummaryPage = ({
             <Grid.Col span={5}>
               <Stack spacing="xl">
                 {/* Trip Details Card */}
-                <TripDetails currTripId={currTripId}></TripDetails>
-                <RSVPForm currTripId={currTripId}></RSVPForm>
+                <TripDetails tripId={tripId}></TripDetails>
+                <RSVPForm tripId={tripId}></RSVPForm>
                 <TripGuestList></TripGuestList>
 
                 {/* Comments Section */}
                 <CommentGrid
-                  currTripId={currTripId}
+                  tripId={tripId}
                   locations={locations}
                   userId={userId}
                 >

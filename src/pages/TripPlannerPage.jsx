@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
 import { Button, Text, Box, Group, Stack, Flex } from "@mantine/core";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
 import SuggestedTripContainer from "../components/SuggestedTripContainer";
 import NavBar from "../components/NavBar";
@@ -11,17 +11,15 @@ import { notifications } from "@mantine/notifications";
 
 const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
-// TODO: add AI suggested trips
 const TripPlannerPage = ({
   selectedCity,
   locations,
   setLocations,
   selectedPlace,
   setSelectedPlace,
-  currTripId,
-  setCurrTripId,
 }) => {
   const navigate = useNavigate();
+  const { tripId } = useParams();
 
   // use effect that adds currently selected place to a locations array
   useEffect(() => {
@@ -98,7 +96,7 @@ const TripPlannerPage = ({
 
         // Step 2: Add it to the trip
         const addToTripRes = await fetch(
-          `${API_BASE_URL}trips/${currTripId}/locations`,
+          `${API_BASE_URL}trips/${tripId}/locations`,
           {
             method: "POST",
             headers: {
@@ -113,7 +111,7 @@ const TripPlannerPage = ({
         }
       }
 
-      navigate(`/tripsummary/${currTripId}`);
+      navigate(`/tripsummary/${tripId}`);
     } catch (error) {
       console.error("Error creating locations:", error);
       notifications.show({
@@ -135,7 +133,7 @@ const TripPlannerPage = ({
         alignItems: "stretch",
       }}
     >
-      <NavBar setCurrTripId={setCurrTripId} setLocations={setLocations} />
+      <NavBar setLocations={setLocations} />
       <Box
         style={{
           flex: 1,

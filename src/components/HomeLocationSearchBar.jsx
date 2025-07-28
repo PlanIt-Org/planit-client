@@ -21,13 +21,7 @@ const generateTimeOptions = () => {
 };
 
 const timeOptions = generateTimeOptions();
-// TODO: REPLACE setCurrTripId LOGIC WITH NAVIGATION
-const HomeLocationSearchBar = ({
-  selectedCity,
-  setSelectedCity,
-  setCurrTripId,
-  user,
-}) => {
+const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   const navigate = useNavigate();
 
   const [startTime, setStartTime] = useState("");
@@ -115,9 +109,8 @@ const HomeLocationSearchBar = ({
 
         const result = await response.json();
         console.log("Trip created successfully:", result.trip);
-
-        setCurrTripId(result.trip.id);
-        navigate("/tripfilter");
+        navigate(`/tripfilter`);
+        // navigate(`/tripsummary/${result.trip.id}`);
       } catch (error) {
         console.error("Error creating trip:", error);
         notifications.show({

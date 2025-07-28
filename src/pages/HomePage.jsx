@@ -8,7 +8,7 @@ import {
   Avatar,
   Button,
   Flex,
-  Text
+  Text,
 } from "@mantine/core";
 import { useEffect } from "react";
 import TripCategory from "../components/TripCategory";
@@ -17,17 +17,22 @@ import { useNavigate } from "react-router-dom";
 import HomeLocationSearchBar from "../components/HomeLocationSearchBar";
 import NavBar from "../components/NavBar";
 
-
-const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId, user, setLocations }) => {
+const HomePage = ({
+  selectedCity,
+  setSelectedCity,
+  isMapsApiLoaded,
+  user,
+  setLocations,
+}) => {
   //TODO: if you want to add a custom avatar, like if the user wants to show there profile, or default, go here: https://mantine.dev/core/avatar/
   //TODO: Once the profile page is created, add the avatar to the profile page
   const navigate = useNavigate();
 
   // reset seelected city once going back to home page
   useEffect(() => {
-   setSelectedCity("");
+    setSelectedCity("");
   }, []);
-  
+
   return (
     <Flex
       style={{
@@ -36,7 +41,7 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId
         alignItems: "stretch",
       }}
     >
-      <NavBar currentPage={0} setCurrTripId={setCurrTripId} setLocations={setLocations}/>
+      <NavBar currentPage={0} setLocations={setLocations} />
       {/* main content */}
       <Box
         style={{
@@ -51,18 +56,20 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId
             {" "}
             Welcome User!{" "}
           </Title>
-
-        {/* only show search bar when API fully loaded */}
+          {/* only show search bar when API fully loaded */}
           {isMapsApiLoaded ? (
-            <HomeLocationSearchBar selectedCity={selectedCity} setSelectedCity={setSelectedCity} setCurrTripId={setCurrTripId} user={user}> </HomeLocationSearchBar>          ) : (
+            <HomeLocationSearchBar
+              selectedCity={selectedCity}
+              setSelectedCity={setSelectedCity}
+              user={user}
+            />
+          ) : (
             <Text ta="center" size="md" c="dimmed" mt="lg">
               Loading Google Maps API and Places services...
             </Text>
           )}
           <TripCategory></TripCategory>
-          {/*  Your Trips */}x
-          <TripGrid userId={user} setCurrTripId={setCurrTripId}></TripGrid>
-
+          {/*  Your Trips */}x<TripGrid userId={user}></TripGrid>
           {/* Public Trips, TODO: make this filter based off the user's location */}
           {/* <TripGrid title="Discover Trips"></TripGrid> */}
         </Container>
