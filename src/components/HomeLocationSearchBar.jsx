@@ -4,7 +4,7 @@ import { useState } from "react";
 import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
 import { notifications } from "@mantine/notifications";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
 
 const generateTimeOptions = () => {
   const times = [];
@@ -21,7 +21,7 @@ const generateTimeOptions = () => {
 };
 
 const timeOptions = generateTimeOptions();
-
+// TODO: REPLACE setCurrTripId LOGIC WITH NAVIGATION
 const HomeLocationSearchBar = ({
   selectedCity,
   setSelectedCity,
@@ -86,7 +86,7 @@ const HomeLocationSearchBar = ({
         const formattedEndTime = convertTimeToDate(endTime);
 
         const hostId = user;
-        console.log("THIS IS WHAT IS PRINTING: " + user)
+        console.log("THIS IS WHAT IS PRINTING: " + user);
 
         const tripData = {
           startTime: formattedStartTime,
@@ -97,7 +97,7 @@ const HomeLocationSearchBar = ({
           description: `An exciting trip planned for ${selectedCity.name}!`,
         };
 
-        const response = await fetch(`${API_BASE_URL}/api/trips`, {
+        const response = await fetch(`${API_BASE_URL}trips`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

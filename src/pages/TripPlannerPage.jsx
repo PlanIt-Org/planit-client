@@ -9,6 +9,8 @@ import SuggestedTripContainer from "../components/SuggestedTripContainer";
 import NavBar from "../components/NavBar";
 import { notifications } from "@mantine/notifications";
 
+const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
+
 // TODO: add AI suggested trips
 const TripPlannerPage = ({
   selectedCity,
@@ -79,7 +81,7 @@ const TripPlannerPage = ({
         };
 
         // Step 1: Create the location
-        const createRes = await fetch("http://localhost:3000/api/locations", {
+        const createRes = await fetch(`${API_BASE_URL}locations`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -96,7 +98,7 @@ const TripPlannerPage = ({
 
         // Step 2: Add it to the trip
         const addToTripRes = await fetch(
-          `http://localhost:3000/api/trips/${currTripId}/locations`,
+          `${API_BASE_URL}trips/${currTripId}/locations`,
           {
             method: "POST",
             headers: {

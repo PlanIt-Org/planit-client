@@ -23,6 +23,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useEffect } from "react";
 
+const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
+
 /**
  * Fetches all comments for a specific trip ID.
  * @param {string} tripId - The ID of the trip.
@@ -30,9 +32,7 @@ import { useEffect } from "react";
  */
 async function fetchAllCommentsForTrip(tripId) {
   try {
-    const response = await axios.get(
-      `http://localhost:3000/api/comments/trips/${tripId}`
-    );
+    const response = await axios.get(`${API_BASE_URL}comments/trips/${tripId}`);
 
     return response.data;
   } catch (error) {
@@ -147,10 +147,7 @@ function CommentBox({ onAddComment, locations, userId, currTripId }) {
  */
 async function addComments(commentData) {
   try {
-    const response = await axios.post(
-      "http://localhost:3000/api/comments",
-      commentData
-    );
+    const response = await axios.post(`${API_BASE_URL}comments`, commentData);
 
     console.log("Successfully created comment:", response.data);
     return response.data;
