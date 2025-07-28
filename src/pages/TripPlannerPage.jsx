@@ -280,6 +280,7 @@ const TripPlannerPage = ({
               <DragDropLocations
                 locations={locations}
                 setLocations={setLocations}
+                tripId={id}
               />
             </Box>
           </Box>

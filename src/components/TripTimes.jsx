@@ -27,37 +27,38 @@ const TripTimes = ({ currTripId }) => {
       setLoading(false);
       return;
     }
-
+  
     let intervalId;
-
+    let initialLoad = true;
+  
     const fetchTripTimes = async () => {
       try {
         const response = await apiClient.get(`/trips/${currTripId}/estimated-time`);
         const result = response.data;
         setTripData(result.data);
-
+  
         const locationsCount = result.data?.locations?.length || 0;
-
-        // Stop polling if only 1 or 0 locations
-        if (locationsCount <= 1) {
+  
+        if (locationsCount <= 1 || result.data.estimatedTime) {
           clearInterval(intervalId);
-        } else if (result.data.estimatedTime) {
-          clearInterval(intervalId);
+        }
+  
+        if (initialLoad) {
+          setLoading(false);
+          initialLoad = false;
         }
       } catch (err) {
         setError(err.message || "Failed to fetch trip data.");
-        clearInterval(intervalId); // Optional: stop polling on error
-      } finally {
+        clearInterval(intervalId);
         setLoading(false);
       }
     };
-
+  
     fetchTripTimes();
-    intervalId = setInterval(fetchTripTimes, 1000); // Poll every 1s
-
+    intervalId = setInterval(fetchTripTimes, 1000);
+  
     return () => clearInterval(intervalId);
   }, [currTripId]);
-
   if (loading) {
     return (
       <Group justify="center">

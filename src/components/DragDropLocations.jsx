@@ -5,18 +5,27 @@ import { Text, Box, ActionIcon } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
 import classes from "../styles/DndListHandle.module.css";
 import { useEffect } from "react";
+import apiClient from "../api/axios"; 
 
-function DragDropLocations({ locations, setLocations }) {
+function DragDropLocations({ locations, setLocations, id }) {
   const [internalLocations, internalHandlers] = useListState(locations);
 
   useEffect(() => {
     internalHandlers.setState(locations);
   }, [locations, internalHandlers]);
 
-  const handleRemove = (indexToRemove) => {
-    const newOrder = internalLocations.filter(
-      (_, index) => index !== indexToRemove
-    );
+  const handleRemove = async (indexToRemove) => {
+    const locationToRemove = internalLocations[indexToRemove];
+    const placeId = locationToRemove.place_id;
+
+    try {
+      await apiClient.delete(`/${tripId}/locations/${placeId}`);
+    } catch (err) {
+      console.error("Failed to remove location from trip:", err);
+      return; // Don't update local state if server fails
+    }
+
+    const newOrder = internalLocations.filter((_, index) => index !== indexToRemove);
     internalHandlers.setState(newOrder);
     setLocations(newOrder);
   };

@@ -55,16 +55,15 @@ const TripSummaryPage = ({
   selectedPlace,
   setLocations,
   userId,
-  ownTrip,
-  setOwnTrip,
 }) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
   const combobox = useCombobox({});
   const navigate = useNavigate();
   const { id } = useParams();
-
   const [currTripId, setCurrTripId] = useState(null);
+  const [tripStatus, setTripStatus] = useState(null);
+  const [ownTrip, setOwnTrip] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -76,7 +75,7 @@ const TripSummaryPage = ({
   useEffect(() => {
     if (!currTripId) return;
 
-    const fetchLocations = async () => {
+    const fetchLocationsAndStatus = async () => {
       try {
         const response = await apiClient.get(`/trips/${currTripId}/locations`);
         const dbLocations = response.data.locations;
@@ -106,15 +105,21 @@ const TripSummaryPage = ({
         const hostRes = await apiClient.get(`/trips/${currTripId}/host`);
         const { hostId } = hostRes.data;
 
-        if (hostId !== userId) {
-          setOwnTrip(false);
-        }
+        setOwnTrip(String(hostId) === String(userId));
+
+        console.log("hostId:", hostId);
+        console.log("userId:", userId);
+        console.log("ownTrip?", String(hostId) === String(userId));
+
+        const tripRes = await apiClient.get(`/trips/${currTripId}/status`);
+        setTripStatus(tripRes.data?.data?.status);
+        console.log("Trip status is:", tripRes.data?.data?.status);
       } catch (err) {
-        console.error("Failed to fetch locations:", err);
+        console.error("Failed to fetch locations or trip status:", err);
       }
     };
 
-    fetchLocations();
+    fetchLocationsAndStatus();
   }, [currTripId]);
 
   const handleOpenGoogleMaps = () => {
@@ -132,23 +137,31 @@ const TripSummaryPage = ({
     }
   };
 
-
   const handlePublish = async (tripId) => {
+    const newStatus = tripStatus === "ACTIVE" ? "PLANNING" : "ACTIVE";
+
     try {
-      const response = await apiClient.put(`/trips/${tripId}/status`, {
-        status: "ACTIVE",
+      await apiClient.put(`/trips/${tripId}/status`, {
+        status: newStatus,
       });
-  
+
+      setTripStatus(newStatus);
+
       notifications.show({
-        title: "Trip Published",
-        message: "Your trip is now live!",
+        title: `Trip ${newStatus === "ACTIVE" ? "Published" : "Unpublished"}`,
+        message:
+          newStatus === "ACTIVE"
+            ? "Your trip is now live!"
+            : "Your trip is back to draft mode.",
         color: "green",
-      });      
+      });
     } catch (err) {
-      console.error("Failed to publish trip:", err);
+      console.error("Failed to update trip status:", err);
       notifications.show({
         title: "Error",
-        message: "Could not publish the trip.",
+        message: `Could not ${
+          newStatus === "ACTIVE" ? "publish" : "unpublish"
+        } the trip.`,
         color: "red",
       });
     }
@@ -178,15 +191,17 @@ const TripSummaryPage = ({
             <Grid.Col span={7}>
               <Stack spacing="xl">
                 <Group style={{ width: "100%" }}>
-                  <Button
-                    size="md"
-                    radius="md"
-                    onClick={() => {
-                      navigate(`/tripplanner/${id}`);
-                    }}
-                  >
-                    Back
-                  </Button>
+                  {ownTrip && tripStatus !== "ACTIVE" && (
+                    <Button
+                      size="md"
+                      radius="md"
+                      onClick={() => {
+                        navigate(`/tripplanner/${id}`);
+                      }}
+                    >
+                      Back
+                    </Button>
+                  )}
                   {/* Time Information */}
                   <Paper
                     withBorder
@@ -268,7 +283,14 @@ const TripSummaryPage = ({
                   {" "}
                 </CommentGrid>
                 <Group justify="flex-end">
-                {ownTrip && <Button color="green" onClick={() => handlePublish(currTripId)}>Publish</Button>}
+                  {ownTrip && tripStatus && (
+                    <Button
+                      color={tripStatus === "ACTIVE" ? "red" : "green"}
+                      onClick={() => handlePublish(currTripId)}
+                    >
+                      {tripStatus === "ACTIVE" ? "Unpublish" : "Publish"}
+                    </Button>
+                  )}
                 </Group>
               </Stack>
             </Grid.Col>
