@@ -7,6 +7,7 @@ import {
   Title,
   Paper,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { supabase } from "../supabaseClient";
 
 const LoginPage = () => {
