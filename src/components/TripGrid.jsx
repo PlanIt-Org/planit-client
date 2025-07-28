@@ -1,5 +1,14 @@
 import React from "react";
-import { Container, Grid, Button, Group, Text, Modal, LoadingOverlay, Skeleton  } from "@mantine/core";
+import {
+  Container,
+  Grid,
+  Button,
+  Group,
+  Text,
+  Modal,
+  LoadingOverlay,
+  Skeleton,
+} from "@mantine/core";
 import TripCard from "./TripCard";
 import { useDisclosure } from "@mantine/hooks";
 import { useState, useEffect } from "react";
@@ -8,9 +17,7 @@ import CopyTripLink from "./CopyTripLink";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PAGE_SIZE = 6;
 
-
-const TripGrid = ({userId, setCurrTripId, active}) => {
-
+const TripGrid = ({ userId, setCurrTripId, active }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [allTrips, setAllTrips] = useState([]);
   const [visibleTrips, setVisibleTrips] = useState([]);
@@ -24,15 +31,19 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/trips/user/${userId}`);
+        const response = await fetch(
+          `${API_BASE_URL}/api/trips/user/${userId}`
+        );
 
         if (!response.ok) {
           // If the response is not OK (e.g., 404, 500), throw an error
           const errorData = await response.json();
-          throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+          throw new Error(
+            errorData.message || `HTTP error! status: ${response.status}`
+          );
         }
 
-        const data = await response.json(); 
+        const data = await response.json();
         setAllTrips(data.trips || []);
         setVisibleTrips(data.trips.slice(0, PAGE_SIZE)); // Show first page
         setPage(1);
@@ -45,82 +56,78 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
     };
 
     fetchTrips();
-  }, []); 
-
-
+  }, []);
 
   const handleDeleteTrip = (tripId) => {
-    setAllTrips(prev => prev.filter(t => t.id !== tripId));
-    setVisibleTrips(prev => prev.filter(t => t.id !== tripId));
+    setAllTrips((prev) => prev.filter((t) => t.id !== tripId));
+    setVisibleTrips((prev) => prev.filter((t) => t.id !== tripId));
   };
-  
 
-
-  // reset stuff when changing categories 
+  // reset stuff when changing categories
   useEffect(() => {
     if (!allTrips.length) return;
-  
+
     const now = new Date();
-  
+
     let filtered = [];
-  
+
     switch (active) {
       case "Drafts":
-        filtered = allTrips.filter(trip => trip.status === "PLANNING");
+        filtered = allTrips.filter((trip) => trip.status === "PLANNING");
         break;
       case "Upcoming":
         filtered = allTrips.filter(
-          trip =>
-            trip.status === "ACTIVE" &&
-            new Date(trip.endTime) >= now
+          (trip) => trip.status === "ACTIVE" && new Date(trip.endTime) >= now
         );
         break;
       case "Past Events":
         filtered = allTrips.filter(
-          trip =>
-            trip.status === "COMPLETED" ||
-            new Date(trip.endTime) < now
+          (trip) => trip.status === "COMPLETED" || new Date(trip.endTime) < now
         );
         break;
       case "Invited Trips":
-        filtered = allTrips.filter(
-          trip => trip.invitedUsers?.some(user => user.id === userId)
+        filtered = allTrips.filter((trip) =>
+          trip.invitedUsers?.some((user) => user.id === userId)
         );
         break;
       case "Hosting":
-        filtered = allTrips.filter(trip => trip.hostId === userId);
+        filtered = allTrips.filter((trip) => trip.hostId === userId);
         break;
       default:
         filtered = allTrips;
     }
-  
+
     setVisibleTrips(filtered.slice(0, PAGE_SIZE));
     setPage(1);
   }, [active, allTrips]);
-
 
   const getFilteredTrips = (trips = allTrips) => {
     const now = new Date();
     switch (active) {
       case "Drafts":
-        return trips.filter(trip => trip.status === "PLANNING");
+        return trips.filter((trip) => trip.status === "PLANNING");
       case "Upcoming":
-        return trips.filter(trip => trip.status === "ACTIVE" && new Date(trip.endTime) >= now);
+        return trips.filter(
+          (trip) => trip.status === "ACTIVE" && new Date(trip.endTime) >= now
+        );
       case "Past Events":
-        return trips.filter(trip => trip.status === "COMPLETED" || new Date(trip.endTime) < now);
+        return trips.filter(
+          (trip) => trip.status === "COMPLETED" || new Date(trip.endTime) < now
+        );
       case "Invited Trips":
-        return trips.filter(trip => trip.invitedUsers?.some(user => user.id === userId));
+        return trips.filter((trip) =>
+          trip.invitedUsers?.some((user) => user.id === userId)
+        );
       case "Hosting":
-        return trips.filter(trip => trip.hostId === userId);
+        return trips.filter((trip) => trip.hostId === userId);
       default:
         return trips;
     }
   };
 
-
   const handleCardClick = (trip) => {
     setSelectedTrip(trip);
-    open(); 
+    open();
   };
 
   const loadMore = () => {
@@ -134,7 +141,10 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
   if (loading) {
     return (
       <Container size="xl" py="lg" className="relative">
-        <LoadingOverlay visible={true} overlayProps={{ radius: 'sm', blur: 2 }} />
+        <LoadingOverlay
+          visible={true}
+          overlayProps={{ radius: "sm", blur: 2 }}
+        />
         {/* skeleton loaders */}
         <Grid gutter="md" rowgap="xl" columngap="xl">
           {[...Array(6)].map((_, index) => (
@@ -152,8 +162,13 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
   if (error) {
     return (
       <Container size="xl" py="lg">
-        <Text color="red" ta="center">Error loading trips: {error}</Text>
-        <Text ta="center">Please ensure your backend server is running and accessible at `{API_BASE_URL}/api/trips`.</Text>
+        <Text color="red" ta="center">
+          Error loading trips: {error}
+        </Text>
+        <Text ta="center">
+          Please ensure your backend server is running and accessible at `
+          {API_BASE_URL}/api/trips`.
+        </Text>
       </Container>
     );
   }
@@ -161,7 +176,9 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
   if (allTrips.length === 0) {
     return (
       <Container size="xl" py="lg">
-        <Text ta="center">No trips found. Start by creating some trips in your database!</Text>
+        <Text ta="center">
+          No trips found. Start by creating some trips in your database!
+        </Text>
       </Container>
     );
   }
@@ -171,7 +188,11 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
       <Grid gutter="md" rowgap="xl" columngap="xl">
         {visibleTrips.map((trip) => (
           <Grid.Col key={trip.id} span={{ base: 12, sm: 6, md: 4, lg: 4 }}>
-            <TripCard trip={trip} onCardClick={() => handleCardClick(trip)} onDelete={() => handleDeleteTrip(trip.id)} />
+            <TripCard
+              trip={trip}
+              onCardClick={() => handleCardClick(trip)}
+              onDelete={() => handleDeleteTrip(trip.id)}
+            />
           </Grid.Col>
         ))}
       </Grid>
@@ -182,19 +203,32 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
         </Group>
       )}
 
-      <Modal opened={opened} onClose={close} title={selectedTrip?.title || "Trip Details"} centered size="lg"> {/* Changed size to "lg" for larger horizontal */}
+      <Modal
+        opened={opened}
+        onClose={close}
+        centered
+        size="lg"
+      >
+        {/* Changed size to "lg" for larger horizontal */}
         {selectedTrip && (
           <div className="space-y-4">
             <img
-              src={selectedTrip.tripImage || `https://placehold.co/800x600/E0E0E0/333333?text=No+Image`}
+              src={
+                selectedTrip.locations?.[0]?.image ||
+                `https://placehold.co/800x400/E0E0E0/333333?text=No+Image`
+              }
               alt={selectedTrip.title || "Trip Image"}
-               className="w-full h-24 object-cover rounded-md"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.src = `https://placehold.co/800x600/E0E0E0/333333?text=Image+Error`;
+              style={{
+                width: "100%",
+                height: "40%", // or whatever height you want
+                objectFit: "fill", // 🔥 this will stretch the image to fill both width and height
+                display: "block", // removes any inline spacing
               }}
             />
-            <Text className="text-xl font-bold text-gray-800">{selectedTrip.title}</Text>
+
+            <Text className="text-xl font-bold text-gray-800">
+              {selectedTrip.title}
+            </Text>
             <Text className="text-gray-700">
               <strong>Host:</strong> {selectedTrip.host?.name || "Unknown"}
             </Text>
@@ -202,22 +236,32 @@ const TripGrid = ({userId, setCurrTripId, active}) => {
               <strong>City:</strong> {selectedTrip.city || "N/A"}
             </Text>
             <Text className="text-gray-700">
-              <strong>Dates:</strong> {selectedTrip.startTime ? new Date(selectedTrip.startTime).toLocaleDateString() : 'N/A'} - {selectedTrip.endTime ? new Date(selectedTrip.endTime).toLocaleDateString() : 'N/A'}
+              <strong>Time:</strong>{" "}
+              {selectedTrip.startTime
+                ? new Date(selectedTrip.startTime).toLocaleString()
+                : "N/A"}{" "}
+              -{" "}
+              {selectedTrip.endTime
+                ? new Date(selectedTrip.endTime).toLocaleString()
+                : "N/A"}
             </Text>
             <Text className="text-gray-700">
-              <strong>Description:</strong> {selectedTrip.description || "No description provided."}
+              <strong>Description:</strong>{" "}
+              {selectedTrip.description || "No description provided."}
             </Text>
             {selectedTrip.locations && selectedTrip.locations.length > 0 && (
               <div className="mt-4">
                 <Text className="font-semibold text-gray-800">Locations:</Text>
                 <ul className="list-disc list-inside">
-                  {selectedTrip.locations.map(loc => (
-                    <li key={loc.id} className="text-gray-600">{loc.name} ({loc.address})</li>
+                  {selectedTrip.locations.map((loc) => (
+                    <li key={loc.id} className="text-gray-600">
+                      {loc.name} ({loc.address})
+                    </li>
                   ))}
                 </ul>
               </div>
             )}
-            <CopyTripLink text={"View this Trip"} tripId={selectedTrip.id}/>
+            <CopyTripLink text={"View this Trip"} tripId={selectedTrip.id} />
           </div>
         )}
       </Modal>

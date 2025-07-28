@@ -58,8 +58,7 @@ const HomePage = ({selectedCity, setSelectedCity, isMapsApiLoaded, setCurrTripId
       >
         <Container size="mid" py="0">
           <Title order={1} ta="center" size={70} mb="lg">
-            {" "}
-            Welcome User!{" "}
+            Welcome {user}!
           </Title>
 
         {/* only show search bar when API fully loaded */}
