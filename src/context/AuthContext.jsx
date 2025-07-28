@@ -1,6 +1,8 @@
+// src/context/AuthContext.jsx
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 import { AuthContext } from "./authContext";
+import apiClient from "../api/axios";
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
@@ -17,17 +19,39 @@ export const AuthProvider = ({ children }) => {
     getSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (event, session) => {
+        if (event === "SIGNED_IN" && session?.access_token) {
+          console.log("User signed in, passing token directly to backend...");
+          try {
+            await apiClient.post(
+              "/users/ensure-profile",
+              {},
+              {
+                headers: {
+                  Authorization: `Bearer ${session.access_token}`,
+                },
+              }
+            );
+            console.log("Backend profile successfully synced.");
+          } catch (error) {
+            console.error(
+              "CRITICAL: Failed to sync user profile with backend.",
+              error.response?.data?.message || error.message
+            );
+          }
+        }
+
         setSession(session);
+        if (loading) setLoading(false);
       }
     );
 
     return () => {
-      listener?.unsubscribe();
+      listener?.subscription?.unsubscribe();
     };
   }, []);
 
-  const value = { session, setSession };
+  const value = { session, user: session?.user, loading };
 
   return (
     <AuthContext.Provider value={value}>
