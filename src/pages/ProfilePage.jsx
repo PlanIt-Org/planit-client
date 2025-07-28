@@ -4,9 +4,9 @@ import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
 import ProfileTripAccordion from "../components/ProfileTripAccordion";
 import ProfileCard from "../components/ProfileCard";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
-const ProfilePage = ({ setCurrTripId, setLocations }) => {
+const ProfilePage = ({ setLocations }) => {
   const { session, setSession } = useAuth();
   const [userInfo, setUserInfo] = useState(null);
   const [error, setError] = useState("");
@@ -36,11 +36,7 @@ const ProfilePage = ({ setCurrTripId, setLocations }) => {
         alignItems: "stretch",
       }}
     >
-      <NavBar
-        currentPage={3}
-        setCurrTripId={setCurrTripId}
-        setLocations={setLocations}
-      />
+      <NavBar currentPage={3} setLocations={setLocations} />
       {/* main content */}
       <Box
         style={{

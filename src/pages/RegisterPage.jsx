@@ -21,7 +21,7 @@ const RegisterPage = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: provider,
       options: {
-        redirectTo: "http://localhost:5173/questionnaire",
+        redirectTo: `${window.location.origin}/questionnaire`,
       },
     });
     if (error) {

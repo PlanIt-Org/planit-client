@@ -23,6 +23,8 @@ import { useState } from "react";
 import axios from "axios";
 import { useEffect } from "react";
 
+const API_BASE_URL = import.meta.env.VITE_BASE_API_URL;
+
 /**
  * Fetches all comments for a specific trip ID.
  * @param {string} tripId - The ID of the trip.
@@ -30,9 +32,7 @@ import { useEffect } from "react";
  */
 async function fetchAllCommentsForTrip(tripId) {
   try {
-    const response = await axios.get(
-      `http://localhost:3000/api/comments/trips/${tripId}`
-    );
+    const response = await axios.get(`${API_BASE_URL}comments/trips/${tripId}`);
 
     return response.data;
   } catch (error) {
@@ -68,7 +68,7 @@ const mockLocations = [
   { value: "Napa Valley", label: "Napa Valley" },
 ];
 
-function CommentBox({ onAddComment, locations, userId, currTripId }) {
+function CommentBox({ onAddComment, locations, userId, tripId }) {
   const [opened, { open, close, toggle }] = useDisclosure(false);
   const [commentText, setCommentText] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
@@ -98,7 +98,7 @@ function CommentBox({ onAddComment, locations, userId, currTripId }) {
     const commentDataAPI = {
       authorId: userId,
       text: commentText,
-      tripId: currTripId,
+      tripId: tripId,
     };
 
     console.log("try again", commentDataAPI);
@@ -147,10 +147,7 @@ function CommentBox({ onAddComment, locations, userId, currTripId }) {
  */
 async function addComments(commentData) {
   try {
-    const response = await axios.post(
-      "http://localhost:3000/api/comments",
-      commentData
-    );
+    const response = await axios.post(`${API_BASE_URL}comments`, commentData);
 
     console.log("Successfully created comment:", response.data);
     return response.data;
@@ -160,13 +157,13 @@ async function addComments(commentData) {
   }
 }
 
-export default function CommentGrid({ currTripId, userId, locations }) {
+export default function CommentGrid({ tripId, userId, locations }) {
   const [comments, setComments] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("all");
 
   useEffect(() => {
-    if (currTripId) {
-      fetchAllCommentsForTrip(currTripId)
+    if (tripId) {
+      fetchAllCommentsForTrip(tripId)
         .then((data) => {
           setComments(data);
         })
@@ -174,7 +171,7 @@ export default function CommentGrid({ currTripId, userId, locations }) {
           console.error("Failed to set comments:", error);
         });
     }
-  }, [currTripId]);
+  }, [tripId]);
 
   const handleAddComment = (newCommentData) => {
     console.log("New comment submitted:", comments);
@@ -203,7 +200,7 @@ export default function CommentGrid({ currTripId, userId, locations }) {
               <CommentBox
                 onAddComment={handleAddComment}
                 userId={userId}
-                currTripId={currTripId}
+                tripId={tripId}
                 locations={locations}
               />
             </Group>
@@ -218,15 +215,18 @@ export default function CommentGrid({ currTripId, userId, locations }) {
                   <Paper key={comment.id} p="sm" withBorder radius="md">
                     <Group>
                       <Avatar
-                        src={comment.author.avatar}
-                        alt={comment.author.name}
+                        src={
+                          comment.author?.avatar ||
+                          "https://i.pravatar.cc/150?img=0"
+                        }
+                        alt={comment.author?.name || "Unknown"}
                         radius="xl"
                       />
                       <div>
                         <Text size="sm" fw={500}>
-                          {comment.author.name}
+                          {comment.author?.name || "Unknown"}
                         </Text>
-                        {comment.location.length > 0 && (
+                        {comment.location?.length > 0 && (
                           <Text size="xs" c="dimmed">
                             on {comment.location}
                           </Text>

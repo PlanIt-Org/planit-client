@@ -3,9 +3,16 @@ import { Card, Image, Box, Group, Text, Title } from "@mantine/core";
 import { IconBubbleFilled } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import TripLocationModal from "./TripLocationModal";
+import { useState } from "react";
 
 const NoCarouselLocation = ({ locations }) => {
   const [opened, { open, close }] = useDisclosure(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+
+  const handleCardClick = (location) => {
+    setSelectedLocation(location);
+    open();
+  };
 
   return (
     <Box w="100%">
@@ -24,12 +31,13 @@ const NoCarouselLocation = ({ locations }) => {
               flexDirection: "column",
               justifyContent: "space-between",
             }}
-            onClick={open}
+            onClick={()=> handleCardClick(loc)}
           >
             <Card.Section>
               <Image
                 src={
-                  loc.photoUrl || `https://picsum.photos/300/200?random=${index}`
+                  loc.imageUrl ||
+                  `https://picsum.photos/300/200?random=${index}`
                 }
                 alt={loc.name}
                 height={200}
@@ -46,7 +54,6 @@ const NoCarouselLocation = ({ locations }) => {
               <Text size="sm" c="dimmed" component="div">
                 <ul style={{ margin: 0, paddingLeft: "1.2em" }}>
                   <li>{loc.formatted_address}</li>
-                  {loc.description && <li>{loc.description}</li>}
                 </ul>
               </Text>
             </Box>
@@ -69,7 +76,7 @@ const NoCarouselLocation = ({ locations }) => {
         ))}
       </Group>
 
-      <TripLocationModal opened={opened} open={open} close={close} />
+      <TripLocationModal opened={opened} open={open} close={close} location={selectedLocation}/>
     </Box>
   );
 };
