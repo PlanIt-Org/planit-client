@@ -7,6 +7,7 @@ import {
   Title,
   Paper,
 } from "@mantine/core";
+import { notifications } from "@mantine/notifications";
 import { supabase } from "../supabaseClient";
 
 const LoginPage = () => {
@@ -15,30 +16,20 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
 
   // This handler is for OAuth providers (Google, GitHub, etc.)
-  const handleOAuthLogin = async (provider) => {
+  const handleLogin = async (provider, credentials) => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: provider,
-    });
-    if (error) {
-      console.error("Error logging in:", error.message);
-      alert(error.message);
-    }
-    setLoading(false);
-  };
-
-  const handleEmailPasswordLogin = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
+    const { error } = provider
+      ? await supabase.auth.signInWithOAuth({ provider })
+      : await supabase.auth.signInWithPassword(credentials);
 
     if (error) {
-      console.error("Error logging in:", error.message);
-      alert(error.message);
+      notifications.show({
+        title: "Login Error",
+        message: error.message,
+        color: "red",
+      });
     }
+    // On success, the onAuthStateChange listener in AuthProvider will handle everything.
     setLoading(false);
   };
 
@@ -55,57 +46,57 @@ const LoginPage = () => {
         withBorder
         shadow="md"
         p={30}
-        mt={30}
         radius="md"
         style={{ width: "100%", maxWidth: "420px" }}
       >
-        <Stack>
-          <Title align="center" order={2}>
-            Welcome Back!
-          </Title>
-
-          {/* Email/Password Form */}
-          <form onSubmit={handleEmailPasswordLogin}>
-            <Stack>
-              <TextInput
-                required
-                label="Email"
-                placeholder="you@youremail.com"
-                value={email}
-                onChange={(event) => setEmail(event.currentTarget.value)}
-              />
-              <TextInput
-                required
-                label="Password"
-                placeholder="Your password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.currentTarget.value)}
-              />
-              <Button type="submit" fullWidth mt="xl" loading={loading}>
-                Sign in with Email
-              </Button>
-            </Stack>
-          </form>
-
-          {/* OAuth Buttons */}
-          <Button
-            onClick={() => handleOAuthLogin("google")}
-            variant="default"
-            fullWidth
-            loading={loading}
-          >
-            Sign in with Google
-          </Button>
-          <Button
-            onClick={() => handleOAuthLogin("github")}
-            variant="default"
-            fullWidth
-            loading={loading}
-          >
-            Sign in with GitHub
-          </Button>
-        </Stack>
+        <Title align="center" order={2} mb="lg">
+          Welcome Back!
+        </Title>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin(null, { email, password });
+          }}
+        >
+          <Stack>
+            <TextInput
+              required
+              label="Email"
+              placeholder="you@youremail.com"
+              value={email}
+              onChange={(e) => setEmail(e.currentTarget.value)}
+            />
+            <TextInput
+              required
+              label="Password"
+              placeholder="Your password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.currentTarget.value)}
+            />
+            <Button type="submit" fullWidth mt="md" loading={loading}>
+              Sign in
+            </Button>
+          </Stack>
+        </form>
+        <Button
+          onClick={() => handleLogin("google")}
+          variant="default"
+          fullWidth
+          mt="md"
+          loading={loading}
+        >
+          Sign in with Google
+        </Button>
+        <Button
+          onClick={() => handleLogin("github")}
+          variant="default"
+          fullWidth
+          mt="sm"
+          loading={loading}
+        >
+          Sign in with GitHub
+        </Button>
       </Paper>
     </Container>
   );

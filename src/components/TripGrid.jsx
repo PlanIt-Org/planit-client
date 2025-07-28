@@ -174,7 +174,7 @@ const TripGrid = ({ userId, tripId, active }) => {
         </Text>
         <Text ta="center">
           Please ensure your backend server is running and accessible at `
-          {API_BASE_URL}/api/trips`.
+          {API_BASE_URL}trips`.
         </Text>
       </Container>
     );

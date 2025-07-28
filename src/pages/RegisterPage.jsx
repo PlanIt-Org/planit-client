@@ -8,6 +8,8 @@ import {
   Title,
   Paper,
 } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
+import "@mantine/notifications/styles.css";
 import { supabase } from "../supabaseClient";
 import apiClient from "../api/axios";
 
@@ -40,9 +42,19 @@ const RegisterPage = () => {
         email: email,
         password: password,
       });
+      Notifications.show({
+        title: "Success!",
+        message: "Please check your email for a verification link.",
+        color: "green",
+      });
       console.log("User created:", response.data);
       window.location.href = "/questionnaire";
     } catch (error) {
+      Notifications.show({
+        title: "Registration Error",
+        message: error.response?.data?.message || "An unknown error occurred.",
+        color: "red",
+      });
       console.error(
         "Error signing up:",
         error.response?.data?.message || error.message

@@ -29,16 +29,14 @@ const TripPlannerPage = ({
   const { id } = useParams();
 
   useEffect(() => {
-    // --- UPDATED LOGIC ---
-    // If there's no ID, the page was accessed incorrectly. Redirect home.
     if (!id) {
       notifications.show({
         title: "Invalid Page Access",
         message: "This page requires a trip ID. Redirecting...",
         color: "orange",
       });
-      navigate("/"); // Redirect to the home page
-      return; // Stop execution of the effect
+      navigate("/home");
+      return;
     }
 
     const fetchTripAndCheckOwnership = async () => {
