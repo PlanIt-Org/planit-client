@@ -58,7 +58,8 @@ function App({ isMapsApiLoaded }) {
                 setSelectedCity={setSelectedCity}
                 isMapsApiLoaded={isMapsApiLoaded}
                 setLocations={setLocations}
-                user={session?.user?.id}
+                // put the whole user into the homepage info
+                user={session?.user}
               />
             </ProtectedRoute>
           }

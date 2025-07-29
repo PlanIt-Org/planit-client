@@ -36,6 +36,8 @@ const HomePage = ({
     "Past Events",
   ];
 
+  const name = user?.user_metadata?.display_name;
+
   const [active, setActive] = useState(categories[0]);
 
   // reset seelected city once going back to home page
@@ -63,7 +65,7 @@ const HomePage = ({
       >
         <Container size="mid" py="0">
           <Title order={1} ta="center" size={70} mb="lg">
-            Welcome User!
+            Welcome {name}!
           </Title>
           {/* only show search bar when API fully loaded */}
           {isMapsApiLoaded ? (
