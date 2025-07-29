@@ -27,6 +27,7 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [inputTitle, setInputTitle] = useState("");
   const [inputDesc, setInputDesc] = useState("");
+  const [hostName, setHostName] = useState("Loading...");
   const { deleteTrip } = useDeleteTrip();
 
   useEffect(() => {
@@ -34,8 +35,8 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
       if (tripId) {
         try {
           const response = await apiClient.get(`/trips/${tripId}`);
-          const { title, description } = response.data.trip;
-
+          const { title, description, host } = response.data.trip;
+          setHostName(host?.name || "Loading...");
           setInputTitle(title || "");
           setInputDesc(description || "");
         } catch (err) {
@@ -246,7 +247,7 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
             }}
           >
             <Text size="sm" color="gray" weight={500}>
-              HOSTED BY: THOMAS
+              HOSTED BY: {hostName}
             </Text>
           </Box>
         </Stack>
