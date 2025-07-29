@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React from "react";
 import {
   Box,
@@ -9,31 +8,25 @@ import {
   Stack,
   Card,
   Button,
-  Modal,
   ActionIcon,
 } from "@mantine/core";
-import { IconHeart, IconHeartFilled, IconX } from "@tabler/icons-react";
+import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import { useState } from "react";
-import api from "../api/axios";
-import { showNotification } from "@mantine/notifications";
-import { useDeleteTrip } from "../hooks/useDeleteTrip";
-
-
+// No longer need to import api or notifications here
+// We also remove the useDeleteTrip hook from the child component
 const TripCard = ({ onCardClick, onDelete, trip }) => {
   const [isHeartFilled, setIsHeartFilled] = useState(false);
-  const { deleteTrip } = useDeleteTrip();
-
-
+  // The useDeleteTrip hook is removed from here.
   const toggleHeart = (event) => {
     event.stopPropagation();
     setIsHeartFilled((prev) => !prev);
   };
-
+  // This is the key change. This function now simply calls the 'onDelete'
+  // function that was passed down as a prop from the TripGrid component.
   const handleDelete = (e) => {
     e.stopPropagation();
-    deleteTrip(trip, onDelete);
+    onDelete();
   };
-
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -43,7 +36,6 @@ const TripCard = ({ onCardClick, onDelete, trip }) => {
       year: "numeric",
     });
   };
-
   return (
     <Card
       shadow="sm"
@@ -63,10 +55,8 @@ const TripCard = ({ onCardClick, onDelete, trip }) => {
           alt="Title of the trip"
         />
       </Card.Section>
-
       <Group justify="space-between" mt="md" mb="xs">
         <Text fw={500}>{trip.title}</Text>
-        {/* Make the heart icon clickable with ActionIcon */}
         <ActionIcon
           variant="transparent"
           onClick={toggleHeart}
@@ -79,7 +69,6 @@ const TripCard = ({ onCardClick, onDelete, trip }) => {
           )}
         </ActionIcon>
       </Group>
-
       <Group justify="space-between" mt="md" mb="xs">
         <Text size="sm" c="dimmed">
           Hosted By {trip.host.name}
@@ -88,7 +77,6 @@ const TripCard = ({ onCardClick, onDelete, trip }) => {
           {formatDate(trip.startTime)}
         </Text>
       </Group>
-
       <Group justify="space-between" align="center">
         <Text>Status: {trip.status}</Text>
         {trip.status === "PLANNING" && (
@@ -100,5 +88,4 @@ const TripCard = ({ onCardClick, onDelete, trip }) => {
     </Card>
   );
 };
-
 export default TripCard;
