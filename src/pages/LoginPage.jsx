@@ -8,7 +8,7 @@ import {
   Paper,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../supabaseClient.js";
 import { useNavigate, useParams } from "react-router-dom";
 
 const LoginPage = () => {
@@ -23,35 +23,39 @@ const LoginPage = () => {
 
     if (provider) {
       console.log(`Attempting OAuth login with provider: ${provider}`);
-    } else {
-      console.log("Attempting password login with credentials:", credentials);
-    }
-
-    const { error } = provider
-      ? await supabase.auth.signInWithOAuth({ provider })
-      : await supabase.auth.signInWithPassword(credentials);
-
-    if (error) {
-      notifications.show({
-        title: "Login Error",
-        message: error.message,
-        color: "red",
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/home`,
+        },
       });
-      if (provider) {
+
+      if (error) {
+        notifications.show({
+          title: "Login Error",
+          message: error.message,
+          color: "red",
+        });
         console.error(`OAuth login failed for provider: ${provider}`, error);
-      } else {
-        console.error("Password login failed", error);
+        setLoading(false);
       }
     } else {
-      if (provider) {
-        console.log(`OAuth login successful for provider: ${provider}`);
+      console.log("Attempting password login with credentials.");
+      const { error } = await supabase.auth.signInWithPassword(credentials);
+
+      if (error) {
+        notifications.show({
+          title: "Login Error",
+          message: error.message,
+          color: "red",
+        });
+        console.error("Password login failed", error);
       } else {
         console.log("Password login successful");
+        navigate("/home");
       }
+      setLoading(false);
     }
-
-    setLoading(false);
-    navigate("/home");
   };
 
   return (
