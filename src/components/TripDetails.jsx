@@ -149,6 +149,7 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
             variant="filled"
             color={ownTrip ? "red" : "black"}
             onClick={open}
+            disabled={ownTrip && tripStatus === "COMPLETED"}
           >
             {ownTrip ? "Delete Trip" : "Leave Trip"}
           </Button>
