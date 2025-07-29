@@ -284,7 +284,7 @@ const TripSummaryPage = ({
             <Grid.Col span={5}>
               <Stack spacing="xl">
                 {/* Trip Details Card */}
-                <TripDetails tripId={id} ownTrip={ownTrip}></TripDetails>
+                <TripDetails tripId={id} ownTrip={ownTrip} tripStatus={tripStatus}></TripDetails>
                 <RSVPForm tripId={id} ownTrip={ownTrip}></RSVPForm>
                 <TripGuestList tripId={id}></TripGuestList>
 

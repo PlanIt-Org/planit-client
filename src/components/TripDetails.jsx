@@ -20,7 +20,7 @@ import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import { useDeleteTrip } from "../hooks/useDeleteTrip";
 
-const TripDetails = ({ tripId, ownTrip }) => {
+const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
@@ -197,7 +197,7 @@ const TripDetails = ({ tripId, ownTrip }) => {
             </Text>
           </Box>
         </Stack>
-        <CopyTripLink tripId={tripId} />
+        <CopyTripLink tripId={tripId} tripStatus={tripStatus}/>
       </Stack>
       {/* Leave Trip Confirmation Modal */}
       <Modal
