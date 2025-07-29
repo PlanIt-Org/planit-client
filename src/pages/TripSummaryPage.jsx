@@ -65,6 +65,10 @@ const TripSummaryPage = ({
   const [tripStatus, setTripStatus] = useState(null);
   const [ownTrip, setOwnTrip] = useState(false);
 
+  const [tripData, setTripData] = useState({});
+  const [isTimeLoading, setIsTimeLoading] = useState(true);
+  const [timeError, setTimeError] = useState(null);
+
   useEffect(() => {
     if (id) {
       setCurrTripId(id);
@@ -73,7 +77,14 @@ const TripSummaryPage = ({
   }, [id]);
 
   useEffect(() => {
-    if (!currTripId) return;
+    // If there's no trip ID, do nothing.
+    if (!currTripId) {
+      setIsTimeLoading(false);
+      return;
+    }
+
+
+    
 
     const fetchLocationsAndStatus = async () => {
       try {
@@ -210,7 +221,7 @@ const TripSummaryPage = ({
                     className="bg-white"
                     flex={1}
                   >
-                    <TripTimes currTripId={currTripId} />
+                    <TripTimes currTripId={currTripId} tripStatus={tripStatus} locations={locations}/>
                   </Paper>
                 </Group>
                 {/* Main Image/Map */}

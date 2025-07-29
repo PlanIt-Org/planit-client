@@ -5,7 +5,7 @@ import { Text, Box, ActionIcon } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
 import classes from "../styles/DndListHandle.module.css";
 import { useEffect } from "react";
-import apiClient from "../api/axios"; 
+import apiClient from "../api/axios";
 
 function DragDropLocations({ locations, setLocations, id }) {
   const [internalLocations, internalHandlers] = useListState(locations);
@@ -16,15 +16,28 @@ function DragDropLocations({ locations, setLocations, id }) {
 
   const handleRemove = async (indexToRemove) => {
     const locationToRemove = internalLocations[indexToRemove];
+    // Ensure you are using the correct property for the Google Place ID.
+    // Based on your previous code, it's `place_id`.
     const placeId = locationToRemove.place_id;
 
-    try {
-      await apiClient.delete(`/${id}/locations/${placeId}`);
-    } catch (err) {
-      console.error("Failed to remove location from trip:", err);
-      return; // Don't update local state if server fails
+    if (!id || !placeId) {
+      console.error("Missing trip ID or location Place ID.");
+      return;
     }
 
+    console.log("Removing location from trip:", id, "with Place ID:", placeId);
+
+    try {
+      // --- THIS IS THE CORRECTED LINE ---
+      // Add the '/trips' prefix to match your backend routing.
+      await apiClient.delete(`/trips/${id}/locations/${placeId}`);
+    } catch (err) {
+      console.error("Failed to remove location from trip:", err);
+      // Optionally, show a notification to the user here.
+      return; // Don't update local state if server request fails.
+    }
+
+    // This part only runs if the API call was successful.
     const newOrder = internalLocations.filter((_, index) => index !== indexToRemove);
     internalHandlers.setState(newOrder);
     setLocations(newOrder);
