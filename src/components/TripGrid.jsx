@@ -260,12 +260,6 @@ const TripGrid = ({ userId, tripId, active }) => {
             <Text ta="center" color="dimmed">
               Start by creating some trips!
             </Text>
-            <Button
-              onClick={() => navigate("/tripplanner/new")}
-              variant="filled"
-            >
-              Create Your First Trip
-            </Button>
           </Stack>
         </Center>
       </Container>

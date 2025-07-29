@@ -62,10 +62,8 @@ const TripSummaryPage = ({
   const [currTripId, setCurrTripId] = useState(null);
   const [tripStatus, setTripStatus] = useState(null);
   const [ownTrip, setOwnTrip] = useState(false);
-
-  const [tripData, setTripData] = useState({});
+  const [isPrivate, setIsPrivate] = useState(true);
   const [isTimeLoading, setIsTimeLoading] = useState(true);
-  const [timeError, setTimeError] = useState(null);
 
   useEffect(() => {
     if (id) {
@@ -197,7 +195,7 @@ const TripSummaryPage = ({
             <Grid.Col span={7}>
               <Stack spacing="xl">
                 <Group style={{ width: "100%" }}>
-                  {ownTrip && tripStatus !== "ACTIVE" && (
+                  {ownTrip && (tripStatus !== "ACTIVE" || tripStatus !== "COMPLETED") && (
                     <Button
                       size="md"
                       radius="md"
@@ -284,7 +282,7 @@ const TripSummaryPage = ({
             <Grid.Col span={5}>
               <Stack spacing="xl">
                 {/* Trip Details Card */}
-                <TripDetails tripId={id} ownTrip={ownTrip} tripStatus={tripStatus}></TripDetails>
+                <TripDetails tripId={id} ownTrip={ownTrip} tripStatus={tripStatus} isPrivate={isPrivate} setIsPrivate={setIsPrivate}></TripDetails>
                 <RSVPForm tripId={id} ownTrip={ownTrip}></RSVPForm>
                 {/* <TripGuestList tripId={id}></TripGuestList> */}
 

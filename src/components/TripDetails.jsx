@@ -21,7 +21,7 @@ import { useState, useEffect } from "react";
 import { useDeleteTrip } from "../hooks/useDeleteTrip";
 import apiClient from "../api/axios";
 
-const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
+const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
@@ -35,10 +35,12 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
       if (tripId) {
         try {
           const response = await apiClient.get(`/trips/${tripId}`);
-          const { title, description, host } = response.data.trip;
+
+          const { title, description, host, private: tripIsPrivate } = response.data.trip;
           setHostName(host?.name || "Loading...");
           setInputTitle(title || "");
           setInputDesc(description || "");
+          setIsPrivate(tripIsPrivate);
         } catch (err) {
           console.error("Failed to fetch trip details:", err);
           notifications.show({
@@ -52,7 +54,29 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
 
     // Call the async function
     fetchTripDetails();
-  }, [tripId]); // The effect runs when tripId changes
+  }, [tripId]);
+
+
+
+  const handleTogglePrivacy = async () => {
+    const newPrivacyState = !isPrivate;
+    try {
+      await apiClient.put(`/trips/${tripId}/privacy`, { private: newPrivacyState });
+      setIsPrivate(newPrivacyState); 
+      notifications.show({
+        title: "Success!",
+        message: `Trip is now ${newPrivacyState ? 'private' : 'public'}.`,
+        color: "green",
+      });
+    } catch (error) {
+      console.error("Failed to update privacy:", error);
+      notifications.show({
+        title: "Error",
+        message: "Could not update trip privacy.",
+        color: "red",
+      });
+    }
+  };
 
   const handleLeaveTrip = () => {
     console.log("Leaving trip (yes option was clicked)");
@@ -146,6 +170,14 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
       <Stack spacing="md">
         <Group justify="space-between">
           {ownTrip && <Button variant="light">Add Hosts</Button>}
+          {ownTrip && (
+              <Button
+                color={isPrivate ? "red" : "green"}
+                onClick={handleTogglePrivacy}
+              >
+                {isPrivate ? 'Make Public' : 'Make Private'}
+              </Button>
+            )}
           <Button
             variant="filled"
             color={ownTrip ? "red" : "black"}

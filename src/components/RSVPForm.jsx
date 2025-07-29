@@ -1,10 +1,12 @@
-// src/components/RSVPForm.jsx
 import React, { useState } from "react";
 import { Button, Stack, Paper, Group } from "@mantine/core";
 import apiClient from "../api/axios";
+import { useNavigate } from "react-router-dom";
+import { notifications } from "@mantine/notifications";
 
 function RSVPForm({ tripId, ownTrip }) {
   const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   if (ownTrip) {
     return null;
@@ -15,11 +17,26 @@ function RSVPForm({ tripId, ownTrip }) {
       console.error("Trip ID is missing.");
       return;
     }
+
     setSubmitting(true);
     try {
       await apiClient.post(`/trip/${tripId}/rsvp`, { status });
+      if (status === "no") {
+        navigate("/");
+      } else {
+        notifications.show({
+          title: "RSVP Received!",
+          message: `Your response of '${status}' has been recorded.`,
+          color: "green",
+        });
+      }
     } catch (error) {
       console.error("Failed to RSVP:", error);
+      notifications.show({
+        title: "Error",
+        message: "There was a problem submitting your RSVP.",
+        color: "red",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -49,20 +66,20 @@ function RSVPForm({ tripId, ownTrip }) {
             Yes
           </Button>
           <Button
-            color="red"
-            onClick={() => handleRSVP("no")}
-            loading={submitting}
-            type="button"
-          >
-            No
-          </Button>
-          <Button
             color="yellow"
             onClick={() => handleRSVP("maybe")}
             loading={submitting}
             type="button"
           >
             Maybe
+          </Button>
+          <Button
+            color="red"
+            onClick={() => handleRSVP("no")}
+            loading={submitting}
+            type="button"
+          >
+            No
           </Button>
         </Group>
       </Stack>
