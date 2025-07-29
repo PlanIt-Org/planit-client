@@ -118,22 +118,6 @@ function App({ isMapsApiLoaded }) {
           }
         />
         <Route
-          path="/register"
-          element={
-            <ProtectedRoute>
-              <RegisterPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <ProtectedRoute>
-              <LoginPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
           path="/tripfilter/:tripId"
           element={
             <ProtectedRoute>

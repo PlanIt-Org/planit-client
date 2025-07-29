@@ -47,8 +47,6 @@ import RSVPForm from "../components/RSVPForm";
 import TripTimes from "../components/TripTimes";
 import apiClient from "../api/axios";
 
-// https://pravatar.cc is a random avatar generator btw
-
 const TripSummaryPage = ({
   selectedCity,
   locations,
@@ -82,9 +80,6 @@ const TripSummaryPage = ({
       setIsTimeLoading(false);
       return;
     }
-
-
-    
 
     const fetchLocationsAndStatus = async () => {
       try {
@@ -131,7 +126,7 @@ const TripSummaryPage = ({
     };
 
     fetchLocationsAndStatus();
-  }, [currTripId]);
+  }, [currTripId, setLocations, userId]);
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -221,7 +216,11 @@ const TripSummaryPage = ({
                     className="bg-white"
                     flex={1}
                   >
-                    <TripTimes currTripId={currTripId} tripStatus={tripStatus} locations={locations}/>
+                    <TripTimes
+                      currTripId={currTripId}
+                      tripStatus={tripStatus}
+                      locations={locations}
+                    />
                   </Paper>
                 </Group>
                 {/* Main Image/Map */}
@@ -287,7 +286,7 @@ const TripSummaryPage = ({
                 {/* Trip Details Card */}
                 <TripDetails tripId={id} ownTrip={ownTrip}></TripDetails>
                 <RSVPForm tripId={id} ownTrip={ownTrip}></RSVPForm>
-                <TripGuestList></TripGuestList>
+                <TripGuestList tripId={id}></TripGuestList>
 
                 {/* Comments Section */}
                 <CommentGrid tripId={id} locations={locations} userId={userId}>

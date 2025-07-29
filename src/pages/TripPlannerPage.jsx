@@ -1,4 +1,4 @@
-// // src/components/SuggestedTripContainer.jsx
+// src/components/SuggestedTripContainer.jsx
 import React, { useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
 import { Button, Text, Box, Group, Stack, Flex } from "@mantine/core";
@@ -49,14 +49,12 @@ const TripPlannerPage = ({
         const res = await apiClient.get(`/trips/${id}`);
         const tripData = res.data;
 
-        // Check if the logged-in user is the host of the trip
         if (loggedInUserId && tripData.hostId === loggedInUserId) {
           setOwnTrip(true);
         } else {
           setOwnTrip(false);
         }
 
-        // Set the current state based on the fetched trip
         setCurrTripId(tripData.id);
         setLocations(tripData.locations || []);
       } catch (error) {
@@ -66,18 +64,16 @@ const TripPlannerPage = ({
           message: `Could not load the trip with ID: ${id}.`,
           color: "red",
         });
-        navigate("/"); // Redirect home if the trip ID is invalid
+        navigate("/home");
       }
     };
 
     fetchTripAndCheckOwnership();
   }, [id, navigate, setCurrTripId, setLocations]);
 
-  // use effect that adds currently selected place to a locations array
   useEffect(() => {
     if (selectedPlace) {
       setLocations((prevLocations) => {
-        // don't allow duplicates
         if (
           !prevLocations.some((loc) => loc.place_id === selectedPlace.place_id)
         ) {
@@ -99,8 +95,6 @@ const TripPlannerPage = ({
         message:
           "Please add at least one location to your trip before proceeding.",
         color: "red",
-        position: "bottom-center",
-        autoClose: 5000,
       });
       return;
     }
@@ -109,48 +103,36 @@ const TripPlannerPage = ({
       const {
         data: { session },
       } = await supabase.auth.getSession();
-
       if (!session?.user?.id) {
         notifications.show({
           title: "Login Required",
           message: "Please log in to save your trip.",
           color: "red",
-          position: "bottom-center",
-          autoClose: 5000,
         });
         return;
       }
 
       let tripId = currTripId || id;
 
-      // If it's not your trip, make a copy of it
       if (!ownTrip) {
         const originalTripRes = await apiClient.get(`/trips/${currTripId}`);
         const originalTrip = originalTripRes.data;
 
         const newTripRes = await apiClient.post("/trips", {
-          hostId: session.user.id,
           startTime: originalTrip.startTime,
           endTime: originalTrip.endTime,
-          title: originalTrip.title
-            ? `${originalTrip.title} (Copy)`
-            : "My Copied Trip",
+          title: `${originalTrip.title} (Copy)`,
           description: originalTrip.description || "",
           city: originalTrip.city || selectedCity?.name || null,
           tripImage: originalTrip.tripImage || null,
           maxGuests: originalTrip.maxGuests || null,
         });
 
-        console.log("newTripRes", newTripRes); // FULL response
-        console.log("newTripRes.data", newTripRes.data); // Axios payload
-
-        tripId = newTripRes.data.id;
+        tripId = newTripRes.data.trip.id;
         setCurrTripId(tripId);
         setOwnTrip(true);
-        console.log("Using trip ID:", tripId); // should NOT be null
       }
 
-      // Now add all selected locations to the trip (new or existing)
       for (const loc of locations) {
         const locationPayload = {
           place_id: loc.place_id,
@@ -172,44 +154,28 @@ const TripPlannerPage = ({
           image_url: loc.imageUrl || null,
         };
 
-        // Step 1: Create the location
-        const createRes = await fetch(`${API_BASE_URL}locations`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(locationPayload),
-        });
+        const createRes = await apiClient.post("/locations", locationPayload);
+        const locationId = createRes.data.id;
 
-        if (!createRes.ok) {
-          throw new Error(`Failed to create location: ${loc.name}`);
-        }
-
-        const createdLocation = await createRes.json();
-        const locationId = createdLocation.id;
-
-        const addToTripRes = await fetch(
-          `${API_BASE_URL}trips/${tripId}/locations`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ locationId }),
-          }
-        );
-
-        if (!addToTripRes.ok) {
-          throw new Error(`Failed to add ${loc.name} to trip.`);
-        }
+        await apiClient.post(`/trips/${tripId}/locations`, { locationId });
       }
 
+      notifications.show({
+        title: "Success!",
+        message: "Your trip has been saved.",
+        color: "green",
+      });
       navigate(`/tripsummary/${tripId}`);
     } catch (error) {
-      console.error("Error creating locations:", error);
+      console.error("Error saving trip:", error);
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "An error occurred while saving your trip.";
       notifications.show({
-        title: "Error Saving Locations",
-        message:
-          error.message || "An error occurred while saving your locations.",
+        title: "Error Saving Trip",
+        message: message,
         color: "red",
-        position: "bottom-center",
-        autoClose: 5000,
       });
     }
   };

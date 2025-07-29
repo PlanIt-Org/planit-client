@@ -18,6 +18,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import TripFilterSearchBox from "../components/TripFilterSearchBox";
 import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
+import { useUserPreferences } from "../hooks/useUserPreferences";
 
 const TripFilterPage = ({ setLocations }) => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const TripFilterPage = ({ setLocations }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
+  const { preferences: currentUserPreferences } = useUserPreferences();
 
   const handleSearch = async () => {
     const trimmedQuery = searchQuery.trim();
@@ -68,14 +70,20 @@ const TripFilterPage = ({ setLocations }) => {
 
   useEffect(() => {
     const allFilters = [];
+
+    if (currentUserPreferences?.activities?.activityType) {
+      allFilters.push(...currentUserPreferences.activities.activityType);
+    }
+
     selectedUsers.forEach((user) => {
       if (user.activityPreferences && user.activityPreferences.length > 0) {
         allFilters.push(...user.activityPreferences);
       }
     });
+
     const uniqueFilters = [...new Set(allFilters)];
     setSelectedFilters(uniqueFilters);
-  }, [selectedUsers]);
+  }, [selectedUsers, currentUserPreferences]);
 
   /**
    * Removes a selected user by their ID.
@@ -133,8 +141,8 @@ const TripFilterPage = ({ setLocations }) => {
       return items.map((filter) => (
         <Badge
           key={filter}
-          variant="filled"
-          color="blue"
+          variant="light"
+          color="gray"
           radius="sm"
           rightSection={
             <Group gap="xs" align="center" wrap="nowrap">

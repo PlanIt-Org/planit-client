@@ -3,10 +3,10 @@ import { Button } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
 import { supabase } from "../supabaseClient";
-import { useAuth } from "../hooks/useAuth";
+// import { useAuth } from "../hooks/useAuth";
 
 const LogoutButton = () => {
-  const { session, setSession } = useAuth();
+  //  const { session, setSession } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -15,25 +15,14 @@ const LogoutButton = () => {
 
     setIsLoading(true);
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (session) {
-        await apiClient.post(
-          "/users/logout",
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          }
-        );
-      }
+      await apiClient.post("/users/logout");
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error(
+        "Backend logout failed, proceeding with client-side logout:",
+        error
+      );
     } finally {
-      setSession(null);
+      // setSession(null);
       await supabase.auth.signOut();
       navigate("/login");
       setIsLoading(false);

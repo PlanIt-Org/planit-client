@@ -7,11 +7,15 @@ import {
   TextInput,
   Title,
   Paper,
+  Divider,
+  Anchor,
+  Text,
 } from "@mantine/core";
-import { Notifications } from "@mantine/notifications";
+import { notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import { supabase } from "../supabaseClient";
 import apiClient from "../api/axios";
+import { useNavigate, Link } from "react-router-dom";
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -42,7 +46,7 @@ const RegisterPage = () => {
         email: email,
         password: password,
       });
-      Notifications.show({
+      notifications.show({
         title: "Success!",
         message: "Please check your email for a verification link.",
         color: "green",
@@ -50,7 +54,7 @@ const RegisterPage = () => {
       console.log("User created:", response.data);
       window.location.href = "/questionnaire";
     } catch (error) {
-      Notifications.show({
+      notifications.show({
         title: "Registration Error",
         message: error.response?.data?.message || "An unknown error occurred.",
         color: "red",
@@ -109,7 +113,7 @@ const RegisterPage = () => {
               </Button>
             </Stack>
           </form>
-
+          <Divider label="or" labelPosition="center" my="lg" />
           <Button
             onClick={() => handleOAuthLogin("google")}
             variant="default"
@@ -127,6 +131,18 @@ const RegisterPage = () => {
             Sign up with GitHub
           </Button>
         </Stack>
+        <Text ta="center" mt="md">
+          Don't have an account?{" "}
+          <Anchor
+            component={Link}
+            to="/login"
+            underline="always"
+            fw={700}
+            c="blue"
+          >
+            Login
+          </Anchor>
+        </Text>
       </Paper>
     </Container>
   );

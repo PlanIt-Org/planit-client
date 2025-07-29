@@ -1,11 +1,11 @@
+// src/components/HomeLocationSearchBar.jsx
 import { Text, Button, Group, NativeSelect, Box } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
 import { notifications } from "@mantine/notifications";
 import DatePickerPopover from "./DatePickerPopover";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import apiClient from "../api/axios";
 
 const generateTimeOptions = () => {
   const times = [];
@@ -54,7 +54,6 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   };
 
   const handleGoClick = async () => {
-    // notification if user does not change times
     if (!startTime || !endTime) {
       notifications.show({
         title: "Time Selection Missing!",
@@ -99,29 +98,16 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
           description: `An exciting trip planned for ${selectedCity.name}!`,
         };
 
-        const response = await fetch(`${API_BASE_URL}trips`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(tripData),
-        });
+        const response = await apiClient.post("/trips", tripData);
+        const result = response.data;
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            errorData.message ||
-              `Failed to create trip. Status: ${response.status}`
-          );
-        }
-
-        const result = await response.json();
         console.log("Trip created successfully:", result.trip);
         navigate(`/tripfilter/${result.trip.id}`);
       } catch (error) {
         console.error("Error creating trip:", error);
 
-        const backendMessage = error.message || "";
+        const backendMessage =
+          error.response?.data?.message || "An unexpected error occurred.";
 
         if (backendMessage.includes("only have up to 5 planning")) {
           notifications.show({

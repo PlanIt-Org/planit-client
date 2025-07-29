@@ -6,31 +6,59 @@ import {
   TextInput,
   Title,
   Paper,
+  Text,
+  Anchor,
+  Divider,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../supabaseClient.js";
+import { useNavigate, Link } from "react-router-dom";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // This handler is for OAuth providers (Google, GitHub, etc.)
   const handleLogin = async (provider, credentials) => {
     setLoading(true);
-    const { error } = provider
-      ? await supabase.auth.signInWithOAuth({ provider })
-      : await supabase.auth.signInWithPassword(credentials);
 
-    if (error) {
-      notifications.show({
-        title: "Login Error",
-        message: error.message,
-        color: "red",
+    if (provider) {
+      console.log(`Attempting OAuth login with provider: ${provider}`);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/home`,
+        },
       });
+
+      if (error) {
+        notifications.show({
+          title: "Login Error",
+          message: error.message,
+          color: "red",
+        });
+        console.error(`OAuth login failed for provider: ${provider}`, error);
+        setLoading(false);
+      }
+    } else {
+      console.log("Attempting password login with credentials.");
+      const { error } = await supabase.auth.signInWithPassword(credentials);
+
+      if (error) {
+        notifications.show({
+          title: "Login Error",
+          message: error.message,
+          color: "red",
+        });
+        console.error("Password login failed", error);
+      } else {
+        console.log("Password login successful");
+        navigate("/home");
+      }
+      setLoading(false);
     }
-    // On success, the onAuthStateChange listener in AuthProvider will handle everything.
-    setLoading(false);
   };
 
   return (
@@ -78,7 +106,8 @@ const LoginPage = () => {
               Sign in
             </Button>
           </Stack>
-        </form>
+        </form>{" "}
+        <Divider label="or" labelPosition="center" my="lg" />
         <Button
           onClick={() => handleLogin("google")}
           variant="default"
@@ -97,6 +126,18 @@ const LoginPage = () => {
         >
           Sign in with GitHub
         </Button>
+        <Text ta="center" mt="md">
+          Don't have an account?{" "}
+          <Anchor
+            component={Link}
+            to="/register"
+            underline="always"
+            fw={700}
+            c="blue"
+          >
+            Register
+          </Anchor>
+        </Text>
       </Paper>
     </Container>
   );
