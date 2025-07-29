@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import SuggestedTrip from "./SuggestedTrip";
 import { Stack, Loader, Alert, Title, Text } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 const SuggestedTripContainer = () => {
   const { session } = useAuth();

@@ -16,6 +16,7 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!userInfo) {
+    console.log("Loading profile card...");
     return <Loader color="blue" />;
   }
 

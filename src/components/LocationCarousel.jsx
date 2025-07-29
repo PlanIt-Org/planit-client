@@ -10,9 +10,16 @@ import {
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import TripLocationModal from "./TripLocationModal";
+import { useState } from "react";
 
 const LocationCarousel = ({ locations }) => {
   const [opened, { open, close }] = useDisclosure(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+
+  const handleCardClick = (location) => {
+    setSelectedLocation(location);
+    open();
+  };
 
   return (
     <Carousel
@@ -35,12 +42,12 @@ const LocationCarousel = ({ locations }) => {
               minWidth: 0,
               cursor: "pointer",
             }}
-            onClick={open}
-          >
+            onClick={() => handleCardClick(loc)}
+            >
             <Card.Section>
               <Image
                 src={
-                  loc.photoUrl ||
+                  loc.imageUrl ||
                   `https://picsum.photos/300/200?random=${index}`
                 }
                 alt={loc.name}
@@ -58,7 +65,6 @@ const LocationCarousel = ({ locations }) => {
               <Text size="m" c="dimmed" component="div">
                 <ul style={{ margin: 0, paddingLeft: "1.2em" }}>
                   <li>{loc.formatted_address}</li>
-                  <li>{loc.description && <li>{loc.description}</li>} </li>
                 </ul>
               </Text>
             </Box>
@@ -82,7 +88,7 @@ const LocationCarousel = ({ locations }) => {
           </Card>
         </Carousel.Slide>
       ))}
-      <TripLocationModal opened={opened} open={open} close={close} />
+      <TripLocationModal opened={opened} open={open} close={close} location={selectedLocation}/>
     </Carousel>
   );
 };

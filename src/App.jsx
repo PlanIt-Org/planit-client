@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { Navigate, Routes, Route } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./hooks/useAuth.js";
 import HomePage from "./pages/HomePage";
 import LandingPage from "./pages/LandingPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -32,8 +32,7 @@ function App({ isMapsApiLoaded }) {
   const [selectedCity, setSelectedCity] = useState("");
   const [locations, setLocations] = useState([]); // TODO: change this later. teporarily storing the locations
   const [selectedPlace, setSelectedPlace] = useState(null);
-  const [currTripId, setCurrTripId] = useState(null);
-
+  const [ownTrip, setOwnTrip] = useState(true);
   const { session } = useAuth();
   const location = useLocation();
 
@@ -61,7 +60,6 @@ function App({ isMapsApiLoaded }) {
                 selectedCity={selectedCity}
                 setSelectedCity={setSelectedCity}
                 isMapsApiLoaded={isMapsApiLoaded}
-                setCurrTripId={setCurrTripId}
                 setLocations={setLocations}
                 user={session?.user?.id}
               />
@@ -72,11 +70,7 @@ function App({ isMapsApiLoaded }) {
           path="/profile"
           element={
             <ProtectedRoute>
-              <ProfilePage
-                user={session?.user}
-                setCurrTripId={setCurrTripId}
-                setLocations={setLocations}
-              />
+              <ProfilePage user={session?.user} setLocations={setLocations} />
             </ProtectedRoute>
           }
         />
@@ -89,7 +83,7 @@ function App({ isMapsApiLoaded }) {
           }
         />
         <Route
-          path="/tripplanner"
+          path="/tripplanner/:id"
           element={
             <ProtectedRoute>
               <TripPlannerPage
@@ -99,14 +93,14 @@ function App({ isMapsApiLoaded }) {
                 setLocations={setLocations}
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
-                currTripId={currTripId}
-                setCurrTripId={setCurrTripId}
+                ownTrip={ownTrip}
+                setOwnTrip={setOwnTrip}
               />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/tripsummary/:tripId"
+          path="/tripsummary/:id"
           element={
             <ProtectedRoute>
               <TripSummaryPage
@@ -116,38 +110,18 @@ function App({ isMapsApiLoaded }) {
                 setLocations={setLocations}
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
-                setCurrTripId={setCurrTripId}
-                currTripId={currTripId}
                 userId={session?.user?.id}
+                ownTrip={ownTrip}
+                setOwnTrip={setOwnTrip}
               />
             </ProtectedRoute>
           }
         />
         <Route
-          path="/register"
+          path="/tripfilter/:tripId"
           element={
             <ProtectedRoute>
-              <RegisterPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <ProtectedRoute>
-              <LoginPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/tripfilter"
-          element={
-            <ProtectedRoute>
-              <TripFilterPage
-                setCurrTripId={setCurrTripId}
-                setLocations={setLocations}
-                currTripId = {currTripId}
-              />
+              <TripFilterPage setLocations={setLocations} />
             </ProtectedRoute>
           }
         />
@@ -155,10 +129,7 @@ function App({ isMapsApiLoaded }) {
           path="/discover"
           element={
             <ProtectedRoute>
-              <DiscoverTripsPage
-                setCurrTripId={setCurrTripId}
-                setLocations={setLocations}
-              />
+              <DiscoverTripsPage setLocations={setLocations} />
             </ProtectedRoute>
           }
         />
@@ -166,10 +137,7 @@ function App({ isMapsApiLoaded }) {
           path="/saved"
           element={
             <ProtectedRoute>
-              <SavedTripsPage
-                setCurrTripId={setCurrTripId}
-                setLocations={setLocations}
-              />
+              <SavedTripsPage setLocations={setLocations} />
             </ProtectedRoute>
           }
         />
