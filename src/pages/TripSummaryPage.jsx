@@ -286,7 +286,7 @@ const TripSummaryPage = ({
                 {/* Trip Details Card */}
                 <TripDetails tripId={id} ownTrip={ownTrip} tripStatus={tripStatus}></TripDetails>
                 <RSVPForm tripId={id} ownTrip={ownTrip}></RSVPForm>
-                <TripGuestList tripId={id}></TripGuestList>
+                {/* <TripGuestList tripId={id}></TripGuestList> */}
 
                 {/* Comments Section */}
                 <CommentGrid tripId={id} locations={locations} userId={userId}>

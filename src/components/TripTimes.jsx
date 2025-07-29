@@ -11,7 +11,6 @@ const formatDateTime = (isoString) => {
   });
 };
 
-// 1. Make sure to accept all necessary props
 const TripTimes = ({ currTripId, tripStatus, locations }) => {
   const [tripData, setTripData] = useState({});
   const [loading, setLoading] = useState(true);
@@ -23,43 +22,26 @@ const TripTimes = ({ currTripId, tripStatus, locations }) => {
       return;
     }
 
-    let intervalId = null;
-
     const fetchData = async () => {
       try {
-        const response = await apiClient.get(`/trips/${currTripId}/estimated-time`);
+        const response = await apiClient.get(
+          `/trips/${currTripId}/estimated-time`,
+        );
         const newData = response.data.data || {};
         setTripData(newData);
       } catch (err) {
         setError(err.message || "Failed to fetch trip data.");
-        if (intervalId) clearInterval(intervalId); // Stop polling on error
       }
     };
 
-    // --- Simplified and Corrected Logic ---
-
-    // 1. Always fetch data once when the effect runs
+    // --- Logic Change ---
+    // Fetch data once and then stop. The loading state is handled by finally().
     fetchData().finally(() => {
       setLoading(false);
     });
 
-    // 2. Decide whether to poll based on the CURRENT props
-    const shouldPoll = tripStatus === "ACTIVE" && locations && locations.length > 1;
-
-    if (shouldPoll) {
-      intervalId = setInterval(fetchData, 1000); // Poll every second
-    }
-
-    // 3. The cleanup function clears the interval from THIS specific effect run
-    return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
-    };
-
-    // 4. CRITICAL FIX: The dependency array MUST include all props/state
-    // that the effect uses to make decisions.
-  }, [currTripId, tripStatus, locations]);
+    
+  }, [currTripId, tripStatus, locations]); 
 
   if (loading) {
     return (

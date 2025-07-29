@@ -17,8 +17,9 @@ import { useDisclosure } from "@mantine/hooks";
 import CopyTripLink from "./CopyTripLink";
 import { IconCalendarWeek, IconPencil, IconCheck } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDeleteTrip } from "../hooks/useDeleteTrip";
+import apiClient from "../api/axios";
 
 const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -27,6 +28,29 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
   const [inputTitle, setInputTitle] = useState("");
   const [inputDesc, setInputDesc] = useState("");
   const { deleteTrip } = useDeleteTrip();
+
+
+
+  useEffect(() => {
+    if (tripId) {
+      apiClient
+        .get(`/trips/${tripId}`)
+        .then((response) => {
+          const { title, description } = response.data.trip;
+          setInputTitle(title || "");
+          setInputDesc(description || "");
+        })
+        .catch((err) => {
+          console.error("Failed to fetch trip details:", err);
+          notifications.show({
+            title: "Error",
+            message: "Could not load trip details.",
+            color: "red",
+          });
+        });
+    }
+  }, [tripId]);
+
 
   const handleLeaveTrip = () => {
     console.log("Leaving trip (yes option was clicked)");
@@ -77,14 +101,42 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
     }
   };
 
-  const handleSaveTitle = (newTitle) => {
-    setInputTitle(newTitle);
-    setIsEditingTitle(false);
+  const handleSaveTitle = async () => {
+    try {
+      await apiClient.put(`/trips/${tripId}`, { title: inputTitle });
+      setIsEditingTitle(false);
+      notifications.show({
+        title: "Success",
+        message: "Trip title updated!",
+        color: "green",
+      });
+    } catch (error) {
+      console.error("Failed to update title:", error);
+      notifications.show({
+        title: "Error",
+        message: "Could not save title.",
+        color: "red",
+      });
+    }
   };
 
-  const handleSaveDesc = (newDesc) => {
-    setInputDesc(newDesc);
-    setIsEditingDesc(false);
+  const handleSaveDesc = async () => {
+    try {
+      await apiClient.put(`/trips/${tripId}`, { description: inputDesc });
+      setIsEditingDesc(false);
+      notifications.show({
+        title: "Success",
+        message: "Trip description updated!",
+        color: "green",
+      });
+    } catch (error) {
+      console.error("Failed to update description:", error);
+      notifications.show({
+        title: "Error",
+        message: "Could not save description.",
+        color: "red",
+      });
+    }
   };
 
   return (
@@ -92,7 +144,6 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
       <Stack spacing="md">
         <Group justify="space-between">
           {ownTrip && <Button variant="light">Add Hosts</Button>}
-
           <Button
             variant="filled"
             color={ownTrip ? "red" : "black"}
@@ -110,7 +161,7 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
                 onChange={(event) => setInputTitle(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
-                    handleSaveTitle(inputTitle);
+                    handleSaveTitle();
                   }
                 }}
                 style={{ flexGrow: 1 }}
@@ -125,7 +176,7 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
               <ActionIcon
                 onClick={() => {
                   if (isEditingTitle) {
-                    handleSaveTitle(inputTitle);
+                    handleSaveTitle();
                   } else {
                     setIsEditingTitle(true);
                   }
@@ -167,7 +218,7 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
               <ActionIcon
                 onClick={() => {
                   if (isEditingDesc) {
-                    handleSaveDesc(inputDesc);
+                    handleSaveDesc();
                   } else {
                     setIsEditingDesc(true);
                   }
