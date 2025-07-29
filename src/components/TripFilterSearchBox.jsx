@@ -21,14 +21,16 @@ const TripFilterSearchBox = ({
   onSearch,
   onAddUser,
   selectedUsers,
-  setSelectedFilters ,
+  setSelectedFilters,
   setSearchResults,
+  stagedUser,
+  setStagedUser,
 }) => {
-  const [stagedUser, setStagedUser] = useState(null);
   const [showNotification, setShowNotification] = useState(false);
 
   const renderAutocompleteOption = ({ option }) => {
     const user = searchResults.find((item) => item.id === option.value);
+
     if (!user) return null;
     return (
       <Group gap="sm">
@@ -46,7 +48,6 @@ const TripFilterSearchBox = ({
     const allFilters = [];
 
     selectedUsers.forEach((user) => {
-
       if (user.activityPreferences && user.activityPreferences.length > 0) {
         allFilters.push(...user.activityPreferences);
       }
@@ -57,16 +58,6 @@ const TripFilterSearchBox = ({
     setSelectedFilters(uniqueFilters);
   }, [selectedUsers]);
 
-
-
-  const handleUserSelect = (optionValue) => {
-    const userObject = searchResults.find(user => user.id === optionValue);
-    if (userObject) {
-      setStagedUser(userObject);
-      setSearchQuery(userObject.name); 
-    }
-  };
-
   const handleAddClick = () => {
     if (stagedUser) {
       if (selectedUsers.some((user) => user.id === stagedUser.id)) {
@@ -75,8 +66,26 @@ const TripFilterSearchBox = ({
       }
       onAddUser(stagedUser);
       setSearchQuery("");
-      setStagedUser(null); 
-      setSearchResults("");
+      // setStagedUser(null);
+    }
+  };
+
+  //Handles search query input
+  const handleQueryChange = (newValue) => {
+    setSearchQuery(newValue);
+
+    if (Array.isArray(searchResults) && searchResults.length > 0) {
+      const selectedUserObject = searchResults.find(
+        (user) => user.id === newValue
+      );
+
+      if (selectedUserObject) {
+        setStagedUser(selectedUserObject);
+
+        setSearchQuery(selectedUserObject.name);
+
+        setSearchResults([]);
+      }
     }
   };
 
@@ -100,9 +109,8 @@ const TripFilterSearchBox = ({
           label="&nbsp;"
           data={searchResults}
           value={searchQuery}
-          onChange={setSearchQuery}
+          onChange={handleQueryChange}
           renderOption={renderAutocompleteOption}
-          onOptionSubmit={handleUserSelect}
           placeholder="Search for user..."
           style={{ flexGrow: 1 }}
           leftSection={
