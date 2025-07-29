@@ -18,7 +18,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
 import { useUserPreferences } from "../hooks/useUserPreferences";
-import useUpdateDisplayName from "../hooks/useUpdateDisplayName";
 
 /**
  * Renders a single question based on its component type and options.
@@ -96,8 +95,6 @@ const QuestionnairePage = () => {
   const navigate = useNavigate();
   const { preferences: initialPreferences, isLoading: isLoadingPreferences } =
     useUserPreferences();
-  const [updateDisplayName, { isLoading: isLoadingUpdateName, error }] =
-    useUpdateDisplayName();
 
   const questionnaireSteps = [
     {
@@ -111,12 +108,6 @@ const QuestionnairePage = () => {
       type: "question",
       title: "ABOUT YOU",
       questions: [
-        {
-          id: "name",
-          prompt: "What is your name?",
-          component: "TextInput",
-          required: true,
-        },
         {
           id: "age",
           prompt: "What is your age?",
@@ -289,9 +280,6 @@ const QuestionnairePage = () => {
     const ageAsNumber = parseInt(flattenedAnswers.age, 10);
     console.log("Preparing to submit preferences. Payload:", flattenedAnswers);
 
-    // Extract name for display name update, do not include in apiPayload
-    const displayName = flattenedAnswers.name;
-
     const apiPayload = {
       age: isNaN(ageAsNumber) ? null : ageAsNumber,
       dietary: flattenedAnswers.dietary || [],
@@ -307,17 +295,7 @@ const QuestionnairePage = () => {
     try {
       console.log("Sending PUT request to /api/users/preferences...");
       const response = await apiClient.put("/users/preferences", apiPayload);
-      if (displayName) {
-        try {
-          await updateDisplayName(displayName);
-          console.log("Display name updated successfully.");
-        } catch (nameError) {
-          console.error(
-            "Failed to update display name, but preferences were saved.",
-            nameError
-          );
-        }
-      }
+
       console.log("Request sent. Awaiting response...");
       console.log(
         "Preferences saved successfully. Response data:",
