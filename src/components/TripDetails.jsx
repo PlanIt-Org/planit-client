@@ -29,28 +29,29 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
   const [inputDesc, setInputDesc] = useState("");
   const { deleteTrip } = useDeleteTrip();
 
-
-
   useEffect(() => {
-    if (tripId) {
-      apiClient
-        .get(`/trips/${tripId}`)
-        .then((response) => {
+    const fetchTripDetails = async () => {
+      if (tripId) {
+        try {
+          const response = await apiClient.get(`/trips/${tripId}`);
           const { title, description } = response.data.trip;
+
           setInputTitle(title || "");
           setInputDesc(description || "");
-        })
-        .catch((err) => {
+        } catch (err) {
           console.error("Failed to fetch trip details:", err);
           notifications.show({
             title: "Error",
             message: "Could not load trip details.",
             color: "red",
           });
-        });
-    }
-  }, [tripId]);
+        }
+      }
+    };
 
+    // Call the async function
+    fetchTripDetails();
+  }, [tripId]); // The effect runs when tripId changes
 
   const handleLeaveTrip = () => {
     console.log("Leaving trip (yes option was clicked)");
@@ -248,7 +249,7 @@ const TripDetails = ({ tripId, ownTrip, tripStatus }) => {
             </Text>
           </Box>
         </Stack>
-        <CopyTripLink tripId={tripId} tripStatus={tripStatus}/>
+        <CopyTripLink tripId={tripId} tripStatus={tripStatus} />
       </Stack>
       {/* Leave Trip Confirmation Modal */}
       <Modal
