@@ -70,7 +70,7 @@ const ProfilePage = ({ setLocations }) => {
             style={{ textDecoration: "none", width: 350 }}
           ></a>
           {/* Accordion that lists user trips */}
-          <ProfileTripAccordion userInfo={userInfo}></ProfileTripAccordion>
+          {/* <ProfileTripAccordion userInfo={userInfo}></ProfileTripAccordion> */}
         </Container>
       </Box>
     </Flex>
