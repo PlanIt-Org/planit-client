@@ -6,10 +6,13 @@ import {
   TextInput,
   Title,
   Paper,
+  Text,
+  Anchor,
+  Divider,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { supabase } from "../supabaseClient.js";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -103,7 +106,8 @@ const LoginPage = () => {
               Sign in
             </Button>
           </Stack>
-        </form>
+        </form>{" "}
+        <Divider label="or" labelPosition="center" my="lg" />
         <Button
           onClick={() => handleLogin("google")}
           variant="default"
@@ -122,6 +126,18 @@ const LoginPage = () => {
         >
           Sign in with GitHub
         </Button>
+        <Text ta="center" mt="md">
+          Don't have an account?{" "}
+          <Anchor
+            component={Link}
+            to="/register"
+            underline="always"
+            fw={700}
+            c="blue"
+          >
+            Register
+          </Anchor>
+        </Text>
       </Paper>
     </Container>
   );
