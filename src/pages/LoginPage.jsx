@@ -9,15 +9,24 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { supabase } from "../supabaseClient";
+import { useNavigate, useParams } from "react-router-dom";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // This handler is for OAuth providers (Google, GitHub, etc.)
   const handleLogin = async (provider, credentials) => {
     setLoading(true);
+
+    if (provider) {
+      console.log(`Attempting OAuth login with provider: ${provider}`);
+    } else {
+      console.log("Attempting password login with credentials:", credentials);
+    }
+
     const { error } = provider
       ? await supabase.auth.signInWithOAuth({ provider })
       : await supabase.auth.signInWithPassword(credentials);
@@ -28,9 +37,21 @@ const LoginPage = () => {
         message: error.message,
         color: "red",
       });
+      if (provider) {
+        console.error(`OAuth login failed for provider: ${provider}`, error);
+      } else {
+        console.error("Password login failed", error);
+      }
+    } else {
+      if (provider) {
+        console.log(`OAuth login successful for provider: ${provider}`);
+      } else {
+        console.log("Password login successful");
+      }
     }
-    // On success, the onAuthStateChange listener in AuthProvider will handle everything.
+
     setLoading(false);
+    navigate("/home");
   };
 
   return (
