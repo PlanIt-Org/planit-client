@@ -29,7 +29,6 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   const [endTime, setEndTime] = useState("");
   const [isCreatingTrip, setIsCreatingTrip] = useState(false);
   const [tripDate, setTripDate] = useState(null);
-  // const { session, loading: authLoading } = useAuth();
 
   const handleCitySelected = (place) => {
     setSelectedCity(place);
@@ -55,7 +54,6 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   };
 
   const handleGoClick = async () => {
-    // notification if user does not change times
     if (!startTime || !endTime) {
       notifications.show({
         title: "Time Selection Missing!",
@@ -100,7 +98,6 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
           description: `An exciting trip planned for ${selectedCity.name}!`,
         };
 
-        // Axios does not have .ok or .json() like fetch
         const response = await apiClient.post("/trips", tripData);
         const result = response.data;
 
