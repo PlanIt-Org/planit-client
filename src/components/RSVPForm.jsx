@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Stack, Paper, Group } from "@mantine/core";
+import { Button, Stack, Paper, Group, Skeleton } from "@mantine/core";
 import apiClient from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from "@mantine/notifications";
@@ -8,6 +8,7 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  // Don't render anything if the user is the host
   if (ownTrip) {
     return null;
   }
@@ -19,17 +20,14 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
     }
 
     setSubmitting(true);
-    // Update the parent's state immediately for a responsive UI
-
     try {
       await apiClient.post(`/trip/${tripId}/rsvp`, { status });
+      // Update the parent's state to reflect the change
       setRSVPStatus(status);
-      
+
       if (status === "no") {
-        // Navigate home only after the API call for 'no' is successful
         navigate("/");
       } else {
-        // Show notification for "yes" or "maybe"
         notifications.show({
           title: "RSVP Received!",
           message: `Your response of '${status}' has been recorded.`,
@@ -43,11 +41,61 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
         message: "There was a problem submitting your RSVP.",
         color: "red",
       });
-      // Optional: Revert state on error if needed
-      // setRSVPStatus(initialStatus); 
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const renderButtons = () => {
+    // If the status is still being fetched, show a loading skeleton.
+    // We check for undefined because null means "user has not responded".
+    if (RSVPStatus === undefined) {
+      return <Skeleton height={36} radius="md" />;
+    }
+
+    // If status is 'yes', show ONLY the Leave Trip button
+    if (RSVPStatus === "yes") {
+      return (
+        <Button
+          color="red"
+          onClick={() => handleRSVP("no")}
+          loading={submitting}
+          fullWidth
+        >
+          Leave Trip
+        </Button>
+      );
+    }
+
+    // For any other status ('maybe' or null), show the three RSVP options
+    return (
+      <Group grow>
+        <Button
+          color="green"
+          onClick={() => handleRSVP("yes")}
+          loading={submitting}
+          type="button"
+        >
+          Yes
+        </Button>
+        <Button
+          color="yellow"
+          onClick={() => handleRSVP("maybe")}
+          loading={submitting}
+          type="button"
+        >
+          Maybe
+        </Button>
+        <Button
+          color="red"
+          onClick={() => handleRSVP("no")}
+          loading={submitting}
+          type="button"
+        >
+          No
+        </Button>
+      </Group>
+    );
   };
 
   return (
@@ -63,48 +111,7 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
         textAlign: "center",
       }}
     >
-      <Stack>
-        {/* The UI is now directly controlled by the RSVPStatus prop */}
-        {RSVPStatus === "yes" ? (
-          // If status is 'yes', show only the Leave Trip button
-          <Button
-            color="red"
-            onClick={() => handleRSVP("no")}
-            loading={submitting}
-            fullWidth
-          >
-            Leave Trip
-          </Button>
-        ) : (
-          // For any other status ('maybe' or null), show all three options
-          <Group grow>
-            <Button
-              color="green"
-              onClick={() => handleRSVP("yes")}
-              loading={submitting}
-              type="button"
-            >
-              Yes
-            </Button>
-            <Button
-              color="yellow"
-              onClick={() => handleRSVP("maybe")}
-              loading={submitting}
-              type="button"
-            >
-              Maybe
-            </Button>
-            <Button
-              color="red"
-              onClick={() => handleRSVP("no")}
-              loading={submitting}
-              type="button"
-            >
-              No
-            </Button>
-          </Group>
-        )}
-      </Stack>
+      <Stack>{renderButtons()}</Stack>
     </Paper>
   );
 }
