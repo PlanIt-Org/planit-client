@@ -63,7 +63,7 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
       >
         <Flex direction="column" align="center" gap="md">
           <Avatar
-            src={`https://ui-avatars.com/api/?name=${userInfo.email}&background=228be6&color=fff&size=128`}
+            src={`https://ui-avatars.com/api/?name=${userInfo.user_metadata?.display_name}&background=228be6&color=fff&size=128`}
             size={96}
             radius={48}
           />
