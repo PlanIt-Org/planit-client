@@ -1,9 +1,5 @@
 import { useEffect, useRef } from "react";
-import {
-  AdvancedMarker,
-  Map,
-  useMap,
-} from "@vis.gl/react-google-maps";
+import { AdvancedMarker, Map, useMap } from "@vis.gl/react-google-maps";
 import apiClient from "../api/axios";
 
 const GOOGLE_MAPS_STYLING_ID = import.meta.env.VITE_GOOGLE_MAPS_STYLING_ID;
@@ -30,20 +26,23 @@ const TripPlannerMap = ({
         zoomControl={true}
       >
         {/* added multiple pins on map */}
-        {locations.map(
-          (loc, index) =>
-            loc.geometry?.location && (
-              <AdvancedMarker
-                key={loc.place_id || index}
-                position={loc.geometry.location}
-                title={loc.name}
-              />
-            )
-        )}
+        {locations.map((loc, index) => {
+          const position = loc.geometry?.location || {
+            lat: loc.latitude,
+            lng: loc.longitude,
+          };
+          return position.lat && position.lng ? (
+            <AdvancedMarker
+              key={loc.id || loc.place_id || index}
+              position={position}
+              title={loc.name}
+            />
+          ) : null;
+        })}
       </Map>
 
       <MapHandler
-      tripId={tripId}
+        tripId={tripId}
         selectedPlace={selectedPlace}
         locations={locations}
         selectedCity={selectedCity}
@@ -146,23 +145,29 @@ const MapHandler = ({
               const totalDurationText = formatDuration(totalDurationSeconds);
               console.log("Total Trip Duration:", totalDurationText);
 
-              async function updateTripEstimatedTime(currentTripId, estimatedTimeString) {
+              async function updateTripEstimatedTime(
+                currentTripId,
+                estimatedTimeString
+              ) {
                 if (!currentTripId) {
                   console.warn("No tripId provided, skipping time update.");
                   return;
                 }
-              
+
                 try {
                   const payload = {
                     estimatedTime: estimatedTimeString,
                   };
-              
+
                   const response = await apiClient.post(
                     `/trips/${currentTripId}/estimated-time`,
                     payload
                   );
-              
-                  console.log("Successfully updated estimated time:", response.data);
+
+                  console.log(
+                    "Successfully updated estimated time:",
+                    response.data
+                  );
                   return response.data;
                 } catch (error) {
                   console.error(
@@ -174,30 +179,23 @@ const MapHandler = ({
               // Call the function with the tripId and calculated duration
               updateTripEstimatedTime(tripId, totalDurationText);
 
-
               const getPointStringForUrl = (locObj) => {
-                if (locObj.place_id) {
-                    return `place_id:${locObj.place_id}`;
-                }
-                // Prefer name if available, otherwise formatted_address
-                const nameOrAddress = locObj.name || locObj.formatted_address;
-                return nameOrAddress ? encodeURIComponent(nameOrAddress) : '';
+                if (locObj.place_id) return `place_id:${locObj.place_id}`;
+                const lat = locObj.latitude || locObj.geometry?.location?.lat;
+                const lng = locObj.longitude || locObj.geometry?.location?.lng;
+                if (lat && lng) return `${lat},${lng}`;
+                return encodeURIComponent(
+                  locObj.name || locObj.formatted_address || ""
+                );
               };
 
-              // Use the original locations array to build the URL strings
-              const routeOriginString = getPointStringForUrl(locations[0]);
-              const routeDestinationString = getPointStringForUrl(locations[locations.length - 1]);
-              
-              const routeWaypointsStrings = locations.slice(1, -1)
-                .map(loc => getPointStringForUrl(loc))
-                .filter(str => str !== ''); // Filter out empty strings
+              const allPoints = locations
+                .map(getPointStringForUrl)
+                .filter(Boolean);
 
-              let directionsUrl = `https://www.google.com/maps/dir/${routeOriginString}`;
-              if (routeWaypointsStrings.length > 0) {
-                directionsUrl += `/${routeWaypointsStrings.join("/")}`;
-              }
-              directionsUrl += `/${routeDestinationString}`;
-              directionsUrl += `?api=1&travelmode=${response.request.travelMode.toLowerCase()}`; // Add api=1 parameter
+              const directionsUrl = `http://googleusercontent.com/maps/dir/${allPoints.join(
+                "/"
+              )}`;
 
               if (setGoogleMapsLink) {
                 setGoogleMapsLink(directionsUrl);
@@ -205,9 +203,7 @@ const MapHandler = ({
             }
           } else {
             console.error("Directions request failed due to " + status);
-            if (setGoogleMapsLink) {
-              setGoogleMapsLink("");
-            }
+            if (setGoogleMapsLink) setGoogleMapsLink("");
           }
         }
       );

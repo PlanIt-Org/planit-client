@@ -18,7 +18,7 @@ function DragDropLocations({ locations, setLocations, id }) {
     const locationToRemove = internalLocations[indexToRemove];
     // Ensure you are using the correct property for the Google Place ID.
     // Based on your previous code, it's `place_id`.
-    const placeId = locationToRemove.place_id;
+    const placeId = locationToRemove.googlePlaceId;
 
     if (!id || !placeId) {
       console.error("Missing trip ID or location Place ID.");
@@ -62,9 +62,9 @@ function DragDropLocations({ locations, setLocations, id }) {
           </div>
           <Box style={{ flexGrow: 1 }}>
             <Text fw={500}>{location.name}</Text>
-            {location.formatted_address && (
+            {(location.formatted_address || location.address) && (
               <Text c="dimmed" size="sm">
-                {location.formatted_address}
+                {location.formatted_address || location.address}
               </Text>
             )}
           </Box>
