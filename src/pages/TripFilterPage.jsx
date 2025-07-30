@@ -63,7 +63,7 @@ const TripFilterPage = ({ setLocations }) => {
     }
   };
 
-  // In TripFilterPage.jsx
+ 
 
   useEffect(() => {
     const filterCounts = {};
