@@ -20,8 +20,6 @@ const TripPlannerPage = ({
   setLocations,
   selectedPlace,
   setSelectedPlace,
-  currTripId,
-  setCurrTripId,
   ownTrip,
   setOwnTrip,
 }) => {
@@ -55,7 +53,6 @@ const TripPlannerPage = ({
           setOwnTrip(false);
         }
 
-        setCurrTripId(tripData.id);
         setLocations(tripData.locations || []);
       } catch (error) {
         console.error("Failed to fetch trip data:", error);
@@ -69,7 +66,7 @@ const TripPlannerPage = ({
     };
 
     fetchTripAndCheckOwnership();
-  }, [id, navigate, setCurrTripId, setLocations]);
+  }, [id, navigate, setLocations]);
 
   useEffect(() => {
     if (selectedPlace) {
@@ -112,26 +109,23 @@ const TripPlannerPage = ({
         return;
       }
 
-      let tripId = currTripId || id;
+      // if (!ownTrip) {
+      //   const originalTripRes = await apiClient.get(`/trips/${id}`);
+      //   const originalTrip = originalTripRes.data;
 
-      if (!ownTrip) {
-        const originalTripRes = await apiClient.get(`/trips/${currTripId}`);
-        const originalTrip = originalTripRes.data;
+      //   const newTripRes = await apiClient.post("/trips", {
+      //     startTime: originalTrip.startTime,
+      //     endTime: originalTrip.endTime,
+      //     title: `${originalTrip.title} (Copy)`,
+      //     description: originalTrip.description || "",
+      //     city: originalTrip.city || selectedCity?.name || null,
+      //     tripImage: originalTrip.tripImage || null,
+      //     maxGuests: originalTrip.maxGuests || null,
+      //   });
 
-        const newTripRes = await apiClient.post("/trips", {
-          startTime: originalTrip.startTime,
-          endTime: originalTrip.endTime,
-          title: `${originalTrip.title} (Copy)`,
-          description: originalTrip.description || "",
-          city: originalTrip.city || selectedCity?.name || null,
-          tripImage: originalTrip.tripImage || null,
-          maxGuests: originalTrip.maxGuests || null,
-        });
-
-        tripId = newTripRes.data.trip.id;
-        setCurrTripId(tripId);
-        setOwnTrip(true);
-      }
+      //   tripId = newTripRes.data.trip.id;
+      //   setOwnTrip(true);
+      // }
 
       for (const loc of locations) {
         const locationPayload = {
@@ -157,7 +151,7 @@ const TripPlannerPage = ({
         const createRes = await apiClient.post("/locations", locationPayload);
         const locationId = createRes.data.id;
 
-        await apiClient.post(`/trips/${tripId}/locations`, { locationId });
+        await apiClient.post(`/trips/${id}/locations`, { locationId });
       }
 
       notifications.show({
@@ -165,7 +159,7 @@ const TripPlannerPage = ({
         message: "Your trip has been saved.",
         color: "green",
       });
-      navigate(`/tripsummary/${tripId}`);
+      navigate(`/tripsummary/${id}`);
     } catch (error) {
       console.error("Error saving trip:", error);
       const message =
