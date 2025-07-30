@@ -86,7 +86,7 @@ const HomePage = ({
           ></TripCategory>
           {/*  Your Trips */}
           <TripGrid
-            userId={user}
+            userId={user?.id}
             setCurrTripId={setCurrTripId}
             active={active}
           ></TripGrid>

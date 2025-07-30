@@ -69,39 +69,14 @@ const TripGrid = ({ userId, tripId, active }) => {
   };
 
   useEffect(() => {
-    console.log("📡 useEffect triggered:", {
-      authLoading,
-      session: !!session,
-      userId,
-      allTripsLength: allTrips.length,
-      loading,
-      willFetch: !authLoading && !!session && !!userId && allTrips.length === 0,
-    });
-
     if (authLoading || !session || !userId) {
       console.log("⏸️ Skipping fetch - auth not ready");
       return;
     }
 
-    if (allTrips.length > 0) {
-      console.log("⏸️ Skipping fetch - already have trips");
-      return;
-    }
-
-    console.log("🎯 Conditions met - fetching trips");
+    console.log("🎯 Conditions met - fetching trips for user:", userId);
     fetchTrips();
-  }, [authLoading, session, userId, allTrips.length]);
-
-  useEffect(() => {
-    console.log("👤 UserId changed, clearing trips:", {
-      userId,
-      prevLength: allTrips.length,
-    });
-    if (userId) {
-      setAllTrips([]);
-      setLoading(true);
-    }
-  }, [userId]);
+  }, [authLoading, session, userId]);
 
   const handleDeleteTrip = async (tripId) => {
     const trip = allTrips.find((t) => t.id === tripId);
