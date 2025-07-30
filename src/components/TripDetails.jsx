@@ -17,20 +17,65 @@ import { useDisclosure } from "@mantine/hooks";
 import CopyTripLink from "./CopyTripLink";
 import { IconCalendarWeek, IconPencil, IconCheck } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDeleteTrip } from "../hooks/useDeleteTrip";
+import apiClient from "../api/axios";
 
-const TripDetails = ({ tripId, ownTrip }) => {
+const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
   const [inputTitle, setInputTitle] = useState("");
   const [inputDesc, setInputDesc] = useState("");
+  const [hostName, setHostName] = useState("Loading...");
   const { deleteTrip } = useDeleteTrip();
 
-  const handleLeaveTrip = () => {
-    console.log("Leaving trip (yes option was clicked)");
-    close();
+  useEffect(() => {
+    const fetchTripDetails = async () => {
+      if (tripId) {
+        try {
+          const response = await apiClient.get(`/trips/${tripId}`);
+
+          const { title, description, host, private: tripIsPrivate } = response.data.trip;
+          setHostName(host?.name || "Loading...");
+          setInputTitle(title || "");
+          setInputDesc(description || "");
+          setIsPrivate(tripIsPrivate);
+        } catch (err) {
+          console.error("Failed to fetch trip details:", err);
+          notifications.show({
+            title: "Error",
+            message: "Could not load trip details.",
+            color: "red",
+          });
+        }
+      }
+    };
+
+    // Call the async function
+    fetchTripDetails();
+  }, [tripId]);
+
+
+
+  const handleTogglePrivacy = async () => {
+    const newPrivacyState = !isPrivate;
+    try {
+      await apiClient.put(`/trips/${tripId}/privacy`, { private: newPrivacyState });
+      setIsPrivate(newPrivacyState); 
+      notifications.show({
+        title: "Success!",
+        message: `Trip is now ${newPrivacyState ? 'private' : 'public'}.`,
+        color: "green",
+      });
+    } catch (error) {
+      console.error("Failed to update privacy:", error);
+      notifications.show({
+        title: "Error",
+        message: "Could not update trip privacy.",
+        color: "red",
+      });
+    }
   };
 
   const handleDeleteTrip = async () => {
@@ -77,14 +122,42 @@ const TripDetails = ({ tripId, ownTrip }) => {
     }
   };
 
-  const handleSaveTitle = (newTitle) => {
-    setInputTitle(newTitle);
-    setIsEditingTitle(false);
+  const handleSaveTitle = async () => {
+    try {
+      await apiClient.put(`/trips/${tripId}`, { title: inputTitle });
+      setIsEditingTitle(false);
+      notifications.show({
+        title: "Success",
+        message: "Trip title updated!",
+        color: "green",
+      });
+    } catch (error) {
+      console.error("Failed to update title:", error);
+      notifications.show({
+        title: "Error",
+        message: "Could not save title.",
+        color: "red",
+      });
+    }
   };
 
-  const handleSaveDesc = (newDesc) => {
-    setInputDesc(newDesc);
-    setIsEditingDesc(false);
+  const handleSaveDesc = async () => {
+    try {
+      await apiClient.put(`/trips/${tripId}`, { description: inputDesc });
+      setIsEditingDesc(false);
+      notifications.show({
+        title: "Success",
+        message: "Trip description updated!",
+        color: "green",
+      });
+    } catch (error) {
+      console.error("Failed to update description:", error);
+      notifications.show({
+        title: "Error",
+        message: "Could not save description.",
+        color: "red",
+      });
+    }
   };
 
   return (
@@ -92,14 +165,24 @@ const TripDetails = ({ tripId, ownTrip }) => {
       <Stack spacing="md">
         <Group justify="space-between">
           {ownTrip && <Button variant="light">Add Hosts</Button>}
-
-          <Button
-            variant="filled"
-            color={ownTrip ? "red" : "black"}
-            onClick={open}
-          >
-            {ownTrip ? "Delete Trip" : "Leave Trip"}
-          </Button>
+          {ownTrip && (
+              <Button
+                color={isPrivate ? "red" : "green"}
+                onClick={handleTogglePrivacy}
+              >
+                {isPrivate ? 'Make Public' : 'Make Private'}
+              </Button>
+            )}
+          {ownTrip && (
+            <Button
+              variant="filled"
+              color="red"
+              onClick={open} // Opens the confirmation modal
+              disabled={tripStatus === "COMPLETED"}
+            >
+              Delete Trip
+            </Button>
+          )}
         </Group>
         <Stack className="text-center py-4" style={{ textAlign: "center" }}>
           {/* ---------------THIS IS FOR THE Title-----------  */}
@@ -110,7 +193,7 @@ const TripDetails = ({ tripId, ownTrip }) => {
                 onChange={(event) => setInputTitle(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
-                    handleSaveTitle(inputTitle);
+                    handleSaveTitle();
                   }
                 }}
                 style={{ flexGrow: 1 }}
@@ -125,7 +208,7 @@ const TripDetails = ({ tripId, ownTrip }) => {
               <ActionIcon
                 onClick={() => {
                   if (isEditingTitle) {
-                    handleSaveTitle(inputTitle);
+                    handleSaveTitle();
                   } else {
                     setIsEditingTitle(true);
                   }
@@ -167,7 +250,7 @@ const TripDetails = ({ tripId, ownTrip }) => {
               <ActionIcon
                 onClick={() => {
                   if (isEditingDesc) {
-                    handleSaveDesc(inputDesc);
+                    handleSaveDesc();
                   } else {
                     setIsEditingDesc(true);
                   }
@@ -193,23 +276,20 @@ const TripDetails = ({ tripId, ownTrip }) => {
             }}
           >
             <Text size="sm" color="gray" weight={500}>
-              HOSTED BY: THOMAS
+              HOSTED BY: {hostName}
             </Text>
           </Box>
         </Stack>
-        <CopyTripLink tripId={tripId} />
+        <CopyTripLink tripId={tripId} tripStatus={tripStatus} />
       </Stack>
-      {/* Leave Trip Confirmation Modal */}
       <Modal
         opened={opened}
         onClose={close}
-        title={`Confirm ${ownTrip ? "Delete" : "Leave"} Trip`}
+        title="Confirm Delete Trip"
         centered
       >
         <Text>
-          {ownTrip
-            ? "Are you sure you want to delete this trip? This action cannot be undone."
-            : "Are you sure you want to leave this trip?"}
+          Are you sure you want to delete this trip? This action cannot be undone.
         </Text>
         <Group mt="md" justify="flex-end">
           <Button variant="default" onClick={close}>
@@ -217,9 +297,9 @@ const TripDetails = ({ tripId, ownTrip }) => {
           </Button>
           <Button
             color="red"
-            onClick={ownTrip ? handleDeleteTrip : handleLeaveTrip}
+            onClick={handleDeleteTrip} // Always calls the delete handler
           >
-            {ownTrip ? "Yes, Delete Trip" : "Yes, Leave Trip"}
+            Yes, Delete Trip
           </Button>
         </Group>
       </Modal>

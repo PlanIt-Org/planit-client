@@ -260,12 +260,6 @@ const TripGrid = ({ userId, tripId, active }) => {
             <Text ta="center" color="dimmed">
               Start by creating some trips!
             </Text>
-            <Button
-              onClick={() => navigate("/tripplanner/new")}
-              variant="filled"
-            >
-              Create Your First Trip
-            </Button>
           </Stack>
         </Center>
       </Container>
@@ -338,14 +332,20 @@ const TripGrid = ({ userId, tripId, active }) => {
             />
 
             <Text className="text-xl font-bold text-gray-800">
-              {selectedTrip.title}
-            </Text>
-            <Text className="text-gray-700">
-              <strong>Host:</strong> {selectedTrip.host?.name || "Unknown"}
+              <strong>Title:</strong> {selectedTrip.title}
             </Text>
             <Text className="text-gray-700">
               <strong>City:</strong> {selectedTrip.city || "N/A"}
             </Text>
+
+            <Text className="text-gray-700">
+              <strong>Host:</strong> {selectedTrip.host?.name || "Unknown"}
+            </Text>
+            <Text className="text-gray-700">
+              <strong>Description:</strong>{" "}
+              {selectedTrip.description || "No description provided."}
+            </Text>
+
             <Text className="text-gray-700">
               <strong>Time:</strong>{" "}
               {selectedTrip.startTime
@@ -355,10 +355,6 @@ const TripGrid = ({ userId, tripId, active }) => {
               {selectedTrip.endTime
                 ? new Date(selectedTrip.endTime).toLocaleString()
                 : "N/A"}
-            </Text>
-            <Text className="text-gray-700">
-              <strong>Description:</strong>{" "}
-              {selectedTrip.description || "No description provided."}
             </Text>
             {selectedTrip.locations && selectedTrip.locations.length > 0 && (
               <div className="mt-4">
