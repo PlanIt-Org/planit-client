@@ -319,6 +319,7 @@ const TripSummaryPage = ({
                     ownTrip={ownTrip}
                     RSVPStatus={RSVPStatus}
                     setRSVPStatus={setRSVPStatus}
+                    userId={userId}
                   ></RSVPForm>
                 )}
 

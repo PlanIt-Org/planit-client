@@ -4,7 +4,8 @@ import apiClient from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from "@mantine/notifications";
 
-function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
+// The component now requires a `userId` prop to add the user to the invited list
+function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus, userId }) {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -13,23 +14,32 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
   }
 
   const handleRSVP = async (status) => {
-    if (!tripId) {
-      console.error("Trip ID is missing.");
+    // Check for missing IDs
+    if (!tripId || (status === 'yes' && !userId)) {
+      console.error("Trip ID or User ID is missing for this action.");
       return;
     }
 
     setSubmitting(true);
-    // Update the parent's state immediately for a responsive UI
-
     try {
+      // First, submit the RSVP status update
       await apiClient.post(`/trip/${tripId}/rsvp`, { status });
       setRSVPStatus(status);
-      
-      if (status === "no") {
-        // Navigate home only after the API call for 'no' is successful
+
+      if (status === "yes") {
+        // If the RSVP is "yes", also call the endpoint to add the user to the invited list
+        await apiClient.post(`/trips/${tripId}/add-invited`, { userId });
+        
+        notifications.show({
+          title: "You're In!",
+          message: "Your RSVP is confirmed and you've been added to the trip.",
+          color: "green",
+        });
+      } else if (status === "no") {
+        // If the status is "no" (from clicking "No" or "Leave Trip"), navigate away
         navigate("/");
       } else {
-        // Show notification for "yes" or "maybe"
+        // Handle the "maybe" case
         notifications.show({
           title: "RSVP Received!",
           message: `Your response of '${status}' has been recorded.`,
@@ -37,14 +47,12 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
         });
       }
     } catch (error) {
-      console.error("Failed to RSVP:", error);
+      console.error("Failed to process RSVP:", error);
       notifications.show({
         title: "Error",
         message: "There was a problem submitting your RSVP.",
         color: "red",
       });
-      // Optional: Revert state on error if needed
-      // setRSVPStatus(initialStatus); 
     } finally {
       setSubmitting(false);
     }
@@ -64,7 +72,6 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
       }}
     >
       <Stack>
-        {/* The UI is now directly controlled by the RSVPStatus prop */}
         {RSVPStatus === "yes" ? (
           // If status is 'yes', show only the Leave Trip button
           <Button
@@ -76,7 +83,7 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
             Leave Trip
           </Button>
         ) : (
-          // For any other status ('maybe' or null), show all three options
+          // For any other status ('maybe' or null), show the three RSVP options
           <Group grow>
             <Button
               color="green"
