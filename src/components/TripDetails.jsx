@@ -78,11 +78,6 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
     }
   };
 
-  const handleLeaveTrip = () => {
-    console.log("Leaving trip (yes option was clicked)");
-    close();
-  };
-
   const handleDeleteTrip = async () => {
     if (!confirm("Are you sure you want to delete this trip?")) return;
 
@@ -178,14 +173,16 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
                 {isPrivate ? 'Make Public' : 'Make Private'}
               </Button>
             )}
-          <Button
-            variant="filled"
-            color={ownTrip ? "red" : "black"}
-            onClick={open}
-            disabled={ownTrip && tripStatus === "COMPLETED"}
-          >
-            {ownTrip ? "Delete Trip" : "Leave Trip"}
-          </Button>
+          {ownTrip && (
+            <Button
+              variant="filled"
+              color="red"
+              onClick={open} // Opens the confirmation modal
+              disabled={tripStatus === "COMPLETED"}
+            >
+              Delete Trip
+            </Button>
+          )}
         </Group>
         <Stack className="text-center py-4" style={{ textAlign: "center" }}>
           {/* ---------------THIS IS FOR THE Title-----------  */}
@@ -285,17 +282,14 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
         </Stack>
         <CopyTripLink tripId={tripId} tripStatus={tripStatus} />
       </Stack>
-      {/* Leave Trip Confirmation Modal */}
       <Modal
         opened={opened}
         onClose={close}
-        title={`Confirm ${ownTrip ? "Delete" : "Leave"} Trip`}
+        title="Confirm Delete Trip"
         centered
       >
         <Text>
-          {ownTrip
-            ? "Are you sure you want to delete this trip? This action cannot be undone."
-            : "Are you sure you want to leave this trip?"}
+          Are you sure you want to delete this trip? This action cannot be undone.
         </Text>
         <Group mt="md" justify="flex-end">
           <Button variant="default" onClick={close}>
@@ -303,9 +297,9 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
           </Button>
           <Button
             color="red"
-            onClick={ownTrip ? handleDeleteTrip : handleLeaveTrip}
+            onClick={handleDeleteTrip} // Always calls the delete handler
           >
-            {ownTrip ? "Yes, Delete Trip" : "Yes, Leave Trip"}
+            Yes, Delete Trip
           </Button>
         </Group>
       </Modal>

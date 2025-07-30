@@ -64,6 +64,7 @@ const TripSummaryPage = ({
   const [ownTrip, setOwnTrip] = useState(false);
   const [isPrivate, setIsPrivate] = useState(true);
   const [isTimeLoading, setIsTimeLoading] = useState(true);
+  const [RSVPStatus, setRSVPStatus] = useState(null);
 
   useEffect(() => {
     if (id) {
@@ -74,6 +75,9 @@ const TripSummaryPage = ({
 
   useEffect(() => {
     // If there's no trip ID, do nothing.
+    if (ownTrip) {
+      return;
+    }
     if (!currTripId) {
       setIsTimeLoading(false);
       return;
@@ -124,7 +128,26 @@ const TripSummaryPage = ({
     };
 
     fetchLocationsAndStatus();
-  }, [currTripId, setLocations, userId]);
+  }, [currTripId, setLocations, userId, ownTrip]);
+
+
+  useEffect(() => {
+    if (!id || !userId) return;
+  
+    const fetchRsvpStatus = async () => {
+      try {
+        const response = await apiClient.get(`/trip/${id}/my-rsvp`);
+        setRSVPStatus(response.data.status.toLowerCase());
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          setRSVPStatus(null); 
+        } else {
+          console.error("Failed to fetch RSVP status:", error);
+        }
+      }
+    };
+    fetchRsvpStatus();
+  }, [id, userId]); 
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -195,17 +218,18 @@ const TripSummaryPage = ({
             <Grid.Col span={7}>
               <Stack spacing="xl">
                 <Group style={{ width: "100%" }}>
-                  {ownTrip && (tripStatus !== "ACTIVE" || tripStatus !== "COMPLETED") && (
-                    <Button
-                      size="md"
-                      radius="md"
-                      onClick={() => {
-                        navigate(`/tripplanner/${id}`);
-                      }}
-                    >
-                      Back
-                    </Button>
-                  )}
+                  {ownTrip &&
+                    (tripStatus !== "ACTIVE" || tripStatus !== "COMPLETED") && (
+                      <Button
+                        size="md"
+                        radius="md"
+                        onClick={() => {
+                          navigate(`/tripplanner/${id}`);
+                        }}
+                      >
+                        Back
+                      </Button>
+                    )}
                   {/* Time Information */}
                   <Paper
                     withBorder
@@ -282,8 +306,22 @@ const TripSummaryPage = ({
             <Grid.Col span={5}>
               <Stack spacing="xl">
                 {/* Trip Details Card */}
-                <TripDetails tripId={id} ownTrip={ownTrip} tripStatus={tripStatus} isPrivate={isPrivate} setIsPrivate={setIsPrivate}></TripDetails>
-                <RSVPForm tripId={id} ownTrip={ownTrip}></RSVPForm>
+                <TripDetails
+                  tripId={id}
+                  ownTrip={ownTrip}
+                  tripStatus={tripStatus}
+                  isPrivate={isPrivate}
+                  setIsPrivate={setIsPrivate}
+                ></TripDetails>
+                {RSVPStatus !== "yes" && (
+                  <RSVPForm
+                    tripId={id}
+                    ownTrip={ownTrip}
+                    RSVPStatus={RSVPStatus}
+                    setRSVPStatus={setRSVPStatus}
+                  ></RSVPForm>
+                )}
+
                 {/* <TripGuestList tripId={id}></TripGuestList> */}
 
                 {/* Comments Section */}
