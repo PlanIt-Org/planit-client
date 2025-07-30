@@ -130,24 +130,75 @@ const TripSummaryPage = ({
     fetchLocationsAndStatus();
   }, [currTripId, setLocations, userId, ownTrip]);
 
-
   useEffect(() => {
-    if (!id || !userId) return;
-  
+    // Add a log to see if the hook is being skipped
+    if (ownTrip) {
+      console.log("RSVP fetch skipped: User owns the trip.");
+      // If the user is the owner, they can't RSVP. Set status to a final state.
+      setRSVPStatus(null);
+      return;
+    }
+    if (!currTripId || !userId) {
+      console.log("RSVP fetch skipped: Missing tripId or userId.");
+      return;
+    }
+
     const fetchRsvpStatus = async () => {
+      // Reset status to loading every time the tripId changes
+      setRSVPStatus(undefined);
+      console.log(
+        `Requesting RSVP status for trip: /trip/${currTripId}/my-rsvp`
+      );
+
       try {
-        const response = await apiClient.get(`/trip/${id}/my-rsvp`);
-        setRSVPStatus(response.data.status.toLowerCase());
-      } catch (error) {
-        if (error.response && error.response.status === 404) {
-          setRSVPStatus(null); 
+        const response = await apiClient.get(`/trip/${currTripId}/my-rsvp`);
+
+        // CRITICAL STEP: Log the entire response from the server
+        console.log("✅ Full API Response for my-rsvp:", response);
+
+        // Check if the data and status property exist before trying to access them
+        if (response && response.data && response.data.status) {
+          const status = response.data.status.toLowerCase();
+          console.log("✅ SUCCESS: Setting RSVPStatus to:", status);
+          setRSVPStatus(status);
         } else {
-          console.error("Failed to fetch RSVP status:", error);
+          // This will catch cases where the API response has an unexpected format
+          console.error("❌ API response format is unexpected:", response.data);
+          setRSVPStatus(null); // Set to a non-loading state
+        }
+      } catch (error) {
+        if (error.response) {
+          // Log the full error response if the API call fails
+          console.error("❌ API Error fetching RSVP status:", error.response);
+          if (error.response.status === 404) {
+            console.log(
+              "User has not RSVP'd yet (404). Setting status to null."
+            );
+            setRSVPStatus(null);
+          } else {
+            // For other errors (like 500), set to null to stop the loading state
+            setRSVPStatus(null);
+          }
+        } else {
+          // Handle network errors where there's no response object
+          console.error(
+            "❌ Network error fetching RSVP status:",
+            error.message
+          );
         }
       }
     };
+
     fetchRsvpStatus();
-  }, [id, userId]); 
+  }, [currTripId, userId, ownTrip]);
+
+  useEffect(() => {
+    console.log(
+      `%cRSVPStatus changed to: %c${RSVPStatus}`,
+      "color: blue; font-weight: bold;",
+      "color: green; font-weight: bold;"
+    );
+  }, [RSVPStatus]);
 
   const handleOpenGoogleMaps = () => {
     if (googleMapsLink) {
@@ -313,15 +364,14 @@ const TripSummaryPage = ({
                   isPrivate={isPrivate}
                   setIsPrivate={setIsPrivate}
                 ></TripDetails>
-                {RSVPStatus !== "yes" && (
-                  <RSVPForm
-                    tripId={id}
-                    ownTrip={ownTrip}
-                    RSVPStatus={RSVPStatus}
-                    setRSVPStatus={setRSVPStatus}
-                    userId={userId}
-                  ></RSVPForm>
-                )}
+
+                <RSVPForm
+                  tripId={id}
+                  ownTrip={ownTrip}
+                  RSVPStatus={RSVPStatus}
+                  setRSVPStatus={setRSVPStatus}
+                  userId={userId}
+                ></RSVPForm>
 
                 {/* <TripGuestList tripId={id}></TripGuestList> */}
 

@@ -1,45 +1,33 @@
 import React, { useState } from "react";
-import { Button, Stack, Paper, Group } from "@mantine/core";
+import { Button, Stack, Paper, Group, Skeleton } from "@mantine/core";
 import apiClient from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from "@mantine/notifications";
 
-// The component now requires a `userId` prop to add the user to the invited list
-function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus, userId }) {
+function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  // Don't render anything if the user is the host
   if (ownTrip) {
     return null;
   }
 
   const handleRSVP = async (status) => {
-    // Check for missing IDs
-    if (!tripId || (status === 'yes' && !userId)) {
-      console.error("Trip ID or User ID is missing for this action.");
+    if (!tripId) {
+      console.error("Trip ID is missing.");
       return;
     }
 
     setSubmitting(true);
     try {
-      // First, submit the RSVP status update
       await apiClient.post(`/trip/${tripId}/rsvp`, { status });
+      // Update the parent's state to reflect the change
       setRSVPStatus(status);
 
-      if (status === "yes") {
-        // If the RSVP is "yes", also call the endpoint to add the user to the invited list
-        await apiClient.post(`/trips/${tripId}/add-invited`, { userId });
-        
-        notifications.show({
-          title: "You're In!",
-          message: "Your RSVP is confirmed and you've been added to the trip.",
-          color: "green",
-        });
-      } else if (status === "no") {
-        // If the status is "no" (from clicking "No" or "Leave Trip"), navigate away
+      if (status === "no") {
         navigate("/");
       } else {
-        // Handle the "maybe" case
         notifications.show({
           title: "RSVP Received!",
           message: `Your response of '${status}' has been recorded.`,
@@ -47,7 +35,7 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus, userId }) {
         });
       }
     } catch (error) {
-      console.error("Failed to process RSVP:", error);
+      console.error("Failed to RSVP:", error);
       notifications.show({
         title: "Error",
         message: "There was a problem submitting your RSVP.",
@@ -56,6 +44,58 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus, userId }) {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const renderButtons = () => {
+    // If the status is still being fetched, show a loading skeleton.
+    // We check for undefined because null means "user has not responded".
+    if (RSVPStatus === undefined) {
+      return <Skeleton height={36} radius="md" />;
+    }
+
+    // If status is 'yes', show ONLY the Leave Trip button
+    if (RSVPStatus === "yes") {
+      return (
+        <Button
+          color="red"
+          onClick={() => handleRSVP("no")}
+          loading={submitting}
+          fullWidth
+        >
+          Leave Trip
+        </Button>
+      );
+    }
+
+    // For any other status ('maybe' or null), show the three RSVP options
+    return (
+      <Group grow>
+        <Button
+          color="green"
+          onClick={() => handleRSVP("yes")}
+          loading={submitting}
+          type="button"
+        >
+          Yes
+        </Button>
+        <Button
+          color="yellow"
+          onClick={() => handleRSVP("maybe")}
+          loading={submitting}
+          type="button"
+        >
+          Maybe
+        </Button>
+        <Button
+          color="red"
+          onClick={() => handleRSVP("no")}
+          loading={submitting}
+          type="button"
+        >
+          No
+        </Button>
+      </Group>
+    );
   };
 
   return (
@@ -71,47 +111,7 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus, userId }) {
         textAlign: "center",
       }}
     >
-      <Stack>
-        {RSVPStatus === "yes" ? (
-          // If status is 'yes', show only the Leave Trip button
-          <Button
-            color="red"
-            onClick={() => handleRSVP("no")}
-            loading={submitting}
-            fullWidth
-          >
-            Leave Trip
-          </Button>
-        ) : (
-          // For any other status ('maybe' or null), show the three RSVP options
-          <Group grow>
-            <Button
-              color="green"
-              onClick={() => handleRSVP("yes")}
-              loading={submitting}
-              type="button"
-            >
-              Yes
-            </Button>
-            <Button
-              color="yellow"
-              onClick={() => handleRSVP("maybe")}
-              loading={submitting}
-              type="button"
-            >
-              Maybe
-            </Button>
-            <Button
-              color="red"
-              onClick={() => handleRSVP("no")}
-              loading={submitting}
-              type="button"
-            >
-              No
-            </Button>
-          </Group>
-        )}
-      </Stack>
+      <Stack>{renderButtons()}</Stack>
     </Paper>
   );
 }
