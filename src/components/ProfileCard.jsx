@@ -1,9 +1,23 @@
 import { useState, useEffect } from "react";
-import { Flex, Card, Avatar, Text, Button, Loader, Modal } from "@mantine/core";
+import {
+  Flex,
+  Card,
+  Avatar,
+  Text,
+  Button,
+  Loader,
+  Modal,
+  ActionIcon,
+  Tooltip,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { IconPalette } from "@tabler/icons-react";
 import EditProfileModal from "../components/EditProfileModal";
 import PasswordResetModal from "../components/PasswordResetModal";
+import ProfilePictureEditor from "../components/ProfilePictureEditor";
 import LogoutButton from "../components/LogoutButton";
+import { useProfilePicture } from "../hooks/useProfilePicture";
+
 const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
   const [
     editProfileOpened,
@@ -13,7 +27,22 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
     changePasswordOpened,
     { open: openChangePassword, close: closeChangePassword },
   ] = useDisclosure(false);
+  const [
+    profilePictureOpened,
+    { open: openProfilePicture, close: closeProfilePicture },
+  ] = useDisclosure(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Get current avatar URL using the hook
+  console.log(
+    "ProfileCard: Calling useProfilePicture with userInfo:",
+    userInfo
+  );
+  const { getCurrentAvatarUrl } = useProfilePicture(userInfo);
+  console.log(
+    "ProfileCard: getCurrentAvatarUrl function from hook:",
+    getCurrentAvatarUrl
+  );
 
   if (!userInfo) {
     console.log("Loading profile card...");
@@ -24,13 +53,19 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
     console.log("submitting new name", newName);
   };
 
+  const handleProfilePictureUpdate = () => {
+    // Refresh user info after profile picture update
+    refreshUserInfo();
+    closeProfilePicture();
+  };
+
   return (
     <>
       {/* Edit Profile Modal */}
       <Modal
         opened={editProfileOpened}
         onClose={closeEditProfile}
-        title="Edit Profile"
+        title="Change Username"
         centered
       >
         <EditProfileModal
@@ -40,6 +75,7 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
           refreshUserInfo={refreshUserInfo}
         />
       </Modal>
+
       {/* Change Password Modal */}
       <Modal
         opened={changePasswordOpened}
@@ -52,8 +88,17 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
           onSuccess={(data) => {
             console.log("Password reset successful:", data.message);
           }}
-        ></PasswordResetModal>
+        />
       </Modal>
+
+      {/* Profile Picture Editor Modal */}
+      <ProfilePictureEditor
+        opened={profilePictureOpened}
+        onClose={closeProfilePicture}
+        userInfo={userInfo}
+        onUpdate={handleProfilePictureUpdate}
+      />
+
       <Card
         shadow="md"
         padding="xl"
@@ -62,11 +107,28 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
         style={{ width: 350, marginBottom: 32 }}
       >
         <Flex direction="column" align="center" gap="md">
-          <Avatar
-            src={`https://ui-avatars.com/api/?name=${userInfo.user_metadata?.display_name}&background=228be6&color=fff&size=128`}
-            size={96}
-            radius={48}
-          />
+          {/* Avatar with Edit Button */}
+          <div style={{ position: "relative" }}>
+            <Avatar src={getCurrentAvatarUrl()} size={96} radius={48} />
+            <Tooltip label="Customize avatar">
+              <ActionIcon
+                size="sm"
+                radius="xl"
+                color="blue"
+                variant="filled"
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  right: 0,
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                }}
+                onClick={openProfilePicture}
+              >
+                <IconPalette size={12} />
+              </ActionIcon>
+            </Tooltip>
+          </div>
+
           <Text size="lg" weight={700}>
             {userInfo.user_metadata?.display_name || userInfo.email}
           </Text>
@@ -75,13 +137,18 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
             {userInfo.email}
           </Text>
 
+          {/* Show formatted join date */}
           <Text>
             Joined{" "}
-            {new Date(userInfo.created_at).toLocaleDateString("en-US", {
-              month: "long",
-              year: "numeric",
-            })}
+            {userInfo.created_at
+              ? new Date(userInfo.created_at).toLocaleDateString("en-US", {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                })
+              : "Unknown"}
           </Text>
+
           <Button
             onClick={openEditProfile}
             variant="outline"
@@ -89,8 +156,9 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
             mt="md"
             fullWidth
           >
-            Edit Profile
+            Change Username
           </Button>
+
           <Button
             onClick={openChangePassword}
             variant="light"
@@ -99,7 +167,9 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
           >
             Change Password
           </Button>
-          <LogoutButton></LogoutButton>
+
+          <LogoutButton />
+
           <Button
             fullWidth
             size="md"
