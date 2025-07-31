@@ -45,7 +45,7 @@ const TripPlannerPage = ({
         const loggedInUserId = session?.user?.id;
 
         const res = await apiClient.get(`/trips/${id}`);
-        const tripData = res.data;
+        const tripData = res.data.trip;
 
         if (loggedInUserId && tripData.hostId === loggedInUserId) {
           setOwnTrip(true);
@@ -66,7 +66,7 @@ const TripPlannerPage = ({
     };
 
     fetchTripAndCheckOwnership();
-  }, [id, navigate, setLocations]);
+  }, [id, navigate]);
 
   useEffect(() => {
     if (selectedPlace) {
@@ -129,23 +129,25 @@ const TripPlannerPage = ({
 
       for (const loc of locations) {
         const locationPayload = {
-          place_id: loc.place_id,
+          place_id: loc.googlePlaceId || loc.place_id, 
           name: loc.name,
-          formatted_address: loc.formatted_address,
+          formatted_address: loc.address || loc.formatted_address, 
           geometry: {
             location: {
               lat:
-                typeof loc.geometry.location.lat === "function"
+                loc.latitude ||
+                (typeof loc.geometry?.location?.lat === "function"
                   ? loc.geometry.location.lat()
-                  : loc.geometry.location.lat,
+                  : loc.geometry?.location?.lat),
               lng:
-                typeof loc.geometry.location.lng === "function"
+                loc.longitude ||
+                (typeof loc.geometry?.location?.lng === "function"
                   ? loc.geometry.location.lng()
-                  : loc.geometry.location.lng,
+                  : loc.geometry?.location?.lng),
             },
           },
           types: loc.types,
-          image_url: loc.imageUrl || null,
+          image_url: loc.image || loc.imageUrl || null, // Use image or imageUrl
         };
 
         const createRes = await apiClient.post("/locations", locationPayload);

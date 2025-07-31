@@ -74,7 +74,7 @@ const RegisterPage = () => {
       }
 
       console.log("Sign-in successful, navigating to questionnaire...");
-      navigate("/questionnaire"); // <-- not working
+      navigate("/questionnaire");
     } catch (error) {
       notifications.show({
         title: "Registration Error",

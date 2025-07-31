@@ -321,18 +321,17 @@ useEffect(() => {
             <Grid.Col span={7}>
               <Stack spacing="xl">
                 <Group style={{ width: "100%" }}>
-                  {ownTrip &&
-                    (tripStatus !== "ACTIVE" || tripStatus !== "COMPLETED") && (
-                      <Button
-                        size="md"
-                        radius="md"
-                        onClick={() => {
-                          navigate(`/tripplanner/${id}`);
-                        }}
-                      >
-                        Back
-                      </Button>
-                    )}
+                  {ownTrip && tripStatus === "PLANNING" && (
+                    <Button
+                      size="md"
+                      radius="md"
+                      onClick={() => {
+                        navigate(`/tripplanner/${id}`);
+                      }}
+                    >
+                      Back
+                    </Button>
+                  )}
                   {/* Time Information */}
                   <Paper
                     withBorder
@@ -416,7 +415,6 @@ useEffect(() => {
                   isPrivate={isPrivate}
                   setIsPrivate={setIsPrivate}
                 ></TripDetails>
-
                 <RSVPForm
                   tripId={id}
                   ownTrip={ownTrip}
@@ -424,9 +422,7 @@ useEffect(() => {
                   setRSVPStatus={setRSVPStatus}
                   userId={userId}
                 ></RSVPForm>
-
-                {/* <TripGuestList tripId={id}></TripGuestList> */}
-
+                x{/* <TripGuestList tripId={id}></TripGuestList> */}
                 {/* Comments Section */}
                 <CommentGrid tripId={id} locations={locations} userId={userId} comments={ comments} setComments={ setComments}>
                   {" "}
@@ -437,7 +433,7 @@ useEffect(() => {
                       color={tripStatus === "ACTIVE" ? "red" : "green"}
                       onClick={() => handlePublish(currTripId)}
                     >
-                      {tripStatus === "ACTIVE" ? "Unpublish" : "Publish"}
+                      {tripStatus === "ACTIVE" ? "Edit" : "Publish"}
                     </Button>
                   )}
                 </Group>
