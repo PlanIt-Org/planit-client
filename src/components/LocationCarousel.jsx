@@ -12,7 +12,7 @@ import { useDisclosure } from "@mantine/hooks";
 import TripLocationModal from "./TripLocationModal";
 import { useState } from "react";
 
-const LocationCarousel = ({ locations }) => {
+const LocationCarousel = ({ locations, comments }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
@@ -88,7 +88,7 @@ const LocationCarousel = ({ locations }) => {
           </Card>
         </Carousel.Slide>
       ))}
-      <TripLocationModal opened={opened} open={open} close={close} location={selectedLocation}/>
+      <TripLocationModal opened={opened} open={open} close={close} location={selectedLocation} comments = {comments}/>
     </Carousel>
   );
 };
