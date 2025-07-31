@@ -135,7 +135,7 @@ function App({ isMapsApiLoaded }) {
           path="/saved"
           element={
             <ProtectedRoute>
-              <SavedTripsPage setLocations={setLocations} />
+              <SavedTripsPage setLocations={setLocations} userId={session?.user?.id}/>
             </ProtectedRoute>
           }
         />

@@ -24,7 +24,7 @@ import { useAuth } from "../hooks/useAuth.js";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PAGE_SIZE = 6;
 
-const TripGrid = ({ userId, tripId, active }) => {
+const TripGrid = ({ userId, tripId, active, savedOnly = false }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [allTrips, setAllTrips] = useState([]);
   const [visibleTrips, setVisibleTrips] = useState([]);
@@ -48,11 +48,12 @@ const TripGrid = ({ userId, tripId, active }) => {
 
   const fetchTrips = async () => {
     console.log("🚀 Starting fetchTrips...");
+    const endpoint = savedOnly ? "/trips/saved" : `/trips/user/${userId}`;
     setLoading(true);
     setError(null);
 
     try {
-      const response = await apiClient.get(`/trips/user/${userId}`);
+      const response = await apiClient.get(endpoint);
       const data = response.data;
       console.log("✅ Trips fetched successfully:", data.trips?.length || 0);
 
@@ -67,6 +68,10 @@ const TripGrid = ({ userId, tripId, active }) => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchTrips();
+  }, [savedOnly]);
 
   useEffect(() => {
     if (authLoading || !session || !userId) {
@@ -233,7 +238,7 @@ const TripGrid = ({ userId, tripId, active }) => {
               No trips found
             </Text>
             <Text ta="center" color="dimmed">
-              Start by creating some trips!
+          { savedOnly ? "Start by liking some trips" : "Start by creating some trips!" }
             </Text>
           </Stack>
         </Center>
