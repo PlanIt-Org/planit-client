@@ -47,11 +47,19 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
       hours = 0;
     }
 
-    const date = new Date(tripDate);
-    date.setHours(hours, minutes, 0, 0);
+    const localDate = new Date(tripDate);
+    const timezoneOffset = localDate.getTimezoneOffset() * 60000;
+    const correctedDate = new Date(localDate.getTime() + timezoneOffset);
 
-    return date.toISOString();
+    const year = correctedDate.getFullYear();
+    const month = String(correctedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(correctedDate.getDate()).padStart(2, "0");
+    const hourString = String(hours).padStart(2, "0");
+    const minuteString = String(minutes).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hourString}:${minuteString}:00.000Z`;
   };
+  
 
   const handleGoClick = async () => {
     if (!startTime || !endTime) {
@@ -176,7 +184,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
           }}
         />
         {/* Time Selectors and Go Button */}
-
+        <DatePickerPopover tripDate={tripDate} setTripDate={setTripDate} />
         <NativeSelect
           data={[{ value: "", label: "Start time" }, ...timeOptions]}
           value={startTime}
@@ -209,7 +217,6 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
             },
           }}
         />
-        <DatePickerPopover tripDate={tripDate} setTripDate={setTripDate} />
         <Button
           onClick={() => {
             handleGoClick();
