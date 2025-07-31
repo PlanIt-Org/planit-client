@@ -259,6 +259,7 @@ const TripGrid = ({ userId, tripId, active }) => {
               trip={trip}
               onCardClick={() => handleCardClick(trip)}
               onDelete={() => handleDeleteTrip(trip.id)}
+              userId={userId}
             />
           </Grid.Col>
         ))}
