@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import TripCard from "./TripCard";
 import { useDisclosure } from "@mantine/hooks";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import CopyTripLink from "./CopyTripLink";
 import { useNavigate } from "react-router-dom";
 import { useDeleteTrip } from "../hooks/useDeleteTrip";
@@ -24,7 +24,12 @@ import { useAuth } from "../hooks/useAuth.js";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const PAGE_SIZE = 6;
 
-const TripGrid = ({ userId, tripId, active }) => {
+const TripGrid = ({
+  userId,
+  active,
+  savedOnly = false,
+  discoverMode = false,
+}) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [allTrips, setAllTrips] = useState([]);
   const [visibleTrips, setVisibleTrips] = useState([]);
@@ -46,37 +51,94 @@ const TripGrid = ({ userId, tripId, active }) => {
     error,
   });
 
-  const fetchTrips = async () => {
-    console.log("🚀 Starting fetchTrips...");
+  const getFilteredTrips = useCallback(
+    (trips = allTrips) => {
+      if (discoverMode) {
+        return trips;
+      }
+      const now = new Date();
+      switch (active) {
+        case "Drafts":
+          return trips.filter((trip) => trip.status === "PLANNING");
+        case "Upcoming":
+          return trips.filter(
+            (trip) => trip.status === "ACTIVE" && new Date(trip.endTime) >= now
+          );
+        case "Past Events":
+          return trips.filter(
+            (trip) =>
+              trip.status === "COMPLETED" || new Date(trip.endTime) < now
+          );
+        case "Invited Trips":
+          return trips.filter((trip) =>
+            trip.invitedUsers?.some((user) => user.id === userId)
+          );
+        case "Hosting":
+          return trips.filter((trip) => trip.hostId === userId);
+        default:
+          return trips;
+      }
+    },
+    [allTrips, active, userId, discoverMode]
+  );
+
+  const fetchTrips = useCallback(async () => {
+    let endpoint = "";
+
+    if (discoverMode) {
+      endpoint = "/trips/discover";
+    } else if (savedOnly) {
+      endpoint = "/trips/saved";
+    } else if (userId) {
+      endpoint = `/trips/user/${userId}`;
+    } else {
+      setLoading(false);
+      return;
+    }
+
+    console.log(`🚀 Fetching trips from endpoint: ${endpoint}`);
     setLoading(true);
     setError(null);
 
     try {
-      const response = await apiClient.get(`/trips/user/${userId}`);
+      const response = await apiClient.get(endpoint);
       const data = response.data;
-      console.log("✅ Trips fetched successfully:", data.trips?.length || 0);
-
       setAllTrips(data.trips || []);
-      setVisibleTrips(data.trips.slice(0, PAGE_SIZE));
-      setPage(1);
     } catch (err) {
       console.error("❌ Failed to fetch trips:", err);
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     } finally {
-      console.log("🏁 Setting loading to false");
       setLoading(false);
+    }
+  }, [discoverMode, savedOnly, userId]);
+
+  const handleSaveToggle = (toggledTripId) => {
+    if (savedOnly) {
+      const updatedTrips = allTrips.filter((trip) => trip.id !== toggledTripId);
+      setAllTrips(updatedTrips);
     }
   };
 
   useEffect(() => {
-    if (authLoading || !session || !userId) {
-      console.log("⏸️ Skipping fetch - auth not ready");
+    if (!allTrips) return;
+    const filtered = getFilteredTrips();
+    setVisibleTrips(filtered.slice(0, PAGE_SIZE));
+    setPage(1);
+  }, [active, allTrips]);
+
+  useEffect(() => {
+    if (authLoading) {
+      console.log("⏸️ Skipping fetch - auth in progress");
       return;
     }
-
-    console.log("🎯 Conditions met - fetching trips for user:", userId);
-    fetchTrips();
-  }, [authLoading, session, userId]);
+    if (session) {
+      fetchTrips();
+    } else {
+      console.log("🚫 User not logged in, skipping fetch.");
+      setLoading(false);
+      setAllTrips([]);
+    }
+  }, [authLoading, session, fetchTrips]);
 
   const handleDeleteTrip = async (tripId) => {
     const trip = allTrips.find((t) => t.id === tripId);
@@ -96,36 +158,10 @@ const TripGrid = ({ userId, tripId, active }) => {
   };
 
   useEffect(() => {
-    if (!allTrips.length) return;
-
     const filtered = getFilteredTrips();
     setVisibleTrips(filtered.slice(0, PAGE_SIZE));
     setPage(1);
-  }, [active, allTrips]);
-
-  const getFilteredTrips = (trips = allTrips) => {
-    const now = new Date();
-    switch (active) {
-      case "Drafts":
-        return trips.filter((trip) => trip.status === "PLANNING");
-      case "Upcoming":
-        return trips.filter(
-          (trip) => trip.status === "ACTIVE" && new Date(trip.endTime) >= now
-        );
-      case "Past Events":
-        return trips.filter(
-          (trip) => trip.status === "COMPLETED" || new Date(trip.endTime) < now
-        );
-      case "Invited Trips":
-        return trips.filter((trip) =>
-          trip.invitedUsers?.some((user) => user.id === userId)
-        );
-      case "Hosting":
-        return trips.filter((trip) => trip.hostId === userId);
-      default:
-        return trips;
-    }
-  };
+  }, [allTrips, getFilteredTrips]);
 
   const handleCardClick = (trip) => {
     setSelectedTrip(trip);
@@ -229,11 +265,17 @@ const TripGrid = ({ userId, tripId, active }) => {
       <Container size="xl" py="lg">
         <Center style={{ minHeight: 200 }}>
           <Stack align="center" gap="md">
-            <Text ta="center" size="lg" color="dimmed">
-              No trips found
-            </Text>
+            {!discoverMode && (
+              <Text ta="center" size="lg" color="dimmed">
+                No trips found
+              </Text>
+            )}
             <Text ta="center" color="dimmed">
-              Start by creating some trips!
+              {discoverMode
+                ? "No trips in your area"
+                : savedOnly
+                ? "Start by liking some trips"
+                : "Start by creating some trips!"}
             </Text>
           </Stack>
         </Center>
@@ -259,6 +301,9 @@ const TripGrid = ({ userId, tripId, active }) => {
               trip={trip}
               onCardClick={() => handleCardClick(trip)}
               onDelete={() => handleDeleteTrip(trip.id)}
+              canDelete={!discoverMode && trip.hostId === userId}
+              onSaveToggle={() => handleSaveToggle(trip.id)}
+              userId={userId}
             />
           </Grid.Col>
         ))}
@@ -320,17 +365,18 @@ const TripGrid = ({ userId, tripId, active }) => {
               <strong>Description:</strong>{" "}
               {selectedTrip.description || "No description provided."}
             </Text>
-
-            <Text className="text-gray-700">
-              <strong>Time:</strong>{" "}
-              {selectedTrip.startTime
-                ? new Date(selectedTrip.startTime).toLocaleString()
-                : "N/A"}{" "}
-              -{" "}
-              {selectedTrip.endTime
-                ? new Date(selectedTrip.endTime).toLocaleString()
-                : "N/A"}
-            </Text>
+            {!(!discoverMode && selectedTrip.hostId === userId) && (
+              <Text className="text-gray-700">
+                <strong>Time:</strong>{" "}
+                {selectedTrip.startTime
+                  ? new Date(selectedTrip.startTime).toLocaleString()
+                  : "N/A"}{" "}
+                -{" "}
+                {selectedTrip.endTime
+                  ? new Date(selectedTrip.endTime).toLocaleString()
+                  : "N/A"}
+              </Text>
+            )}
             {selectedTrip.locations && selectedTrip.locations.length > 0 && (
               <div className="mt-4">
                 <Text className="font-semibold text-gray-800">Locations:</Text>
