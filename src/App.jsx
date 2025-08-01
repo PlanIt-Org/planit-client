@@ -109,6 +109,7 @@ function App({ isMapsApiLoaded }) {
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
                 userId={session?.user.id}
+                userObj = {session?.user}
                 ownTrip={ownTrip}
                 setOwnTrip={setOwnTrip}
               />

@@ -23,6 +23,7 @@ import { useState } from "react";
 import axios from "axios";
 import apiClient from "../api/axios";
 import { useEffect } from "react";
+import { useProfilePicture } from "../hooks/useProfilePicture";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -194,7 +195,6 @@ async function fetchCurrentUser() {
   }
 }
 
-
 async function fetchLocationID(place_id) {
   try {
     console.log("My place", place_id);
@@ -210,12 +210,20 @@ async function fetchLocationID(place_id) {
   }
 }
 
-export default function CommentGrid({ tripId, userId, locations, comments, setComments }) {
+export default function CommentGrid({
+  tripId,
+  userId,
+  locations,
+  comments,
+  setComments,
+  userObj,
+}) {
   const [selectedFilter, setSelectedFilter] = useState("all");
+  const { generateAvatarUrl } = useProfilePicture(userObj);
 
   console.log("All locations", locations);
-  
 
+  console.log("Current user object", userObj);
 
   const handleAddComment = async (newCommentData) => {
     console.log("New comment submitted:", newCommentData);
@@ -225,25 +233,24 @@ export default function CommentGrid({ tripId, userId, locations, comments, setCo
       const userEmail = user.email;
 
       console.log("current email!!!!!!!", userEmail);
-      if(comments){
-      const newComment = {
-        id: comments.length + 1,
-        author: {
-          name: userEmail,
-          avatar: "https://i.pravatar.cc/150?img=5",
-        },
-        text: newCommentData.text,
-        location: newCommentData.location || "",
-        // Include server response data if available
-        ...(newCommentData.serverResponse && {
-          id: newCommentData.serverResponse.id,
-          createdAt: newCommentData.serverResponse.createdAt,
-        }),
-      };
-    
+      if (comments) {
+        const newComment = {
+          id: comments.length + 1,
+          author: {
+            name: userEmail,
+            avatar: generateAvatarUrl(userEmail),
+          },
+          text: newCommentData.text,
+          location: newCommentData.location || "",
+          // Include server response data if available
+          ...(newCommentData.serverResponse && {
+            id: newCommentData.serverResponse.id,
+            createdAt: newCommentData.serverResponse.createdAt,
+          }),
+        };
 
-      setComments([newComment, ...comments]);
-    }
+        setComments([newComment, ...comments]);
+      }
     } catch (error) {
       console.error("Failed to add comment to UI:", error);
     }
@@ -279,7 +286,7 @@ export default function CommentGrid({ tripId, userId, locations, comments, setCo
                       <Avatar
                         src={
                           comment.author?.avatar ||
-                          "https://i.pravatar.cc/150?img=0"
+                          generateAvatarUrl(comment.author?.name || "User")
                         }
                         alt={comment.author?.name || "Unknown"}
                         radius="xl"
