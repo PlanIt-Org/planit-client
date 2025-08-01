@@ -101,7 +101,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
           startTime: formattedStartTime,
           endTime: formattedEndTime,
           hostId: hostId,
-          city: selectedCity.name,
+          city: selectedCity,
           title: `Trip to ${selectedCity.name}`,
           description: `An exciting trip planned for ${selectedCity.name}!`,
         };
