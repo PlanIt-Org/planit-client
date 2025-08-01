@@ -10,18 +10,26 @@ import {
   Tooltip,
   Badge,
 } from "@mantine/core";
-import useTripRSVPs from "../hooks/useTripRSVPs";
+import useTripRSVPs from "../hooks/useTripRSVPs"; // Correctly imported
 import { useProfilePicture } from "../hooks/useProfilePicture";
 
 const TripGuestList = ({ tripId }) => {
+  // Correctly calls the hook
   const { attendees, counts, loading, error } = useTripRSVPs(tripId);
+
+  console.debug("[TripGuestList] Rendered with tripId:", tripId);
+  console.debug("[TripGuestList] attendees:", attendees);
+  console.debug("[TripGuestList] counts:", counts);
+  console.debug("[TripGuestList] loading:", loading, "error:", error);
 
   const renderContent = () => {
     if (loading) {
+      console.debug("[TripGuestList] Loading state");
       return <Loader size="sm" />;
     }
 
     if (error) {
+      console.error("[TripGuestList] Error:", error);
       return (
         <Text color="red" size="sm">
           {error}
@@ -30,6 +38,7 @@ const TripGuestList = ({ tripId }) => {
     }
 
     if (attendees.length === 0) {
+      console.debug("[TripGuestList] No attendees");
       return (
         <Text size="sm" c="dimmed">
           No confirmed guests yet.
@@ -37,13 +46,20 @@ const TripGuestList = ({ tripId }) => {
       );
     }
 
+    console.debug("[TripGuestList] Rendering attendees:", attendees);
     return (
       <Paper p="xs" withBorder>
         <Group justify="center">
-          {attendees.map((rsvp) => {
-            const user = rsvp.user;
-            return <GuestAvatar key={user.id} user={user} />;
-          })}
+          {attendees
+            .filter((rsvp) => rsvp.user)
+            .map((rsvp) => {
+              const user = rsvp.user;
+              console.debug(
+                "[TripGuestList] Rendering GuestAvatar for user:",
+                user
+              );
+              return <GuestAvatar key={user?.id} user={user} />;
+            })}
         </Group>
       </Paper>
     );
@@ -76,12 +92,21 @@ const TripGuestList = ({ tripId }) => {
   );
 };
 
-// Separate component to handle individual guest avatars with profile picture logic
+// This child component is also correct
 const GuestAvatar = ({ user }) => {
   const { getCurrentAvatarUrl } = useProfilePicture(user);
 
   const avatarUrl = getCurrentAvatarUrl();
-  const displayName = user.name || user.email?.split("@")[0] || "User";
+  const displayName =
+    user?.user_metadata?.display_name || user.email?.split("@")[0] || "User";
+
+  console.debug("[GuestAvatar] Rendered for user:", user);
+  console.debug(
+    "[GuestAvatar] avatarUrl:",
+    avatarUrl,
+    "displayName:",
+    displayName
+  );
 
   return (
     <Tooltip label={displayName} withArrow>

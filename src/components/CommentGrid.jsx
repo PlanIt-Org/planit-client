@@ -21,6 +21,7 @@ import { LoremIpsum } from "react-lorem-ipsum";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import axios from "axios";
+import apiClient from "../api/axios";
 import { useEffect } from "react";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -30,43 +31,16 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
  * @param {string} tripId - The ID of the trip.
  * @returns {Promise<Array>} An array of comment objects.
  */
-async function fetchAllCommentsForTrip(tripId) {
-  try {
-    const response = await axios.get(`${API_BASE_URL}comments/trips/${tripId}`);
+// async function fetchAllCommentsForTrip(tripId) {
+//   try {
+//     const response = await axios.get(`${API_BASE_URL}comments/trips/${tripId}`);
 
-    return response.data;
-  } catch (error) {
-    console.error("Failed to fetch comments for trip:", error);
-    throw error;
-  }
-}
-
-const mockComments = [
-  {
-    id: 1,
-    author: { name: "Keith", avatar: "https://i.pravatar.cc/150?img=1" },
-    text: "Yosemite was absolutely breathtaking! The views from Glacier Point are a must-see.",
-    location: "Yosemite National Park",
-  },
-  {
-    id: 2,
-    author: { name: "Bobby", avatar: "https://i.pravatar.cc/150?img=2" },
-    text: "The wine tasting tour in Napa was fantastic. Highly recommend the cabernet.",
-    location: "Napa Valley",
-  },
-  {
-    id: 3,
-    author: { name: "Sarah", avatar: "https://i.pravatar.cc/150?img=2" },
-    text: "I am so excited for this trip! I can't wait to see the sights.",
-    location: "",
-  },
-];
-
-const mockLocations = [
-  { value: "general", label: "General Comment" },
-  { value: "Yosemite National Park", label: "Yosemite National Park" },
-  { value: "Napa Valley", label: "Napa Valley" },
-];
+//     return response.data;
+//   } catch (error) {
+//     console.error("Failed to fetch comments for trip:", error);
+//     throw error;
+//   }
+// }
 
 function CommentBox({ onAddComment, locations, userId, tripId }) {
   const [opened, { open, close, toggle }] = useDisclosure(false);
@@ -87,26 +61,73 @@ function CommentBox({ onAddComment, locations, userId, tripId }) {
     }
   }, [locations]);
 
-  const handleSubmit = () => {
-    onAddComment({
-      text: commentText,
-      location: selectedLocation,
-    });
+  const createCommentData = async () => {
+    try {
+      console.log(selectedLocation, "selected loc");
+      console.log(locations, "All my locations");
 
-    setCommentText("");
+      let commentDataAPI;
 
-    const commentDataAPI = {
-      authorId: userId,
-      text: commentText,
-      tripId: tripId,
-    };
+      if (selectedLocation === "general" || selectedLocation === "") {
+        //General comment
+        commentDataAPI = {
+          authorId: userId,
+          text: commentText,
+          tripId: tripId,
+        };
+      } else {
+        //Comment with location tag
+        const foundLocation = locations.find((location) => {
+          return (
+            location.name.trim().toLowerCase() ===
+            selectedLocation.trim().toLowerCase()
+          );
+        });
+        console.log("Find my locaiton", foundLocation);
 
-    console.log("try again", commentDataAPI);
+        if (!foundLocation) {
+          console.error("Error: Could not find the selected location.");
+          return null;
+        }
 
-    addComments(commentDataAPI);
+        console.log("My place id x2", foundLocation.place_id);
+        const locationId = await fetchLocationID(foundLocation.place_id);
 
-    setSelectedLocation("general");
-    close();
+        commentDataAPI = {
+          authorId: userId,
+          text: commentText,
+          tripId: tripId,
+          locationId: locationId,
+        };
+      }
+
+      return commentDataAPI;
+    } catch (error) {
+      console.error("An error occurred while creating comment data:", error);
+      return null;
+    }
+  };
+
+  const handleSubmit = async () => {
+    const data = await createCommentData();
+    if (data) {
+      try {
+        const response = await addComments(data);
+
+        // Call onAddComment with the response data from server
+        onAddComment({
+          text: commentText,
+          location: selectedLocation !== "general" ? selectedLocation : "",
+          serverResponse: response,
+        });
+
+        setCommentText("");
+        setSelectedLocation("");
+        close();
+      } catch (error) {
+        console.error("Failed to add comment:", error);
+      }
+    }
   };
 
   return (
@@ -147,7 +168,9 @@ function CommentBox({ onAddComment, locations, userId, tripId }) {
  */
 async function addComments(commentData) {
   try {
+    console.log("What I am passing", commentData);
     const response = await axios.post(`${API_BASE_URL}comments`, commentData);
+    console.log("COmment data", commentData);
 
     console.log("Successfully created comment:", response.data);
     return response.data;
@@ -157,40 +180,73 @@ async function addComments(commentData) {
   }
 }
 
-export default function CommentGrid({ tripId, userId, locations }) {
-  const [comments, setComments] = useState([]);
+async function fetchCurrentUser() {
+  try {
+    const response = await apiClient.get("/users/me");
+
+    // setEmail(response.data.email);
+    console.log("Current data", response.data);
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to get current  user:", error);
+    throw error;
+  }
+}
+
+
+async function fetchLocationID(place_id) {
+  try {
+    console.log("My place", place_id);
+    place_id = place_id.trim();
+    const response = await apiClient.get(`/locations/by-place-id/${place_id}`);
+
+    console.log("Current location id", response.data.id);
+
+    return response.data.id;
+  } catch (error) {
+    console.error("Failed to get location ID :", error);
+    throw error;
+  }
+}
+
+export default function CommentGrid({ tripId, userId, locations, comments, setComments }) {
   const [selectedFilter, setSelectedFilter] = useState("all");
 
-  useEffect(() => {
-    if (tripId) {
-      fetchAllCommentsForTrip(tripId)
-        .then((data) => {
-          if (Array.isArray(data)) {
-            setComments(data);
-          } else {
-            console.warn("Unexpected comments shape:", data);
-            setComments([]);
-          }
-        })
-        .catch((error) => {
-          console.error("Failed to set comments:", error);
-          setComments([]);
-        });
+  console.log("All locations", locations);
+  
+
+
+  const handleAddComment = async (newCommentData) => {
+    console.log("New comment submitted:", newCommentData);
+
+    try {
+      const user = await fetchCurrentUser();
+      const userEmail = user.email;
+
+      console.log("current email!!!!!!!", userEmail);
+      if(comments){
+      const newComment = {
+        id: comments.length + 1,
+        author: {
+          name: userEmail,
+          avatar: "https://i.pravatar.cc/150?img=5",
+        },
+        text: newCommentData.text,
+        location: newCommentData.location || "",
+        // Include server response data if available
+        ...(newCommentData.serverResponse && {
+          id: newCommentData.serverResponse.id,
+          createdAt: newCommentData.serverResponse.createdAt,
+        }),
+      };
+    
+
+      setComments([newComment, ...comments]);
     }
-  }, [tripId]);
-
-  const handleAddComment = (newCommentData) => {
-    console.log("New comment submitted:", comments);
-
-    const newComment = {
-      id: comments.length + 1,
-      author: {
-        name: "CurrentUser",
-        avatar: "https://i.pravatar.cc/150?img=5",
-      },
-      ...newCommentData,
-    };
-    setComments([newComment, ...comments]);
+    } catch (error) {
+      console.error("Failed to add comment to UI:", error);
+    }
   };
 
   return (
@@ -216,7 +272,7 @@ export default function CommentGrid({ tripId, userId, locations }) {
             </Group>
 
             <Stack spacing="md" mt="md">
-              {comments.length > 0 ? (
+              {comments && comments.length > 0 ? (
                 comments.map((comment) => (
                   <Paper key={comment.id} p="sm" withBorder radius="md">
                     <Group>

@@ -31,7 +31,7 @@ const AutocompleteSearchField = ({ onPlaceSelected }) => {
         "formatted_address",
         "place_id",
         "types",
-        "photos",
+        // "photos",
       ],
     },
   });
