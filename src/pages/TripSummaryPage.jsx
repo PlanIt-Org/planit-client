@@ -49,6 +49,7 @@ import NoCarouselLocation from "../components/NoCarouselLocation";
 import RSVPForm from "../components/RSVPForm";
 import TripTimes from "../components/TripTimes";
 import apiClient from "../api/axios";
+import { useProfilePicture } from "../hooks/useProfilePicture";
 
 const TripSummaryPage = ({
   selectedCity,
@@ -56,6 +57,8 @@ const TripSummaryPage = ({
   selectedPlace,
   setLocations,
   userId,
+  userObj
+  
 }) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
@@ -70,6 +73,9 @@ const TripSummaryPage = ({
   const [RSVPStatus, setRSVPStatus] = useState(null);
   const [comments, setComments] = useState([]);
   const [estimatedTime, setEstimatedTime] = useState(0);
+  const { generateAvatarUrl } = useProfilePicture(userObj);
+  
+
 
   useEffect(() => {
     if (id) {
@@ -216,23 +222,23 @@ const TripSummaryPage = ({
   }
 
   useEffect(() => {
-    // Create a new async function inside the useEffect
+
     const loadComments = async () => {
       if (currTripId) {
-        // 3. Now you can safely use 'await' here
+      
         const allCommentsFromDB = await fetchAllCommentsForTrip(currTripId);
         console.log("all commentsx", allCommentsFromDB);
 
         const newFormatedComments = allCommentsFromDB.map((comment) => ({
-          // <-- Note the parentheses for implicit return
-          id: comment.id, // <-- Use the original comment's ID
+       
+          id: comment.id,
           author: {
-            // Use a fallback in case the name is null
+            
             name: comment.author.name || comment.author.email,
-            avatar: "https://i.pravatar.cc/150?img=5", // Or a real avatar URL if you have one
+            avatar:  generateAvatarUrl(userObj.email) 
           },
-          text: comment.text, // <-- Use the original comment's text
-          // Assuming location is a nested object, otherwise use comment.locationId
+          text: comment.text, 
+
           location: comment.location.name || "General Comment",
         }));
         setComments(newFormatedComments);
@@ -439,6 +445,7 @@ const TripSummaryPage = ({
                   userId={userId}
                   comments={comments}
                   setComments={setComments}
+                  userObj = {userObj}
                 >
                   {" "}
                 </CommentGrid>
