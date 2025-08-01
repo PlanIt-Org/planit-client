@@ -11,10 +11,15 @@ const formatDateTime = (isoString) => {
   });
 };
 
-const TripTimes = ({ currTripId, tripStatus, locations }) => {
+const TripTimes = ({ currTripId, tripStatus, locations, estimatedTime }) => {
   const [tripData, setTripData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Debug log for estimatedTime prop
+  useEffect(() => {
+    console.log("TripTimes: Received estimatedTime prop:", estimatedTime);
+  }, [estimatedTime]);
 
   useEffect(() => {
     if (!currTripId) {
@@ -25,7 +30,7 @@ const TripTimes = ({ currTripId, tripStatus, locations }) => {
     const fetchData = async () => {
       try {
         const response = await apiClient.get(
-          `/trips/${currTripId}/estimated-time`,
+          `/trips/${currTripId}/estimated-time`
         );
         const newData = response.data.data || {};
         setTripData(newData);
@@ -39,9 +44,7 @@ const TripTimes = ({ currTripId, tripStatus, locations }) => {
     fetchData().finally(() => {
       setLoading(false);
     });
-
-    
-  }, [currTripId, tripStatus, locations]); 
+  }, [currTripId, tripStatus, locations]);
 
   if (loading) {
     return (
@@ -74,7 +77,15 @@ const TripTimes = ({ currTripId, tripStatus, locations }) => {
       </Text>
       <Text size="sm" c="dimmed">
         Estimated Travel Time:{" "}
-        <strong>{tripData?.estimatedTime || "Not set"}</strong>
+        <strong>
+          {estimatedTime && estimatedTime > 0
+            ? estimatedTime >= 60
+              ? `${Math.floor(estimatedTime / 60)} hr ${Math.round(
+                  estimatedTime % 60
+                )} min`
+              : `${Math.round(estimatedTime)} min`
+            : "Calculating..."}
+        </strong>
       </Text>
     </Group>
   );
