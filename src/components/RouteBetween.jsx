@@ -5,47 +5,101 @@ import { Text, Box, Stack, Button, Skeleton } from "@mantine/core";
 const API_GEO_URL = import.meta.env.VITE_GEO_API_KEY;
 
 export default function RouteBetween({ origin, destination, setEstimatedTime }) {
-  const [mode, setMode] = useState("drive");
+  const [mode, setMode] = useState(null); // The final recommended/selected mode
   const [time, setTime] = useState(null);
   const [loading, setLoading] = useState(true);
   const prevTimeRef = useRef(null);
 
+  // this effect runs when locations change to find the best route automaticall, and it also runs when the user manually changes the mode.
   useEffect(() => {
-    if (!origin || !destination) {
-      return;
-    }
-    setLoading(true); 
+    if (!origin || !destination) return;
 
-    const url = `https://api.geoapify.com/v1/routing?waypoints=${origin}|${destination}&mode=${mode}&apiKey=${API_GEO_URL}`;
+    const userHasInteracted = prevTimeRef.current !== null;
 
-    axios
-      .get(url)
-      .then((res) => {
-        const timeInSec = res.data.features[0].properties.time;
-        const tMin = timeInSec / 60; // convert to minutes
-
-      
-        if (prevTimeRef.current === null) {
+ 
+    const getRouteTime = async (testMode) => {
+      const url = `https://api.geoapify.com/v1/routing?waypoints=${origin}|${destination}&mode=${testMode}&apiKey=${API_GEO_URL}`;
+      const res = await axios.get(url);
+      if (!res.data.features || res.data.features.length === 0) {
+        throw new Error(`No route found for mode: ${testMode}`);
+      }
+      return res.data.features[0].properties.time / 60;
+    };
     
-          setEstimatedTime((currentTotal) => currentTotal + tMin);
-        } else {
-          // the user has changed the mode, so we adjust the total, so we have to  Subtract the old time and add the new time.
-          setEstimatedTime(
-            (currentTotal) => currentTotal - prevTimeRef.current + tMin
-          );
+    // this fetch is for when user toggles the different trans. mode
+    const fetchSpecificMode = async () => {
+      try {
+        setLoading(true);
+        const newTime = await getRouteTime(mode);
+        setEstimatedTime(
+          (currentTotal) => currentTotal - (prevTimeRef.current || 0) + newTime
+        );
+        setTime(newTime);
+        prevTimeRef.current = newTime;
+      } catch (err) {
+        console.error(`Failed to get route for ${mode}:`, err);
+       
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // finds the best and most environmental friendly  route
+    const findBestRoute = async () => {
+      try {
+        setLoading(true);
+        let finalMode = "drive"; 
+        const carTime = await getRouteTime("drive");
+        let finalTime = carTime;
+
+        if (carTime <= 6) {
+          try {
+            const bikeTime = await getRouteTime("bicycle");
+            if (bikeTime <= 6) {
+              try {
+                const walkTime = await getRouteTime("walk");
+                if (walkTime <= 12) {
+                  finalMode = "walk";
+                  finalTime = walkTime;
+                } else {
+                  finalMode = "bicycle";
+                  finalTime = bikeTime;
+                }
+              } catch { finalMode = "bicycle"; finalTime = bikeTime; }
+            } else if (bikeTime <= 10) {
+              finalMode = "bicycle";
+              finalTime = bikeTime;
+            } else {
+              try {
+                const transitTime = await getRouteTime("transit");
+                if (transitTime <= 30) {
+                  finalMode = "transit";
+                  finalTime = transitTime;
+                }
+              } catch { /* fallback to drive is default */ }
+            }
+          } catch { /* fallback to drive is default */ }
         }
 
-       
-        setTime(tMin);
-        prevTimeRef.current = tMin;
-      })
-      .catch((err) => {
-        console.error("Geoapify error:", err);
-      })
-      .finally(() => {
-        setLoading(false); 
-      });
+        setMode(finalMode);
+        setTime(finalTime);
+        setEstimatedTime((currentTotal) => currentTotal + finalTime);
+        prevTimeRef.current = finalTime;
+      } catch (err) {
+        console.error("Route optimization failed:", err);
+        setMode("drive"); // if other routes fail because teh geoFiy api gives an error when the routes is impossible by car, bike, public transport, so we fallback to drive on any error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userHasInteracted) {
+      fetchSpecificMode();
+    } else {
+      findBestRoute();
+    }
   }, [mode, origin, destination, setEstimatedTime]);
+
 
   const formatTime = () => {
     if (time === null) return "---";
@@ -55,7 +109,6 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
 
   const isSustainable = mode === "walk" || mode === "bicycle";
 
-  //all the different transportation method
   const allModes = [
     { value: "drive", label: "🚗 Drive" },
     { value: "walk", label: "🚶 Walk" },
@@ -63,10 +116,7 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
     { value: "transit", label: "🚌 Transit" },
   ];
 
-  if (!origin || !destination) return null;
-
-
-  if (loading) {
+  if (loading || !mode) {
     return (
       <Box w={160} h="100%" p="md">
         <Skeleton height={80} circle mb="sm" />
@@ -79,15 +129,6 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
       </Box>
     );
   }
-
-
-  let allowedModes = allModes;
-  if (time > 40 && mode === "drive") {
-    allowedModes = allModes.filter(
-      (m) => m.value === "drive" 
-    );
-  }
-
 
   return (
     <Box
@@ -121,8 +162,7 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
       </Box>
 
       <Stack spacing="xs" w="100%">
-        {/* Map over the filtered 'allowedModes' array */}
-        {allowedModes.map(({ value, label }) => (
+        {allModes.map(({ value, label }) => (
           <Button
             key={value}
             fullWidth
@@ -139,6 +179,7 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
         ))}
       </Stack>
 
+      {/* sustainability message */}
       {isSustainable && (
         <Text mt="sm" c="green" ta="center" size="xs" fw={400}>
           You are choosing a sustainable option, great job! 🌱

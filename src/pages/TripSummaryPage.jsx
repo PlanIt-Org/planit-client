@@ -71,10 +71,6 @@ const TripSummaryPage = ({
   const [comments, setComments] = useState([]);
   const [estimatedTime, setEstimatedTime] = useState(0);
 
-  // Debug log for estimatedTime
-  useEffect(() => {
-    console.log("Estimated time updated:", estimatedTime);
-  }, [estimatedTime]);
 
   useEffect(() => {
     if (id) {

@@ -16,10 +16,6 @@ const TripTimes = ({ currTripId, tripStatus, locations, estimatedTime }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Debug log for estimatedTime prop
-  useEffect(() => {
-    console.log("TripTimes: Received estimatedTime prop:", estimatedTime);
-  }, [estimatedTime]);
 
   useEffect(() => {
     if (!currTripId) {
