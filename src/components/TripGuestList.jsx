@@ -9,46 +9,26 @@ import {
   Loader,
   Tooltip,
 } from "@mantine/core";
-import apiClient from "../api/axios";
+import useTripRSVPs from "../hooks/useTripRSVPs"; // Correctly imported
+import { useProfilePicture } from "../hooks/useProfilePicture";
 
 const TripGuestList = ({ tripId }) => {
-  const [attendees, setAttendees] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Correctly calls the hook
+  const { attendees, counts, loading, error } = useTripRSVPs(tripId);
 
-  useEffect(() => {
-    // Don't fetch if there's no tripId
-    if (!tripId) {
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchAttendees = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await apiClient.get(`/trip/${tripId}/attendees`);
-        setAttendees(response.data);
-      } catch (err) {
-        console.error(
-          "[TripGuestList] Failed to fetch attendees:",
-          err.response?.data || err.message
-        );
-        setError("Could not load the guest list.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAttendees();
-  }, [tripId]);
+  console.debug("[TripGuestList] Rendered with tripId:", tripId);
+  console.debug("[TripGuestList] attendees:", attendees);
+  console.debug("[TripGuestList] counts:", counts);
+  console.debug("[TripGuestList] loading:", loading, "error:", error);
 
   const renderContent = () => {
-    if (isLoading) {
+    if (loading) {
+      console.debug("[TripGuestList] Loading state");
       return <Loader size="sm" />;
     }
 
     if (error) {
+      console.error("[TripGuestList] Error:", error);
       return (
         <Text color="red" size="sm">
           {error}
@@ -57,6 +37,7 @@ const TripGuestList = ({ tripId }) => {
     }
 
     if (attendees.length === 0) {
+      console.debug("[TripGuestList] No attendees");
       return (
         <Text size="sm" c="dimmed">
           No confirmed guests yet.
@@ -64,20 +45,22 @@ const TripGuestList = ({ tripId }) => {
       );
     }
 
+    console.debug("[TripGuestList] Rendering attendees:", attendees);
     return (
       <Paper p="xs" withBorder>
         <Group justify="center">
-          {attendees.map((user, index) => (
-            <Tooltip key={user.id} label={user.name} withArrow>
-              <Avatar
-                src={
-                  user.avatarUrl || `https://i.pravatar.cc/150?img=${index + 1}`
-                }
-                alt={user.name}
-                radius="xl"
-              />
-            </Tooltip>
-          ))}
+          {/* Correctly maps over the 'attendees' array */}
+          {attendees
+            .filter((rsvp) => rsvp.user)
+            .map((rsvp) => {
+              // Correctly accesses the nested 'user' object
+              const user = rsvp.user;
+              console.debug(
+                "[TripGuestList] Rendering GuestAvatar for user:",
+                user
+              );
+              return <GuestAvatar key={user?.id} user={user} />;
+            })}
         </Group>
       </Paper>
     );
@@ -100,6 +83,29 @@ const TripGuestList = ({ tripId }) => {
         {renderContent()}
       </Stack>
     </Card>
+  );
+};
+
+// This child component is also correct
+const GuestAvatar = ({ user }) => {
+  const { getCurrentAvatarUrl } = useProfilePicture(user);
+
+  const avatarUrl = getCurrentAvatarUrl();
+  const displayName =
+    user?.user_metadata?.display_name || user.email?.split("@")[0] || "User";
+
+  console.debug("[GuestAvatar] Rendered for user:", user);
+  console.debug(
+    "[GuestAvatar] avatarUrl:",
+    avatarUrl,
+    "displayName:",
+    displayName
+  );
+
+  return (
+    <Tooltip label={displayName} withArrow>
+      <Avatar src={avatarUrl} alt={displayName} radius="xl" size="md" />
+    </Tooltip>
   );
 };
 
