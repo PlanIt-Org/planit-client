@@ -4,7 +4,11 @@ import { Text, Box, Stack, Button, Skeleton } from "@mantine/core";
 
 const API_GEO_URL = import.meta.env.VITE_GEO_API_KEY;
 
-export default function RouteBetween({ origin, destination, setEstimatedTime }) {
+export default function RouteBetween({
+  origin,
+  destination,
+  setEstimatedTime,
+}) {
   const [mode, setMode] = useState(null); // The final recommended/selected mode
   const [time, setTime] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,7 +20,6 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
 
     const userHasInteracted = prevTimeRef.current !== null;
 
- 
     const getRouteTime = async (testMode) => {
       const url = `https://api.geoapify.com/v1/routing?waypoints=${origin}|${destination}&mode=${testMode}&apiKey=${API_GEO_URL}`;
       const res = await axios.get(url);
@@ -25,7 +28,7 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
       }
       return res.data.features[0].properties.time / 60;
     };
-    
+
     // this fetch is for when user toggles the different trans. mode
     const fetchSpecificMode = async () => {
       try {
@@ -38,7 +41,6 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
         prevTimeRef.current = newTime;
       } catch (err) {
         console.error(`Failed to get route for ${mode}:`, err);
-       
       } finally {
         setLoading(false);
       }
@@ -48,7 +50,7 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
     const findBestRoute = async () => {
       try {
         setLoading(true);
-        let finalMode = "drive"; 
+        let finalMode = "drive";
         const carTime = await getRouteTime("drive");
         let finalTime = carTime;
 
@@ -65,7 +67,10 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
                   finalMode = "bicycle";
                   finalTime = bikeTime;
                 }
-              } catch { finalMode = "bicycle"; finalTime = bikeTime; }
+              } catch {
+                finalMode = "bicycle";
+                finalTime = bikeTime;
+              }
             } else if (bikeTime <= 10) {
               finalMode = "bicycle";
               finalTime = bikeTime;
@@ -76,9 +81,13 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
                   finalMode = "transit";
                   finalTime = transitTime;
                 }
-              } catch { /* fallback to drive is default */ }
+              } catch {
+                /* fallback to drive is default */
+              }
             }
-          } catch { /* fallback to drive is default */ }
+          } catch {
+            /* fallback to drive is default */
+          }
         }
 
         setMode(finalMode);
@@ -99,7 +108,6 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
       findBestRoute();
     }
   }, [mode, origin, destination, setEstimatedTime]);
-
 
   const formatTime = () => {
     if (time === null) return "---";
@@ -178,13 +186,6 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
           </Button>
         ))}
       </Stack>
-
-      {/* sustainability message */}
-      {isSustainable && (
-        <Text mt="sm" c="green" ta="center" size="xs" fw={400}>
-          You are choosing a sustainable option, great job! 🌱
-        </Text>
-      )}
     </Box>
   );
 }
