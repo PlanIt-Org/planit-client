@@ -370,7 +370,7 @@ const TripSummaryPage = ({
                   setRSVPStatus={setRSVPStatus}
                   userId={userId}
                 ></RSVPForm>
-                x{/* <TripGuestList tripId={id}></TripGuestList> */}
+                <TripGuestList tripId={id}></TripGuestList>
                 {/* Comments Section */}
                 <CommentGrid tripId={id} locations={locations} userId={userId}>
                   {" "}

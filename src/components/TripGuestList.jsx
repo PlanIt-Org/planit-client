@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Card,
   Stack,
@@ -8,43 +8,16 @@ import {
   Avatar,
   Loader,
   Tooltip,
+  Badge,
 } from "@mantine/core";
-import apiClient from "../api/axios";
+import useTripRSVPs from "../hooks/useTripRSVPs";
+import { useProfilePicture } from "../hooks/useProfilePicture";
 
 const TripGuestList = ({ tripId }) => {
-  const [attendees, setAttendees] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    // Don't fetch if there's no tripId
-    if (!tripId) {
-      setIsLoading(false);
-      return;
-    }
-
-    const fetchAttendees = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await apiClient.get(`/trip/${tripId}/attendees`);
-        setAttendees(response.data);
-      } catch (err) {
-        console.error(
-          "[TripGuestList] Failed to fetch attendees:",
-          err.response?.data || err.message
-        );
-        setError("Could not load the guest list.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAttendees();
-  }, [tripId]);
+  const { attendees, counts, loading, error } = useTripRSVPs(tripId);
 
   const renderContent = () => {
-    if (isLoading) {
+    if (loading) {
       return <Loader size="sm" />;
     }
 
@@ -67,17 +40,10 @@ const TripGuestList = ({ tripId }) => {
     return (
       <Paper p="xs" withBorder>
         <Group justify="center">
-          {attendees.map((user, index) => (
-            <Tooltip key={user.id} label={user.name} withArrow>
-              <Avatar
-                src={
-                  user.avatarUrl || `https://i.pravatar.cc/150?img=${index + 1}`
-                }
-                alt={user.name}
-                radius="xl"
-              />
-            </Tooltip>
-          ))}
+          {attendees.map((rsvp) => {
+            const user = rsvp.user;
+            return <GuestAvatar key={user.id} user={user} />;
+          })}
         </Group>
       </Paper>
     );
@@ -96,10 +62,31 @@ const TripGuestList = ({ tripId }) => {
       }}
     >
       <Stack align="center">
-        <Text fw={500}>Guest List</Text>
+        <Group>
+          <Text fw={500}>Guest List</Text>
+          {counts.going > 0 && (
+            <Badge size="sm" color="green" variant="light">
+              {counts.going} going
+            </Badge>
+          )}
+        </Group>
         {renderContent()}
       </Stack>
     </Card>
+  );
+};
+
+// Separate component to handle individual guest avatars with profile picture logic
+const GuestAvatar = ({ user }) => {
+  const { getCurrentAvatarUrl } = useProfilePicture(user);
+
+  const avatarUrl = getCurrentAvatarUrl();
+  const displayName = user.name || user.email?.split("@")[0] || "User";
+
+  return (
+    <Tooltip label={displayName} withArrow>
+      <Avatar src={avatarUrl} alt={displayName} radius="xl" size="md" />
+    </Tooltip>
   );
 };
 
