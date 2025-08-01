@@ -23,6 +23,9 @@ import {
 } from "@mantine/core";
 
 import { Carousel } from "@mantine/carousel";
+import axios from "axios";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_GEO_URL = import.meta.env.VITE_GEO_API_KEY;
 
 import {
   IconBubbleFilled,
@@ -65,6 +68,9 @@ const TripSummaryPage = ({
   const [isPrivate, setIsPrivate] = useState(true);
   const [isTimeLoading, setIsTimeLoading] = useState(true);
   const [RSVPStatus, setRSVPStatus] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [estimatedTime, setEstimatedTime] = useState(0);
+
 
   useEffect(() => {
     if (id) {
@@ -192,6 +198,53 @@ const TripSummaryPage = ({
     fetchRsvpStatus();
   }, [currTripId, userId, ownTrip]);
 
+  ////Commentss
+
+  /**
+   * Fetches all comments for a specific trip ID.
+   * @param {string} tripId - The ID of the trip.
+   * @returns {Promise<Array>} An array of comment objects.
+   */
+  async function fetchAllCommentsForTrip(tripId) {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}comments/trips/${tripId}`
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch comments for trip:", error);
+      throw error;
+    }
+  }
+
+  useEffect(() => {
+    // Create a new async function inside the useEffect
+    const loadComments = async () => {
+      if (currTripId) {
+        // 3. Now you can safely use 'await' here
+        const allCommentsFromDB = await fetchAllCommentsForTrip(currTripId);
+        console.log("all commentsx", allCommentsFromDB);
+
+        const newFormatedComments = allCommentsFromDB.map((comment) => ({
+          // <-- Note the parentheses for implicit return
+          id: comment.id, // <-- Use the original comment's ID
+          author: {
+            // Use a fallback in case the name is null
+            name: comment.author.name || comment.author.email,
+            avatar: "https://i.pravatar.cc/150?img=5", // Or a real avatar URL if you have one
+          },
+          text: comment.text, // <-- Use the original comment's text
+          // Assuming location is a nested object, otherwise use comment.locationId
+          location: comment.location.name || "General Comment",
+        }));
+        setComments(newFormatedComments);
+      }
+    };
+
+    loadComments(); // Call the new async function
+  }, [currTripId]); // The effect runs whenever tripId changes
+
   useEffect(() => {
     console.log(
       `%cRSVPStatus changed to: %c${RSVPStatus}`,
@@ -292,6 +345,8 @@ const TripSummaryPage = ({
                       currTripId={currTripId}
                       tripStatus={tripStatus}
                       locations={locations}
+                      estimatedTime={estimatedTime}
+                      setEstimatedTime={setEstimatedTime}
                     />
                   </Paper>
                 </Group>
@@ -346,9 +401,18 @@ const TripSummaryPage = ({
                 {/* Bottom Image Placeholders / location cards */}
 
                 {locations.length < 3 ? (
-                  <NoCarouselLocation locations={locations} />
+                  <NoCarouselLocation
+                    locations={locations}
+                    comments={comments}
+                    setEstimatedTime={setEstimatedTime}
+                  />
                 ) : (
-                  <LocationCarousel locations={locations} />
+                  <LocationCarousel
+                    locations={locations}
+                    comments={comments}
+                    setEstimatedTime={setEstimatedTime}
+                    estimatedTime = {estimatedTime}
+                  />
                 )}
               </Stack>
             </Grid.Col>
@@ -370,9 +434,15 @@ const TripSummaryPage = ({
                   setRSVPStatus={setRSVPStatus}
                   userId={userId}
                 ></RSVPForm>
-                x{/* <TripGuestList tripId={id}></TripGuestList> */}
+                {/* <TripGuestList tripId={id}></TripGuestList> */}
                 {/* Comments Section */}
-                <CommentGrid tripId={id} locations={locations} userId={userId}>
+                <CommentGrid
+                  tripId={id}
+                  locations={locations}
+                  userId={userId}
+                  comments={comments}
+                  setComments={setComments}
+                >
                   {" "}
                 </CommentGrid>
                 <Group justify="flex-end">
