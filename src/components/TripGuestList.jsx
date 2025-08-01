@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Card,
   Stack,
@@ -8,6 +8,7 @@ import {
   Avatar,
   Loader,
   Tooltip,
+  Badge,
 } from "@mantine/core";
 import useTripRSVPs from "../hooks/useTripRSVPs";
 import { useProfilePicture } from "../hooks/useProfilePicture";
@@ -77,7 +78,14 @@ const TripGuestList = ({ tripId }) => {
       }}
     >
       <Stack align="center">
-        <Text fw={500}>Guest List</Text>
+        <Group>
+          <Text fw={500}>Guest List</Text>
+          {counts.going > 0 && (
+            <Badge size="sm" color="green" variant="light">
+              {counts.going} going
+            </Badge>
+          )}
+        </Group>
         {renderContent()}
       </Stack>
     </Card>
