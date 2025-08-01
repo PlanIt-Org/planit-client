@@ -179,12 +179,7 @@ export default function RouteBetween({ origin, destination, setEstimatedTime }) 
         ))}
       </Stack>
 
-      {/* sustainability message */}
-      {isSustainable && (
-        <Text mt="sm" c="green" ta="center" size="xs" fw={400}>
-          You are choosing a sustainable option, great job! 🌱
-        </Text>
-      )}
+
     </Box>
   );
 }
