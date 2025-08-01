@@ -365,7 +365,7 @@ const TripGrid = ({
               <strong>Description:</strong>{" "}
               {selectedTrip.description || "No description provided."}
             </Text>
-            {!(!discoverMode && trip.hostId === userId) && (
+            {!(!discoverMode && selectedTrip.hostId === userId) && (
               <Text className="text-gray-700">
                 <strong>Time:</strong>{" "}
                 {selectedTrip.startTime
