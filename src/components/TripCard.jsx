@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from "react";
-import {
-  Image,
-  Text,
-  Group,
-  Card,
-  Button,
-  ActionIcon,
-} from "@mantine/core";
+import { Image, Text, Group, Card, Button, ActionIcon } from "@mantine/core";
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
-import apiClient from "../api/axios"; 
+import apiClient from "../api/axios";
 
-const TripCard = ({ onCardClick, onDelete, trip, userId, onSaveToggle }) => {
+const TripCard = ({
+  onCardClick,
+  onDelete,
+  trip,
+  userId,
+  onSaveToggle,
+  canDelete,
+}) => {
   const [isHeartFilled, setIsHeartFilled] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   useEffect(() => {
     if (trip.savedByUsers && userId) {
-      const isSaved = trip.savedByUsers.some(
-        (user) => user.id === userId
-      );
+      const isSaved = trip.savedByUsers.some((user) => user.id === userId);
       setIsHeartFilled(isSaved);
     }
   }, [trip.savedByUsers, userId]);
@@ -25,7 +23,9 @@ const TripCard = ({ onCardClick, onDelete, trip, userId, onSaveToggle }) => {
   const toggleHeart = async (event) => {
     event.stopPropagation();
     if (isToggling) return;
-    console.log(`Attempting to toggle save for tripId: ${trip.id} by userId: ${userId}`);
+    console.log(
+      `Attempting to toggle save for tripId: ${trip.id} by userId: ${userId}`
+    );
 
     if (!userId) {
       console.error("Cannot toggle save: No userId provided to TripCard.");
@@ -43,9 +43,8 @@ const TripCard = ({ onCardClick, onDelete, trip, userId, onSaveToggle }) => {
         onSaveToggle();
       }
     } catch (error) {
-
       console.error("Error toggling save status. Full error object:", error);
-      
+
       setIsHeartFilled(previousHeartState);
     } finally {
       setIsToggling(false);
@@ -105,15 +104,15 @@ const TripCard = ({ onCardClick, onDelete, trip, userId, onSaveToggle }) => {
       </Group>
       <Group justify="space-between" mt="md" mb="xs">
         <Text size="sm" c="dimmed">
-          Hosted By {trip.host?.name || 'Unknown'}
+          Hosted By {trip.host?.name || "Unknown"}
         </Text>
-        <Text size="sm" c="dimmed">
+        {!canDelete && <Text size="sm" c="dimmed">
           {formatDate(trip.startTime)}
-        </Text>
+        </Text>}
       </Group>
       <Group justify="space-between" align="center">
-        <Text>Status: {trip.status}</Text>
-        {trip.status === "PLANNING" && (
+        {canDelete && <Text>Status: {trip.status}</Text>}
+        {canDelete && trip.status === "PLANNING" && (
           <Button onClick={handleDelete} color="red" size="xs" variant="light">
             Delete Trip
           </Button>

@@ -127,7 +127,7 @@ function App({ isMapsApiLoaded }) {
           path="/discover"
           element={
             <ProtectedRoute>
-              <DiscoverTripsPage setLocations={setLocations} />
+              <DiscoverTripsPage setLocations={setLocations} userId={session?.user?.id}/>
             </ProtectedRoute>
           }
         />
