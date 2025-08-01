@@ -9,11 +9,10 @@ import {
   Loader,
   Tooltip,
 } from "@mantine/core";
-import useTripRSVPs from "../hooks/useTripRSVPs"; // Correctly imported
+import useTripRSVPs from "../hooks/useTripRSVPs";
 import { useProfilePicture } from "../hooks/useProfilePicture";
 
 const TripGuestList = ({ tripId }) => {
-  // Correctly calls the hook
   const { attendees, counts, loading, error } = useTripRSVPs(tripId);
 
   console.debug("[TripGuestList] Rendered with tripId:", tripId);
@@ -47,22 +46,21 @@ const TripGuestList = ({ tripId }) => {
 
     console.debug("[TripGuestList] Rendering attendees:", attendees);
     return (
-      <Paper p="xs" withBorder>
-        <Group justify="center">
-          {/* Correctly maps over the 'attendees' array */}
-          {attendees
-            .filter((rsvp) => rsvp.user)
-            .map((rsvp) => {
-              // Correctly accesses the nested 'user' object
-              const user = rsvp.user;
-              console.debug(
-                "[TripGuestList] Rendering GuestAvatar for user:",
-                user
-              );
-              return <GuestAvatar key={user?.id} user={user} />;
-            })}
+      <div>
+        {" "}
+        <Group justify="center" mb="xs">
+          <Text size="xs" c="dimmed">
+            {attendees.length + 1} attending
+          </Text>
         </Group>
-      </Paper>
+        <Paper p="xs" withBorder>
+          <Group justify="center">
+            {attendees.map((user) => (
+              <GuestAvatar key={user?.id} user={user} />
+            ))}
+          </Group>
+        </Paper>
+      </div>
     );
   };
 
@@ -86,7 +84,6 @@ const TripGuestList = ({ tripId }) => {
   );
 };
 
-// This child component is also correct
 const GuestAvatar = ({ user }) => {
   const { getCurrentAvatarUrl } = useProfilePicture(user);
 

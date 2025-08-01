@@ -1,6 +1,9 @@
-// src/theme.js
 import { createTheme, Button, Text, Title, Paper, Card } from "@mantine/core";
 
+/**
+ * My custom theme for the application.
+ * @type {MantineTheme}
+ */
 export const myCustomTheme = createTheme({
   colors: {
     "custom-palette": [

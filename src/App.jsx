@@ -108,7 +108,7 @@ function App({ isMapsApiLoaded }) {
                 setLocations={setLocations}
                 setSelectedPlace={setSelectedPlace}
                 selectedPlace={selectedPlace}
-                userId={session?.user}
+                userId={session?.user.id}
                 ownTrip={ownTrip}
                 setOwnTrip={setOwnTrip}
               />
@@ -127,7 +127,10 @@ function App({ isMapsApiLoaded }) {
           path="/discover"
           element={
             <ProtectedRoute>
-              <DiscoverTripsPage setLocations={setLocations} userId={session?.user?.id}/>
+              <DiscoverTripsPage
+                setLocations={setLocations}
+                userId={session?.user?.id}
+              />
             </ProtectedRoute>
           }
         />
@@ -135,7 +138,10 @@ function App({ isMapsApiLoaded }) {
           path="/saved"
           element={
             <ProtectedRoute>
-              <SavedTripsPage setLocations={setLocations} userId={session?.user?.id}/>
+              <SavedTripsPage
+                setLocations={setLocations}
+                userId={session?.user?.id}
+              />
             </ProtectedRoute>
           }
         />

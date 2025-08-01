@@ -71,7 +71,6 @@ const TripSummaryPage = ({
   const [comments, setComments] = useState([]);
   const [estimatedTime, setEstimatedTime] = useState(0);
 
-
   useEffect(() => {
     if (id) {
       setCurrTripId(id);
@@ -134,7 +133,7 @@ const TripSummaryPage = ({
     };
 
     fetchLocationsAndStatus();
-  }, [currTripId, setLocations, userId, ownTrip]);
+  }, [currTripId, setLocations, userId]);
 
   useEffect(() => {
     // Add a log to see if the hook is being skipped
@@ -207,9 +206,7 @@ const TripSummaryPage = ({
    */
   async function fetchAllCommentsForTrip(tripId) {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}comments/trips/${tripId}`
-      );
+      const response = await apiClient.get(`/comments/trips/${tripId}`);
 
       return response.data;
     } catch (error) {
@@ -411,7 +408,7 @@ const TripSummaryPage = ({
                     locations={locations}
                     comments={comments}
                     setEstimatedTime={setEstimatedTime}
-                    estimatedTime = {estimatedTime}
+                    estimatedTime={estimatedTime}
                   />
                 )}
               </Stack>
@@ -434,7 +431,7 @@ const TripSummaryPage = ({
                   setRSVPStatus={setRSVPStatus}
                   userId={userId}
                 ></RSVPForm>
-                {/* <TripGuestList tripId={id}></TripGuestList> */}
+                <TripGuestList tripId={id}></TripGuestList>
                 {/* Comments Section */}
                 <CommentGrid
                   tripId={id}
