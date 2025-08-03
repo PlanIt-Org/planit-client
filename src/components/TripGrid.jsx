@@ -334,9 +334,32 @@ const TripGrid = ({
         </Center>
       )}
 
-      <Modal opened={opened} onClose={close} centered size="lg">
+      <Modal
+        opened={opened}
+        onClose={close}
+        centered
+        size="lg"
+        withCloseButton={false}
+        radius="md"
+        padding="lg"
+        overlayProps={{ blur: 3 }}
+      >
         {selectedTrip && (
-          <div className="space-y-4">
+          <div
+            style={{
+              background: "var(--mantine-color-body)",
+              borderRadius: 16,
+              boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
+              padding: 24,
+              position: "relative",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ position: "absolute", top: 16, right: 16 }}>
+              <Button variant="light" color="gray" size="xs" onClick={close}>
+                Close
+              </Button>
+            </div>
             <img
               src={
                 selectedTrip.locations?.[0]?.image ||
@@ -345,51 +368,73 @@ const TripGrid = ({
               alt={selectedTrip.title || "Trip Image"}
               style={{
                 width: "100%",
-                height: "40%",
-                objectFit: "fill",
-                display: "block",
+                height: 220,
+                objectFit: "cover",
+                borderRadius: 12,
+                marginBottom: 24,
+                border: "1px solid #eee",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
               }}
             />
 
-            <Text className="text-xl font-bold text-gray-800">
-              <strong>Title:</strong> {selectedTrip.title}
-            </Text>
-            <Text className="text-gray-700">
-              <strong>City:</strong> {selectedTrip.city || "N/A"}
-            </Text>
-
-            <Text className="text-gray-700">
-              <strong>Host:</strong> {selectedTrip.host?.name || "Unknown"}
-            </Text>
-            <Text className="text-gray-700">
-              <strong>Description:</strong>{" "}
-              {selectedTrip.description || "No description provided."}
-            </Text>
-            {!(!discoverMode && selectedTrip.hostId === userId) && (
-              <Text className="text-gray-700">
-                <strong>Time:</strong>{" "}
-                {selectedTrip.startTime
-                  ? new Date(selectedTrip.startTime).toLocaleString()
-                  : "N/A"}{" "}
-                -{" "}
-                {selectedTrip.endTime
-                  ? new Date(selectedTrip.endTime).toLocaleString()
-                  : "N/A"}
+            <Stack gap={8}>
+              <Text fw={700} size="xl" c="primary">
+                {selectedTrip.title}
               </Text>
-            )}
-            {selectedTrip.locations && selectedTrip.locations.length > 0 && (
-              <div className="mt-4">
-                <Text className="font-semibold text-gray-800">Locations:</Text>
-                <ul className="list-disc list-inside">
-                  {selectedTrip.locations.map((loc) => (
-                    <li key={loc.id} className="text-gray-600">
-                      {loc.name} ({loc.address})
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            <CopyTripLink goto={true} tripId={selectedTrip.id} />
+              <Group gap={16}>
+                <Text size="sm" c="dimmed">
+                  <strong>City:</strong> {selectedTrip.city || "N/A"}
+                </Text>
+                <Text size="sm" c="dimmed">
+                  <strong>Host:</strong> {selectedTrip.host?.name || "Unknown"}
+                </Text>
+              </Group>
+              <Text size="md" mt={8}>
+                <strong>Description:</strong>{" "}
+                {selectedTrip.description || "No description provided."}
+              </Text>
+              {!(!discoverMode && selectedTrip.hostId === userId) && (
+                <Text size="sm" c="dimmed">
+                  <strong>Time:</strong>{" "}
+                  {selectedTrip.startTime
+                    ? new Date(selectedTrip.startTime).toLocaleString()
+                    : "N/A"}{" "}
+                  -{" "}
+                  {selectedTrip.endTime
+                    ? new Date(selectedTrip.endTime).toLocaleString()
+                    : "N/A"}
+                </Text>
+              )}
+              {selectedTrip.locations && selectedTrip.locations.length > 0 && (
+                <div style={{ marginTop: 12 }}>
+                  <Text fw={600} size="sm" mb={4}>
+                    Locations:
+                  </Text>
+                  <ul style={{ paddingLeft: 18, margin: 0 }}>
+                    {selectedTrip.locations.map((loc) => (
+                      <li
+                        key={loc.id}
+                        style={{
+                          color: "#666",
+                          fontSize: 14,
+                          marginBottom: 2,
+                        }}
+                      >
+                        <span style={{ fontWeight: 500 }}>{loc.name}</span>
+                        {loc.address && (
+                          <span style={{ color: "#aaa", marginLeft: 6 }}>
+                            ({loc.address})
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <Group mt={16} justify="space-between">
+                <CopyTripLink goto={true} tripId={selectedTrip.id} />
+              </Group>
+            </Stack>
           </div>
         )}
       </Modal>

@@ -313,7 +313,7 @@ const QuestionnairePage = () => {
     const apiPayload = {
       age: isNaN(ageAsNumber) ? null : ageAsNumber,
       dietary: flattenedAnswers.dietary || [],
-      location: locationValue || "",
+      location: locationValue.name || "",
       activityType: flattenedAnswers.activityType || [],
       budget: flattenedAnswers.budget || "",
       tripLength: flattenedAnswers.tripLength || "",

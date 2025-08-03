@@ -59,7 +59,6 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
 
     return `${year}-${month}-${day}T${hourString}:${minuteString}:00.000Z`;
   };
-  
 
   const handleGoClick = async () => {
     if (!startTime || !endTime) {
@@ -101,7 +100,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
           startTime: formattedStartTime,
           endTime: formattedEndTime,
           hostId: hostId,
-          city: selectedCity,
+          city: selectedCity.name,
           title: `Trip to ${selectedCity.name}`,
           description: `An exciting trip planned for ${selectedCity.name}!`,
         };

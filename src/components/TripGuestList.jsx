@@ -49,11 +49,7 @@ const TripGuestList = ({ tripId }) => {
     return (
       <div>
         {" "}
-        <Group justify="center" mb="xs">
-          <Text size="xs" c="dimmed">
-            {attendees.length + 1} attending
-          </Text>
-        </Group>
+        <Group justify="center" mb="xs"></Group>
         <Paper p="xs" withBorder>
           <Group justify="center">
             {attendees.map((user) => (
@@ -82,7 +78,7 @@ const TripGuestList = ({ tripId }) => {
           <Text fw={500}>Guest List</Text>
           {counts.going > 0 && (
             <Badge size="sm" color="green" variant="light">
-              {counts.going} going
+              {counts.going + 1} going
             </Badge>
           )}
         </Group>

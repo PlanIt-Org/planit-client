@@ -16,7 +16,6 @@ const TripTimes = ({ currTripId, tripStatus, locations, estimatedTime }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
   useEffect(() => {
     if (!currTripId) {
       setLoading(false);
@@ -71,7 +70,7 @@ const TripTimes = ({ currTripId, tripStatus, locations, estimatedTime }) => {
       <Text size="sm" c="dimmed">
         End Time: <strong>{formatDateTime(tripData?.endTime)}</strong>
       </Text>
-      <Text size="sm" c="dimmed">
+      {/* <Text size="sm" c="dimmed">
         Estimated Travel Time:{" "}
         <strong>
           {estimatedTime && estimatedTime > 0
@@ -82,7 +81,7 @@ const TripTimes = ({ currTripId, tripStatus, locations, estimatedTime }) => {
               : `${Math.round(estimatedTime)} min`
             : "Calculating..."}
         </strong>
-      </Text>
+      </Text> */}
     </Group>
   );
 };
