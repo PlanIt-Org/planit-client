@@ -183,6 +183,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
           value={startTime}
           onChange={(value) => setStartTime(value)} // onChange provides a string "HH:mm"
           size="lg"
+          format="12h"
+
           styles={{
             input: {
               fontWeight: 500,
@@ -200,6 +202,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
           value={endTime}
           onChange={(value) => setEndTime(value)} // onChange provides a string "HH:mm"
           size="lg"
+          format="12h"
+
           styles={{
             input: {
               fontWeight: 500,
