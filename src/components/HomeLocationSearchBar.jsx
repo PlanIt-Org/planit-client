@@ -1,32 +1,19 @@
-// src/components/HomeLocationSearchBar.jsx
-import { Text, Button, Group, NativeSelect, Box } from "@mantine/core";
+import { Text, Button, Group, Box } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { TimePicker } from '@mantine/dates';
+import { IconClock } from '@tabler/icons-react';
 import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
 import { notifications } from "@mantine/notifications";
 import DatePickerPopover from "./DatePickerPopover";
 import apiClient from "../api/axios";
 
-const generateTimeOptions = () => {
-  const times = [];
-  for (let hour = 0; hour < 24; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-      const period = hour < 12 ? "AM" : "PM";
-      const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-      const displayMinute = minute === 0 ? "00" : String(minute);
-      const timeString = `${displayHour}:${displayMinute} ${period}`;
-      times.push({ value: timeString, label: timeString });
-    }
-  }
-  return times;
-};
-
-const timeOptions = generateTimeOptions();
 const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   const navigate = useNavigate();
 
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  // State now holds time strings (e.g., "14:30") or empty strings
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [isCreatingTrip, setIsCreatingTrip] = useState(false);
   const [tripDate, setTripDate] = useState(null);
 
@@ -35,32 +22,28 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
     console.log("Selected City:", place);
   };
 
-  const convertTimeToDate = (timeString) => {
-    if (!timeString || !tripDate) return null;
+  // UPDATED HELPER FUNCTION: Now correctly handles time strings
+  const combineDateAndTime = (datePart, timeString) => {
+    if (!datePart || !timeString) return null;
 
-    const [time, period] = timeString.split(" ");
-    let [hours, minutes] = time.split(":").map(Number);
+    // 1. Split the "HH:mm" string into hours and minutes
+    const [hours, minutes] = timeString.split(':').map(Number);
 
-    if (period === "PM" && hours !== 12) {
-      hours += 12;
-    } else if (period === "AM" && hours === 12) {
-      hours = 0;
-    }
+    // 2. Create a new Date object from the selected date
+    const combined = new Date(datePart);
 
-    const localDate = new Date(tripDate);
-    const timezoneOffset = localDate.getTimezoneOffset() * 60000;
-    const correctedDate = new Date(localDate.getTime() + timezoneOffset);
-
-    const year = correctedDate.getFullYear();
-    const month = String(correctedDate.getMonth() + 1).padStart(2, "0");
-    const day = String(correctedDate.getDate()).padStart(2, "0");
-    const hourString = String(hours).padStart(2, "0");
-    const minuteString = String(minutes).padStart(2, "0");
-
-    return `${year}-${month}-${day}T${hourString}:${minuteString}:00.000Z`;
+    // 3. Set the hours and minutes from the time string
+    combined.setHours(hours);
+    combined.setMinutes(minutes);
+    combined.setSeconds(0);
+    combined.setMilliseconds(0);
+    
+    // 4. Return the combined date formatted as an ISO string
+    return combined.toISOString();
   };
 
   const handleGoClick = async () => {
+    // Updated validation logic
     if (!startTime || !endTime) {
       notifications.show({
         title: "Time Selection Missing!",
@@ -69,7 +52,20 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         position: "bottom-center",
         autoClose: 5000,
       });
-    } else if (!selectedCity) {
+      return;
+    } 
+    // String comparison works for "HH:mm" format (e.g., "14:00" > "10:30")
+    if (endTime <= startTime) {
+      notifications.show({
+        title: "Invalid Time Range!",
+        message: "End time must be after the start time.",
+        color: "red",
+        position: "bottom-center",
+        autoClose: 5000,
+      });
+      return;
+    }
+    if (!selectedCity) {
       notifications.show({
         title: "City Selection Missing!",
         message: "Please select a city for your trip.",
@@ -77,7 +73,9 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         position: "bottom-center",
         autoClose: 5000,
       });
-    } else if (!tripDate) {
+      return;
+    } 
+    if (!tripDate) {
       notifications.show({
         title: "Trip Date Missing!",
         message: "Please select a date for your trip.",
@@ -86,61 +84,54 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         autoClose: 5000,
       });
       return;
-    } else {
-      setIsCreatingTrip(true);
+    }
 
-      try {
-        const formattedStartTime = convertTimeToDate(startTime);
-        const formattedEndTime = convertTimeToDate(endTime);
+    setIsCreatingTrip(true);
+    try {
+      // Use the new helper function to format times
+      const formattedStartTime = combineDateAndTime(tripDate, startTime);
+      const formattedEndTime = combineDateAndTime(tripDate, endTime);
 
-        const hostId = user;
-        console.log("THIS IS WHAT IS PRINTING: " + user);
+      const tripData = {
+        startTime: formattedStartTime,
+        endTime: formattedEndTime,
+        hostId: user,
+        city: selectedCity.name,
+        title: `Trip to ${selectedCity.name}`,
+        description: `An exciting trip planned for ${selectedCity.name}!`,
+      };
 
-        const tripData = {
-          startTime: formattedStartTime,
-          endTime: formattedEndTime,
-          hostId: hostId,
-          city: selectedCity.name,
-          title: `Trip to ${selectedCity.name}`,
-          description: `An exciting trip planned for ${selectedCity.name}!`,
-        };
+      const response = await apiClient.post("/trips", tripData);
+      const result = response.data;
 
-        const response = await apiClient.post("/trips", tripData);
-        const result = response.data;
-
-        console.log("Trip created successfully:", result.trip);
-        navigate(`/tripfilter/${result.trip.id}`);
-      } catch (error) {
-        console.error("Error creating trip:", error);
-
-        const backendMessage =
-          error.response?.data?.message || "An unexpected error occurred.";
-
-        if (backendMessage.includes("only have up to 5 planning")) {
-          notifications.show({
-            title: "Limit Reached!",
-            message:
-              "You can only have up to 5 planning trips. Finish or delete one first.",
-            color: "red",
-            position: "bottom-center",
-            autoClose: 6000,
-          });
-        } else {
-          notifications.show({
-            title: "Trip Creation Failed!",
-            message:
-              backendMessage ||
-              "An unexpected error occurred while creating your trip.",
-            color: "red",
-            position: "bottom-center",
-            autoClose: 7000,
-          });
-        }
-      } finally {
-        setIsCreatingTrip(false);
+      console.log("Trip created successfully:", result.trip);
+      navigate(`/tripfilter/${result.trip.id}`);
+    } catch (error) {
+      console.error("Error creating trip:", error);
+      const backendMessage = error.response?.data?.message || "An unexpected error occurred.";
+      if (backendMessage.includes("only have up to 5 planning")) {
+        notifications.show({
+          title: "Limit Reached!",
+          message: "You can only have up to 5 planning trips. Finish or delete one first.",
+          color: "red",
+          position: "bottom-center",
+          autoClose: 6000,
+        });
+      } else {
+        notifications.show({
+          title: "Trip Creation Failed!",
+          message: backendMessage,
+          color: "red",
+          position: "bottom-center",
+          autoClose: 7000,
+        });
       }
+    } finally {
+      setIsCreatingTrip(false);
     }
   };
+
+  const clockIcon = <IconClock style={{ width: '1rem', height: '1rem' }} stroke={1.5} />;
 
   return (
     <Box
@@ -182,13 +173,15 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
             },
           }}
         />
-        {/* Time Selectors and Go Button */}
+        {/* Date Picker */}
         <DatePickerPopover tripDate={tripDate} setTripDate={setTripDate} />
-        <NativeSelect
-          data={[{ value: "", label: "Start time" }, ...timeOptions]}
+        
+        {/* Start Time Picker */}
+        <TimePicker
+          leftSection={clockIcon}
+          placeholder="Start time"
           value={startTime}
-          onChange={(event) => setStartTime(event.currentTarget.value)}
-          aria-label="Select start time"
+          onChange={(value) => setStartTime(value)} // onChange provides a string "HH:mm"
           size="lg"
           styles={{
             input: {
@@ -199,27 +192,28 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
             },
           }}
         />
-        <NativeSelect
-          data={[{ value: "", label: "End time" }, ...timeOptions]}
+        
+        {/* End Time Picker */}
+        <TimePicker
+          leftSection={clockIcon}
+          placeholder="End time"
           value={endTime}
-          onChange={(event) => setEndTime(event.currentTarget.value)}
-          aria-label="Select end time"
+          onChange={(value) => setEndTime(value)} // onChange provides a string "HH:mm"
           size="lg"
           styles={{
             input: {
               fontWeight: 500,
               borderRadius: 0,
-              borderLeft: "none",
-              borderRight: "none",
               height: 48,
               minHeight: 48,
+              borderLeft: "none",
             },
           }}
         />
+
+        {/* Go Button */}
         <Button
-          onClick={() => {
-            handleGoClick();
-          }}
+          onClick={handleGoClick}
           size="lg"
           style={{
             borderTopLeftRadius: 0,
