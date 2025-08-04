@@ -42,39 +42,44 @@ const TripGrid = ({
   const { deleteTrip } = useDeleteTrip();
   const { session, loading: authLoading } = useAuth();
 
-  console.log("🔍 TripGrid Debug:", {
-    authLoading,
-    session: !!session,
-    userId,
-    allTripsLength: allTrips.length,
-    loading,
-    error,
-  });
-
   const getFilteredTrips = useCallback(
     (trips = allTrips) => {
       if (discoverMode) {
         return trips;
       }
-      const now = new Date();
+      const now = new Date(); // Current time is August 3, 2025, 6:07 PM PDT
+
       switch (active) {
         case "Drafts":
           return trips.filter((trip) => trip.status === "PLANNING");
+
+        // --- UPDATED LOGIC IS HERE ---
         case "Upcoming":
-          return trips.filter(
-            (trip) => trip.status === "ACTIVE" && new Date(trip.endTime) >= now
-          );
+          return trips.filter((trip) => {
+            const isFutureDate = new Date(trip.endTime) >= now;
+            const isHost = trip.hostId === userId;
+            const isInvited = trip.invitedUsers?.some((user) => user.id === userId);
+
+            // A trip is "Upcoming" only if it's active, in the future,
+            // AND the user is either hosting it or was explicitly invited.
+            return trip.status === "ACTIVE" && isFutureDate && (isHost || isInvited);
+          });
+        // --- END OF UPDATED LOGIC ---
+
         case "Past Events":
           return trips.filter(
             (trip) =>
               trip.status === "COMPLETED" || new Date(trip.endTime) < now
           );
+
         case "Invited Trips":
           return trips.filter((trip) =>
             trip.invitedUsers?.some((user) => user.id === userId)
           );
+          
         case "Hosting":
           return trips.filter((trip) => trip.hostId === userId);
+          
         default:
           return trips;
       }
@@ -96,7 +101,6 @@ const TripGrid = ({
       return;
     }
 
-    console.log(`🚀 Fetching trips from endpoint: ${endpoint}`);
     setLoading(true);
     setError(null);
 
@@ -105,7 +109,6 @@ const TripGrid = ({
       const data = response.data;
       setAllTrips(data.trips || []);
     } catch (err) {
-      console.error("❌ Failed to fetch trips:", err);
       setError(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
@@ -114,9 +117,27 @@ const TripGrid = ({
 
   const handleSaveToggle = (toggledTripId) => {
     if (savedOnly) {
-      const updatedTrips = allTrips.filter((trip) => trip.id !== toggledTripId);
-      setAllTrips(updatedTrips);
+      setAllTrips((prevTrips) => prevTrips.filter((trip) => trip.id !== toggledTripId));
+      return;
     }
+
+    setAllTrips((prevTrips) =>
+      prevTrips.map((trip) => {
+        if (trip.id === toggledTripId) {
+          const isSaved = trip.savers?.some((saver) => saver.id === userId);
+          let newSavers;
+
+          if (isSaved) {
+            newSavers = trip.savers.filter((saver) => saver.id !== userId);
+          } else {
+            const currentUser = { id: session.user.id, name: session.user.user_metadata.name || 'User' };
+            newSavers = [...(trip.savers || []), currentUser];
+          }
+          return { ...trip, savers: newSavers };
+        }
+        return trip;
+      })
+    );
   };
 
   useEffect(() => {
@@ -128,13 +149,11 @@ const TripGrid = ({
 
   useEffect(() => {
     if (authLoading) {
-      console.log("⏸️ Skipping fetch - auth in progress");
       return;
     }
     if (session) {
       fetchTrips();
     } else {
-      console.log("🚫 User not logged in, skipping fetch.");
       setLoading(false);
       setAllTrips([]);
     }
@@ -170,9 +189,7 @@ const TripGrid = ({
 
   const loadMore = async () => {
     setLoadingMore(true);
-
     await new Promise((resolve) => setTimeout(resolve, 300));
-
     const nextPage = page + 1;
     const filtered = getFilteredTrips();
     const nextTrips = filtered.slice(0, nextPage * PAGE_SIZE);
@@ -180,53 +197,24 @@ const TripGrid = ({
     setPage(nextPage);
     setLoadingMore(false);
   };
-
+  
+  // The loading, error, and empty states remain the same...
+  
   if (authLoading) {
-    console.log("🔄 Showing auth loading state");
-    return (
-      <Container size="xl" py="lg">
-        <Center style={{ minHeight: 200 }}>
-          <Stack align="center" gap="md">
-            <Loader size="lg" />
-            <Text>Authenticating...</Text>
-          </Stack>
-        </Center>
-      </Container>
-    );
+    return <Container size="xl" py="lg"><Center style={{ minHeight: 200 }}><Stack align="center" gap="md"><Loader size="lg" /><Text>Authenticating...</Text></Stack></Center></Container>;
   }
 
   if (!session) {
-    console.log("🚫 No session found");
-    return (
-      <Container size="xl" py="lg">
-        <Center style={{ minHeight: 200 }}>
-          <Text>Please log in to view your trips</Text>
-        </Center>
-      </Container>
-    );
+    return <Container size="xl" py="lg"><Center style={{ minHeight: 200 }}><Text>Please log in to view your trips</Text></Center></Container>;
   }
 
   if (loading) {
-    console.log(
-      "⏳ Showing loading state - loading:",
-      loading,
-      "allTrips.length:",
-      allTrips.length
-    );
     return (
       <Container size="xl" py="lg" className="relative">
-        <LoadingOverlay
-          visible={true}
-          overlayProps={{ radius: "sm", blur: 2 }}
-          loaderProps={{ size: "lg" }}
-        />
+        <LoadingOverlay visible={true} overlayProps={{ radius: "sm", blur: 2 }} loaderProps={{ size: "lg" }} />
         <Grid gutter="md" rowgap="xl" columngap="xl">
           {[...Array(6)].map((_, index) => (
-            <Grid.Col key={index} span={{ base: 12, sm: 6, md: 4, lg: 4 }}>
-              <Skeleton height={160} radius="md" mb="md" />
-              <Skeleton height={20} width="70%" mb="xs" />
-              <Skeleton height={16} width="50%" />
-            </Grid.Col>
+            <Grid.Col key={index} span={{ base: 12, sm: 6, md: 4, lg: 4 }}><Skeleton height={160} radius="md" mb="md" /><Skeleton height={20} width="70%" mb="xs" /><Skeleton height={16} width="50%" /></Grid.Col>
           ))}
         </Grid>
       </Container>
@@ -234,63 +222,15 @@ const TripGrid = ({
   }
 
   if (error) {
-    return (
-      <Container size="xl" py="lg">
-        <Center style={{ minHeight: 200 }}>
-          <Stack align="center" gap="md">
-            <Text color="red" ta="center" size="lg">
-              Error loading trips: {error}
-            </Text>
-            <Text ta="center" color="dimmed">
-              Please ensure your backend server is running and accessible at{" "}
-              <code>{API_BASE_URL}trips</code>
-            </Text>
-            <Button
-              onClick={() => {
-                setAllTrips([]);
-                fetchTrips();
-              }}
-              variant="outline"
-            >
-              Try Again
-            </Button>
-          </Stack>
-        </Center>
-      </Container>
-    );
+    return <Container size="xl" py="lg"><Center style={{ minHeight: 200 }}><Stack align="center" gap="md"><Text color="red" ta="center" size="lg">Error loading trips: {error}</Text><Text ta="center" color="dimmed">Please ensure your backend server is running and accessible at <code>{API_BASE_URL}trips</code></Text><Button onClick={() => { setAllTrips([]); fetchTrips(); }} variant="outline">Try Again</Button></Stack></Center></Container>;
   }
-
+  
   if (allTrips.length === 0) {
-    return (
-      <Container size="xl" py="lg">
-        <Center style={{ minHeight: 200 }}>
-          <Stack align="center" gap="md">
-            {!discoverMode && (
-              <Text ta="center" size="lg" color="dimmed">
-                No trips found
-              </Text>
-            )}
-            <Text ta="center" color="dimmed">
-              {discoverMode
-                ? "No trips in your area"
-                : savedOnly
-                ? "Start by liking some trips"
-                : "Start by creating some trips!"}
-            </Text>
-          </Stack>
-        </Center>
-      </Container>
-    );
+    return <Container size="xl" py="lg"><Center style={{ minHeight: 200 }}><Stack align="center" gap="md">{!discoverMode && (<Text ta="center" size="lg" color="dimmed">No trips found</Text>)}<Text ta="center" color="dimmed">{discoverMode ? "No trips in your area" : savedOnly ? "Start by liking some trips" : "Start by creating some trips!"}</Text></Stack></Center></Container>;
   }
 
   const filteredTrips = getFilteredTrips();
   const hasMoreTrips = visibleTrips.length < filteredTrips.length;
-
-  console.log(
-    "🎨 Rendering trip grid with",
-    visibleTrips.length,
-    "visible trips"
-  );
 
   return (
     <Container size="xl" py="lg">
@@ -311,132 +251,75 @@ const TripGrid = ({
 
       {hasMoreTrips && (
         <Group justify="center" mt="xl">
-          <Button
-            onClick={loadMore}
-            loading={loadingMore}
-            variant="outline"
-            size="md"
-          >
-            {loadingMore
-              ? "Loading..."
-              : `Load More (${
-                  filteredTrips.length - visibleTrips.length
-                } remaining)`}
+          <Button onClick={loadMore} loading={loadingMore} variant="outline" size="md">
+            {loadingMore ? "Loading..." : `Load More (${filteredTrips.length - visibleTrips.length} remaining)`}
           </Button>
         </Group>
       )}
 
       {visibleTrips.length === 0 && allTrips.length > 0 && (
         <Center style={{ minHeight: 100 }}>
-          <Text ta="center" color="dimmed">
-            No trips found in "{active}" category
-          </Text>
+          <Text ta="center" color="dimmed">No trips found in "{active}" category</Text>
         </Center>
       )}
 
-      <Modal
-        opened={opened}
-        onClose={close}
-        centered
-        size="lg"
-        withCloseButton={false}
-        radius="md"
-        padding="lg"
-        overlayProps={{ blur: 3 }}
-      >
-        {selectedTrip && (
-          <div
-            style={{
-              background: "var(--mantine-color-body)",
-              borderRadius: 16,
-              boxShadow: "0 4px 24px rgba(0,0,0,0.10)",
-              padding: 24,
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <div style={{ position: "absolute", top: 16, right: 16 }}>
-              <Button variant="light" color="gray" size="xs" onClick={close}>
-                Close
-              </Button>
-            </div>
-            <img
-              src={
-                selectedTrip.locations?.[0]?.image ||
-                `https://placehold.co/800x400/E0E0E0/333333?text=No+Image`
-              }
-              alt={selectedTrip.title || "Trip Image"}
-              style={{
-                width: "100%",
-                height: 220,
-                objectFit: "cover",
-                borderRadius: 12,
-                marginBottom: 24,
-                border: "1px solid #eee",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-              }}
-            />
+      <Modal opened={opened} onClose={close} centered size="lg" withCloseButton={false} radius="md" padding="lg" overlayProps={{ blur: 3 }}>
+        {selectedTrip && (() => {
+          const hasSpecialAccess =
+            selectedTrip.hostId === userId ||
+            selectedTrip.invitedUsers?.some((user) => user.id === userId);
 
-            <Stack gap={8}>
-              <Text fw={700} size="xl" c="primary">
-                {selectedTrip.title}
-              </Text>
-              <Group gap={16}>
-                <Text size="sm" c="dimmed">
-                  <strong>City:</strong> {selectedTrip.city || "N/A"}
-                </Text>
-                <Text size="sm" c="dimmed">
-                  <strong>Host:</strong> {selectedTrip.host?.name || "Unknown"}
-                </Text>
-              </Group>
-              <Text size="md" mt={8}>
-                <strong>Description:</strong>{" "}
-                {selectedTrip.description || "No description provided."}
-              </Text>
-              {!(!discoverMode && selectedTrip.hostId === userId) && (
-                <Text size="sm" c="dimmed">
-                  <strong>Time:</strong>{" "}
-                  {selectedTrip.startTime
-                    ? new Date(selectedTrip.startTime).toLocaleString()
-                    : "N/A"}{" "}
-                  -{" "}
-                  {selectedTrip.endTime
-                    ? new Date(selectedTrip.endTime).toLocaleString()
-                    : "N/A"}
-                </Text>
-              )}
-              {selectedTrip.locations && selectedTrip.locations.length > 0 && (
-                <div style={{ marginTop: 12 }}>
-                  <Text fw={600} size="sm" mb={4}>
-                    Locations:
+          const shouldHideDetails = discoverMode || !hasSpecialAccess;
+
+          return (
+            <div style={{ background: "var(--mantine-color-body)", borderRadius: 16, boxShadow: "0 4px 24px rgba(0,0,0,0.10)", padding: 24, position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", top: 16, right: 16 }}>
+                <Button variant="light" color="gray" size="xs" onClick={close}>Close</Button>
+              </div>
+              <img
+                src={selectedTrip.locations?.[0]?.image || `https://placehold.co/800x400/E0E0E0/333333?text=No+Image`}
+                alt={selectedTrip.title || "Trip Image"}
+                style={{ width: "100%", height: 220, objectFit: "cover", borderRadius: 12, marginBottom: 24, border: "1px solid #eee", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}
+              />
+              <Stack gap={8}>
+                <Text fw={700} size="xl" c="primary">{selectedTrip.title}</Text>
+                <Group gap={16}>
+                  <Text size="sm" c="dimmed"><strong>City:</strong> {selectedTrip.city || "N/A"}</Text>
+                  <Text size="sm" c="dimmed"><strong>Host:</strong> {selectedTrip.host?.name || "Unknown"}</Text>
+                </Group>
+                <Text size="md" mt={8}><strong>Description:</strong> {selectedTrip.description || "No description provided."}</Text>
+                
+                {!shouldHideDetails && (
+                  <Text size="sm" c="dimmed">
+                    <strong>Time:</strong>{" "}
+                    {selectedTrip.startTime ? new Date(selectedTrip.startTime).toLocaleString() : "N/A"} -{" "}
+                    {selectedTrip.endTime ? new Date(selectedTrip.endTime).toLocaleString() : "N/A"}
                   </Text>
-                  <ul style={{ paddingLeft: 18, margin: 0 }}>
-                    {selectedTrip.locations.map((loc) => (
-                      <li
-                        key={loc.id}
-                        style={{
-                          color: "#666",
-                          fontSize: 14,
-                          marginBottom: 2,
-                        }}
-                      >
-                        <span style={{ fontWeight: 500 }}>{loc.name}</span>
-                        {loc.address && (
-                          <span style={{ color: "#aaa", marginLeft: 6 }}>
-                            ({loc.address})
-                          </span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <Group mt={16} justify="space-between">
-                <CopyTripLink goto={true} tripId={selectedTrip.id} />
-              </Group>
-            </Stack>
-          </div>
-        )}
+                )}
+                
+                {selectedTrip.locations && selectedTrip.locations.length > 0 && (
+                  <div style={{ marginTop: 12 }}>
+                    <Text fw={600} size="sm" mb={4}>Locations:</Text>
+                    <ul style={{ paddingLeft: 18, margin: 0 }}>
+                      {selectedTrip.locations.map((loc) => (
+                        <li key={loc.id} style={{ color: "#666", fontSize: 14, marginBottom: 2 }}>
+                          <span style={{ fontWeight: 500 }}>{loc.name}</span>
+                          {loc.address && <span style={{ color: "#aaa", marginLeft: 6 }}>({loc.address})</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {!shouldHideDetails && (
+                  <Group mt={16} justify="space-between">
+                    <CopyTripLink goto={true} tripId={selectedTrip.id} />
+                  </Group>
+                )}
+              </Stack>
+            </div>
+          );
+        })()}
       </Modal>
     </Container>
   );
