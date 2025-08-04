@@ -52,6 +52,33 @@ import RSVPForm from "../components/RSVPForm";
 import TripTimes from "../components/TripTimes";
 import apiClient from "../api/axios";
 import { useProfilePicture } from "../hooks/useProfilePicture";
+import styled from "@emotion/styled";
+import { keyframes } from "@emotion/react";
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+`;
+
+const AnimatedFlex = styled(Flex)`
+  width: 100%;
+  min-height: 100vh;
+  align-items: stretch;
+  flex-direction: ${({ ismobile }) => (ismobile === "true" ? "column" : "row")};
+  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  animation: ${fadeIn} 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+`;
+
+const AnimatedBox = styled(Box)`
+  flex: 1;
+  min-width: 0;
+  padding: ${({ ismobile, theme }) =>
+    ismobile === "true" ? theme.spacing.md : theme.spacing.lg};
+  box-sizing: border-box;
+  padding-bottom: ${({ ismobile }) => (ismobile === "true" ? "80px" : "20px")};
+  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+`;
 
 const TripSummaryPage = ({
   selectedCity,
@@ -300,25 +327,9 @@ const TripSummaryPage = ({
 
   return (
     <>
-      <Flex
-        style={{
-          width: "100%",
-          minHeight: "100vh",
-          alignItems: "stretch",
-          flexDirection: isMobile ? "column" : "row",
-        }}
-      >
+      <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
         {!isMobile && <NavBar setLocations={setLocations} />}
-
-        {/* main content */}
-        <Box
-          style={{
-            flex: 1,
-            minWidth: 0,
-            padding: isMobile ? "16px" : "20px",
-            boxSizing: "border-box",
-          }}
-        >
+        <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
           {isMobile ? (
             //----------------------------------------------------------> Mobile layout - vertical stack <---------------------------------------------------------
             <Stack spacing="lg">
@@ -586,7 +597,7 @@ const TripSummaryPage = ({
               </Grid.Col>
             </Grid>
           )}
-        </Box>
+        </AnimatedBox>
         {isMobile && (
           <Box
             style={{
@@ -595,14 +606,14 @@ const TripSummaryPage = ({
               left: 0,
               width: "100%",
               zIndex: 1000,
-              backgroundColor: "var(--mantine-color-body)",
-              borderTop: "1px solid var(--mantine-color-divider)",
+              backgroundColor: theme.colors["custom-palette"][8],
+              borderTop: `1px solid ${theme.colors["custom-palette"][6]}`,
             }}
           >
             <NavBar setLocations={setLocations} />
           </Box>
         )}
-      </Flex>
+      </AnimatedFlex>
     </>
   );
 };

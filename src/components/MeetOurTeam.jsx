@@ -11,7 +11,11 @@ import {
   Grid,
   Container,
 } from "@mantine/core";
-import { IconBrandLinkedin, IconLink } from "@tabler/icons-react";
+import {
+  IconBrandLinkedin,
+  IconBrandGithub,
+  IconLink,
+} from "@tabler/icons-react";
 
 const teamMembers = [
   {
@@ -20,6 +24,7 @@ const teamMembers = [
     college: "University of Texas at Austin",
     image: "/assets/E7T5PNK3P-U08SV91JELA-69ffacaca526-512.jpg",
     linkedin: "https://www.linkedin.com/in/joshua-cesar-pierre-13624327a/",
+    github: "https://github.com/JoshCPierre",
   },
   {
     id: 2,
@@ -27,6 +32,7 @@ const teamMembers = [
     college: "Columbia University",
     image: "/assets/E7T5PNK3P-U08SD3V9AK1-182c630cdade-512.jpg",
     linkedin: "https://www.linkedin.com/in/thomas-sibilly/",
+    github: "https://github.com/thosib",
   },
   {
     id: 3,
@@ -34,6 +40,7 @@ const teamMembers = [
     college: "University of Maryland",
     image: "/assets/E7T5PNK3P-U08SCVAKE3Z-cd93d749916d-512.jpg",
     linkedin: "https://www.linkedin.com/in/moosay/",
+    github: "https://github.com/m0osay",
   },
 ];
 
@@ -41,17 +48,14 @@ const MeetOurTeam = () => {
   return (
     <Container size="xl" py="xl">
       {" "}
-      {/* Container for overall spacing */}
       <Title order={2} ta="center" mb="xl">
         Meet Our Team
       </Title>
       <Grid justify="center" align="stretch">
         {" "}
-        {/* Use Grid to arrange cards */}
         {teamMembers.map((member) => (
           <Grid.Col span={{ base: 12, sm: 6, md: 4 }} key={member.id}>
             {" "}
-            {/* Responsive columns */}
             <Card
               shadow="sm"
               padding="lg"
@@ -61,14 +65,14 @@ const MeetOurTeam = () => {
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
-              }} // Ensure cards stretch and content is column-stacked
+              }}
             >
               {/* Top Half: Picture */}
               <Card.Section>
                 <Image
                   src={member.image}
                   alt={member.name}
-                  height={200} // Fixed height for the image
+                  height={200}
                   fit="cover"
                 />
               </Card.Section>
@@ -79,7 +83,6 @@ const MeetOurTeam = () => {
                 style={{ flexGrow: 1, justifyContent: "space-between" }}
               >
                 {" "}
-                {/* Stack for vertical arrangement */}
                 <Box>
                   {" "}
                   {/* Group name and college */}
@@ -92,7 +95,6 @@ const MeetOurTeam = () => {
                 </Box>
                 <Stack spacing="xs" mt="md">
                   {" "}
-                  {/* Stack for links */}
                   {member.linkedin && (
                     <Anchor
                       href={member.linkedin}
@@ -127,7 +129,7 @@ const MeetOurTeam = () => {
                       size="sm"
                     >
                       <Group gap="xs">
-                        <IconLink size={18} />{" "}
+                        <IconBrandGithub size={18} />{" "}
                         {/* Using generic link icon for GitHub, or you can import IconBrandGithub */}
                         <Text>GitHub</Text>
                       </Group>
