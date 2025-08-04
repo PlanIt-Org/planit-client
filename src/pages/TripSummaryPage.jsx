@@ -310,7 +310,6 @@ const TripSummaryPage = ({
       >
         {!isMobile && <NavBar setLocations={setLocations} />}
 
-
         {/* main content */}
         <Box
           style={{
@@ -323,7 +322,6 @@ const TripSummaryPage = ({
           {isMobile ? (
             //----------------------------------------------------------> Mobile layout - vertical stack <---------------------------------------------------------
             <Stack spacing="lg">
-           
               <Group style={{ width: "100%" }}>
                 {ownTrip && tripStatus === "PLANNING" && (
                   <Button
@@ -354,7 +352,6 @@ const TripSummaryPage = ({
                 </Paper>
               </Group>
 
-        
               <TripDetails
                 tripId={id}
                 ownTrip={ownTrip}
@@ -363,7 +360,6 @@ const TripSummaryPage = ({
                 setIsPrivate={setIsPrivate}
               />
 
-           
               <RSVPForm
                 tripId={id}
                 ownTrip={ownTrip}
@@ -372,7 +368,6 @@ const TripSummaryPage = ({
                 userId={userId}
               />
 
-         
               <Paper
                 withBorder
                 radius="md"
@@ -410,8 +405,16 @@ const TripSummaryPage = ({
                 </div>
               </Paper>
 
-        
-              {locations.length < 3 ? (
+              {isMobile ? (
+                // always carousel on mobile
+                <LocationCarousel
+                  locations={locations}
+                  comments={comments}
+                  setEstimatedTime={setEstimatedTime}
+                  estimatedTime={estimatedTime}
+                />
+              ) : // desktop carousel if locations > 3
+              locations.length < 3 ? (
                 <NoCarouselLocation
                   locations={locations}
                   comments={comments}
@@ -426,10 +429,8 @@ const TripSummaryPage = ({
                 />
               )}
 
-        
               <TripGuestList tripId={id} />
 
-      
               <CommentGrid
                 tripId={id}
                 locations={locations}
@@ -454,9 +455,8 @@ const TripSummaryPage = ({
               )}
             </Stack>
           ) : (
-           //----------------------------------------------------------> Desktop layout - vertical stack <---------------------------------------------------------
+            //----------------------------------------------------------> Desktop layout - vertical stack <---------------------------------------------------------
             <Grid gutter="xl" className="p-4" m="xl">
-            
               <Grid.Col span={7}>
                 <Stack spacing="xl">
                   <Group style={{ width: "100%" }}>
@@ -471,7 +471,7 @@ const TripSummaryPage = ({
                         Back
                       </Button>
                     )}
-                  
+
                     <Paper
                       withBorder
                       radius="md"
@@ -488,7 +488,7 @@ const TripSummaryPage = ({
                       />
                     </Paper>
                   </Group>
-              
+
                   <Paper
                     withBorder
                     radius="md"
@@ -525,8 +525,6 @@ const TripSummaryPage = ({
                       />
                     </div>
                   </Paper>
-           
-                 
 
                   {locations.length < 3 ? (
                     <NoCarouselLocation
@@ -590,20 +588,20 @@ const TripSummaryPage = ({
           )}
         </Box>
         {isMobile && (
-        <Box
-          style={{
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-            zIndex: 1000,
-            backgroundColor: 'var(--mantine-color-body)',
-            borderTop: '1px solid var(--mantine-color-divider)',
-          }}
-        >
-          <NavBar setLocations={setLocations} />
-        </Box>
-      )}
+          <Box
+            style={{
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              width: "100%",
+              zIndex: 1000,
+              backgroundColor: "var(--mantine-color-body)",
+              borderTop: "1px solid var(--mantine-color-divider)",
+            }}
+          >
+            <NavBar setLocations={setLocations} />
+          </Box>
+        )}
       </Flex>
     </>
   );

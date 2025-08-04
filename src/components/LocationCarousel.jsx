@@ -1,6 +1,6 @@
 import React from "react";
 import { Carousel } from "@mantine/carousel";
-import { Card, Image, Box, Group, Text, Title } from "@mantine/core";
+import { Card, Image, Box, Group, Text, Title, useMantineTheme } from "@mantine/core";
 import { LoremIpsum } from "react-lorem-ipsum";
 import {
   IconBubbleFilled,
@@ -12,11 +12,15 @@ import { useDisclosure } from "@mantine/hooks";
 import TripLocationModal from "./TripLocationModal";
 import { useState } from "react";
 import RouteBetween from "./RouteBetween";
+import { useMediaQuery } from "@mantine/hooks";
+
 
 const LocationCarousel = ({ locations, comments, setEstimatedTime, estimatedTime }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [finalMode, setFinalMode] = useState(null);
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   const handleCardClick = (location) => {
     setSelectedLocation(location);

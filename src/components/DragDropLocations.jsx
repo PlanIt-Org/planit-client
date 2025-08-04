@@ -1,3 +1,4 @@
+// src/components/DragDropLocations.jsx
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { IconGripVertical, IconX } from "@tabler/icons-react";
 import cx from "clsx";
@@ -5,42 +6,28 @@ import { Text, Box, ActionIcon } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
 import classes from "../styles/DndListHandle.module.css";
 import { useEffect } from "react";
-import apiClient from "../api/axios";
+// apiClient and notifications are no longer needed for deletion in this component
+// import apiClient from "../api/axios";
+// import { notifications } from "@mantine/notifications";
 
-function DragDropLocations({ locations, setLocations, id }) {
+function DragDropLocations({ locations, setLocations, id: tripId }) {
   const [internalLocations, internalHandlers] = useListState(locations);
 
   useEffect(() => {
     internalHandlers.setState(locations);
   }, [locations, internalHandlers]);
 
-  const handleRemove = async (indexToRemove) => {
-    const locationToRemove = internalLocations[indexToRemove];
-    // Ensure you are using the correct property for the Google Place ID.
-    // Based on your previous code, it's `place_id`.
-    const placeId = locationToRemove.googlePlaceId;
-
-    if (!id || !placeId) {
-      console.error("Missing trip ID or location Place ID.");
-      return;
-    }
-
-    console.log("Removing location from trip:", id, "with Place ID:", placeId);
-
-    try {
-      // --- THIS IS THE CORRECTED LINE ---
-      // Add the '/trips' prefix to match your backend routing.
-      await apiClient.delete(`/trips/${id}/locations/${placeId}`);
-    } catch (err) {
-      console.error("Failed to remove location from trip:", err);
-      // Optionally, show a notification to the user here.
-      return; // Don't update local state if server request fails.
-    }
-
-    // This part only runs if the API call was successful.
+  // --- THIS IS THE FIX ---
+  // The handleRemove function is now synchronous and only manages local state.
+  // The API call has been removed.
+  const handleRemove = (indexToRemove) => {
     const newOrder = internalLocations.filter((_, index) => index !== indexToRemove);
+    
+    // Update the component's internal state
     internalHandlers.setState(newOrder);
-    setLocations(newOrder);
+    
+    // Update the parent component's (TripPlannerPage) state
+    setLocations(newOrder); 
   };
 
   const items = internalLocations.map((location, index) => (
