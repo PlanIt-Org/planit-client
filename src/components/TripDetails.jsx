@@ -164,7 +164,7 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
     <Card shadow="sm" p="lg" radius="md" withBorder>
       <Stack spacing="md">
         <Group justify="space-between">
-          {ownTrip && <Button variant="light">Add Hosts</Button>}
+
           {ownTrip && (
               <Button
                 color={isPrivate ? "red" : "green"}

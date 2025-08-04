@@ -1,7 +1,15 @@
 // src/components/SuggestedTripContainer.jsx
 import React, { useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
-import { Button, Text, Box, Group, Stack, Flex } from "@mantine/core";
+import {
+  Button,
+  Text,
+  Box,
+  Group,
+  Stack,
+  Flex,
+  useMantineTheme,
+} from "@mantine/core";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
 import { useNavigate, useParams } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
@@ -11,6 +19,7 @@ import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import apiClient from "../api/axios";
 import { supabase } from "../supabaseClient";
+import { useMediaQuery } from "@mantine/hooks";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -25,6 +34,8 @@ const TripPlannerPage = ({
 }) => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   useEffect(() => {
     if (!id) {
@@ -129,9 +140,9 @@ const TripPlannerPage = ({
 
       for (const loc of locations) {
         const locationPayload = {
-          place_id: loc.googlePlaceId || loc.place_id, 
+          place_id: loc.googlePlaceId || loc.place_id,
           name: loc.name,
-          formatted_address: loc.address || loc.formatted_address, 
+          formatted_address: loc.address || loc.formatted_address,
           geometry: {
             location: {
               lat:
@@ -182,107 +193,207 @@ const TripPlannerPage = ({
         width: "100%",
         minHeight: "100vh",
         alignItems: "stretch",
+        flexDirection: isMobile ? "column" : "row",
       }}
     >
-      <NavBar setLocations={setLocations} />
+      {!isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
+
+      {isMobile && (
+        <Box
+          style={{
+            width: "100%",
+            height: "60px",
+            backgroundColor: "var(--mantine-color-body)",
+            borderBottom: "1px solid var(--mantine-color-gray-3)",
+            zIndex: 1000,
+          }}
+        >
+          <NavBar currentPage={0} setLocations={setLocations} />
+        </Box>
+      )}
+
       <Box
         style={{
           flex: 1,
           minWidth: 0,
-          padding: "20px",
+          padding: isMobile ? "16px" : "20px",
           boxSizing: "border-box",
           display: "flex",
           justifyContent: "center",
-          alignItems: "center",
+          alignItems: isMobile ? "flex-start" : "center",
         }}
       >
-        {/*container for the map and search field, arranged horizontally */}
-        <Group
-          style={{
-            height: "80vh",
-            width: "80vw",
-            alignItems: "flex-start",
-            flexWrap: "nowrap",
-            gap: "20px",
-            overflow: "hidden",
-            boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
-            backgroundColor: "#ffffff",
-            borderRadius: "20px",
-          }}
-        >
-          {/* trip planner map & locations container*/}
-          <Box
+        {isMobile ? (
+          // Mobile layout
+          <Stack
             style={{
-              flex: "3",
+              width: "100%",
               height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
-              borderRadius: "20px 0 0 20px",
+              gap: "16px",
             }}
           >
-            <TripPlannerMap
-              selectedPlace={selectedPlace}
-              locations={locations}
-              selectedCity={selectedCity}
-              showRoutes={false}
-              mapHeight="50%"
-              style={{ flex: "2" }}
-            />
+           
+            <Box
+              style={{
+                flex: 1,
+                minHeight: "300px",
+                borderRadius: "12px",
+                overflow: "hidden",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <TripPlannerMap
+                selectedPlace={selectedPlace}
+                locations={locations}
+                selectedCity={selectedCity}
+                showRoutes={false}
+                mapHeight="300px"
+              />
+            </Box>
 
-            {/* added locations */}
-            <Box style={{ flex: "1", overflowY: "auto", padding: "10px" }}>
-              {/* Added a container for locations with scroll */}
-              <Text size="lg" fw={700} my="lg" ta="center">
-                Your Trip Locations:
+      
+            <Stack
+              style={{
+                gap: "16px",
+                padding: "16px",
+                borderRadius: "12px",
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+              }}
+            >
+              <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
+
+              <Text fw={700} ta="center" size="sm">
+                AI Suggested Trips
               </Text>
 
+              <Box style={{ maxHeight: "200px", overflowY: "auto" }}>
+                <SuggestedTripContainer />
+              </Box>
+
+              <Button
+                onClick={handleLetsGoClick}
+                size="lg"
+                radius="xl"
+                fw={700}
+                style={{
+                  width: "100%",
+                  minHeight: 48,
+                  fontSize: 18,
+                }}
+              >
+                Let's Go
+              </Button>
+            </Stack>
+
+         
+            <Box
+              style={{
+                borderRadius: "12px",
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+                padding: "16px",
+              }}
+            >
+              <Text size="lg" fw={700} mb="md" ta="center">
+                Your Trip Locations:
+              </Text>
               <DragDropLocations
                 locations={locations}
                 setLocations={setLocations}
                 id={id}
               />
             </Box>
-          </Box>
-
-          {/* auto complete search stack */}
-          <Stack
+          </Stack>
+        ) : (
+          // Desktop layout
+          <Group
             style={{
-              flex: "2",
-              height: "100%",
-              justifyContent: "flex-start",
-              padding: "20px",
-              borderRadius: "8px",
-              backgroundColor: "rgba(255, 255, 255, 0.95)",
-              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)",
+              height: "80vh",
+              width: "80vw",
+              alignItems: "flex-start",
+              flexWrap: "nowrap",
+              gap: "20px",
+              overflow: "hidden",
+              boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+              backgroundColor: "#ffffff",
+              borderRadius: "20px",
             }}
           >
-            <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
-            {/*  TODO: change to add AI suggested trips */}
-            <Text fw={700} ta="center">
-              AI Suggested Trips based on your preferences
-            </Text>
-            <Box style={{ flex: 1, overflowY: "auto" }}>
-              <SuggestedTripContainer />
-            </Box>
-            <Button
-              onClick={handleLetsGoClick}
-              size="lg"
-              radius="xl"
-              fw={700}
+            
+            <Box
               style={{
-                marginTop: 24,
-                marginBottom: 8,
-                width: "100%",
-                minHeight: 56,
-                fontSize: 22,
-                letterSpacing: 1,
+                flex: "3",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+                borderRadius: "20px 0 0 20px",
               }}
             >
-              Let's Go
-            </Button>
-          </Stack>
-        </Group>
+              <TripPlannerMap
+                selectedPlace={selectedPlace}
+                locations={locations}
+                selectedCity={selectedCity}
+                showRoutes={false}
+                mapHeight="50%"
+                style={{ flex: "2" }}
+              />
+
+              {/* added locations */}
+              <Box style={{ flex: "1", overflowY: "auto", padding: "10px" }}>
+                {/* Added a container for locations with scroll */}
+                <Text size="lg" fw={700} my="lg" ta="center">
+                  Your Trip Locations:
+                </Text>
+
+                <DragDropLocations
+                  locations={locations}
+                  setLocations={setLocations}
+                  id={id}
+                />
+              </Box>
+            </Box>
+
+            {/* auto complete search stack */}
+            <Stack
+              style={{
+                flex: "2",
+                height: "100%",
+                justifyContent: "flex-start",
+                padding: "20px",
+                borderRadius: "8px",
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)",
+              }}
+            >
+              <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
+              {/*  TODO: change to add AI suggested trips */}
+              <Text fw={700} ta="center">
+                AI Suggested Trips based on your preferences
+              </Text>
+              <Box style={{ flex: 1, overflowY: "auto" }}>
+                <SuggestedTripContainer />
+              </Box>
+              <Button
+                onClick={handleLetsGoClick}
+                size="lg"
+                radius="xl"
+                fw={700}
+                style={{
+                  marginTop: 24,
+                  marginBottom: 8,
+                  width: "100%",
+                  minHeight: 56,
+                  fontSize: 22,
+                  letterSpacing: 1,
+                }}
+              >
+                Let's Go
+              </Button>
+            </Stack>
+          </Group>
+        )}
       </Box>
     </Flex>
   );

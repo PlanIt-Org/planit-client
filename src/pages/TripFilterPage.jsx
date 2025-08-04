@@ -14,12 +14,14 @@ import {
   Button,
   Flex,
   Avatar,
+  useMantineTheme
 } from "@mantine/core";
 import { useNavigate, useParams } from "react-router-dom";
 import TripFilterSearchBox from "../components/TripFilterSearchBox";
 import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
-import { useUserPreferences } from "../hooks/useUserPreferences";
+import { useMediaQuery } from "@mantine/hooks";
+
 
 const TripFilterPage = ({ setLocations }) => {
   const navigate = useNavigate();
@@ -29,7 +31,9 @@ const TripFilterPage = ({ setLocations }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
-  // const { preferences: currentUserPreferences } = useUserPreferences();
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+
   const [stagedUser, setStagedUser] = useState(null);
 
   const handleSearch = async () => {
@@ -189,8 +193,18 @@ const TripFilterPage = ({ setLocations }) => {
   };
 
   return (
-    <Flex style={{ width: "100%", minHeight: "100vh", alignItems: "stretch" }}>
-      <NavBar setLocations={setLocations} />
+     <Flex
+      style={{
+        width: "100%",
+        minHeight: "100vh",
+        alignItems: "stretch",
+        flexDirection: isMobile ? "column" : "row",
+      }} >
+      {!isMobile ?  (
+        <NavBar currentPage={0} setLocations={setLocations} />
+      ) : (<NavBar currentPage={0} setLocations={setLocations}/>  )}
+      
+    
       <Flex
         style={{ flex: 1, padding: "2rem" }}
         justify="center"

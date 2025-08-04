@@ -20,7 +20,9 @@ import {
   InputBase,
   Input,
   Flex,
+  useMantineTheme,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 
 import { Carousel } from "@mantine/carousel";
 import axios from "axios";
@@ -57,8 +59,7 @@ const TripSummaryPage = ({
   selectedPlace,
   setLocations,
   userId,
-  userObj
-  
+  userObj,
 }) => {
   const [googleMapsLink, setGoogleMapsLink] = useState("");
   const [filterValue, setFilterValue] = React.useState(null);
@@ -74,8 +75,8 @@ const TripSummaryPage = ({
   const [comments, setComments] = useState([]);
   const [estimatedTime, setEstimatedTime] = useState(0);
   const { generateAvatarUrl } = useProfilePicture(userObj);
-  
-
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   useEffect(() => {
     if (id) {
@@ -222,22 +223,18 @@ const TripSummaryPage = ({
   }
 
   useEffect(() => {
-
     const loadComments = async () => {
       if (currTripId) {
-      
         const allCommentsFromDB = await fetchAllCommentsForTrip(currTripId);
         console.log("all commentsx", allCommentsFromDB);
 
         const newFormatedComments = allCommentsFromDB.map((comment) => ({
-       
           id: comment.id,
           author: {
-            
             name: comment.author.name || comment.author.email,
-            avatar:  generateAvatarUrl(userObj.email) 
+            avatar: generateAvatarUrl(userObj.email),
           },
-          text: comment.text, 
+          text: comment.text,
 
           location: comment.location.name || "General Comment",
         }));
@@ -308,160 +305,302 @@ const TripSummaryPage = ({
           width: "100%",
           minHeight: "100vh",
           alignItems: "stretch",
+          flexDirection: isMobile ? "column" : "row",
         }}
       >
-        <NavBar setLocations={setLocations} />
+        {!isMobile && <NavBar setLocations={setLocations} />}
+
+        {isMobile && (
+          <Box
+            style={{
+              width: "100%",
+              height: "60px",
+              backgroundColor: "var(--mantine-color-body)",
+              borderBottom: "1px solid var(--mantine-color-gray-3)",
+              zIndex: 1000,
+            }}
+          >
+            <NavBar setLocations={setLocations} />
+          </Box>
+        )}
+
         {/* main content */}
         <Box
           style={{
             flex: 1,
             minWidth: 0,
-            padding: 20,
+            padding: isMobile ? "16px" : "20px",
             boxSizing: "border-box",
           }}
         >
-          <Grid gutter="xl" className="p-4" m="xl">
-            {/* Left Column */}
-            <Grid.Col span={7}>
-              <Stack spacing="xl">
-                <Group style={{ width: "100%" }}>
-                  {ownTrip && tripStatus === "PLANNING" && (
-                    <Button
-                      size="md"
-                      radius="md"
-                      onClick={() => {
-                        navigate(`/tripplanner/${id}`);
-                      }}
-                    >
-                      Back
-                    </Button>
-                  )}
-                  {/* Time Information */}
-                  <Paper
-                    withBorder
+          {isMobile ? (
+            //----------------------------------------------------------> Mobile layout - vertical stack <---------------------------------------------------------
+            <Stack spacing="lg">
+           
+              <Group style={{ width: "100%" }}>
+                {ownTrip && tripStatus === "PLANNING" && (
+                  <Button
+                    size="sm"
                     radius="md"
-                    p="sm"
-                    className="bg-white"
-                    flex={1}
+                    onClick={() => {
+                      navigate(`/tripplanner/${id}`);
+                    }}
                   >
-                    <TripTimes
-                      currTripId={currTripId}
-                      tripStatus={tripStatus}
-                      locations={locations}
-                      estimatedTime={estimatedTime}
-                      setEstimatedTime={setEstimatedTime}
-                    />
-                  </Paper>
-                </Group>
-                {/* Main Image/Map */}
+                    Back
+                  </Button>
+                )}
+                {/* Time Information */}
                 <Paper
                   withBorder
                   radius="md"
-                  className="bg-gray-100"
+                  p="sm"
+                  className="bg-white"
+                  flex={1}
+                >
+                  <TripTimes
+                    currTripId={currTripId}
+                    tripStatus={tripStatus}
+                    locations={locations}
+                    estimatedTime={estimatedTime}
+                    setEstimatedTime={setEstimatedTime}
+                  />
+                </Paper>
+              </Group>
+
+        
+              <TripDetails
+                tripId={id}
+                ownTrip={ownTrip}
+                tripStatus={tripStatus}
+                isPrivate={isPrivate}
+                setIsPrivate={setIsPrivate}
+              />
+
+           
+              <RSVPForm
+                tripId={id}
+                ownTrip={ownTrip}
+                RSVPStatus={RSVPStatus}
+                setRSVPStatus={setRSVPStatus}
+                userId={userId}
+              />
+
+         
+              <Paper
+                withBorder
+                radius="md"
+                className="bg-gray-100"
+                style={{
+                  height: "300px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <div
                   style={{
-                    height: "350px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    position: "relative",
-                    overflow: "hidden",
+                    width: "100%",
+                    height: "100%",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
                   }}
                 >
-                  <div
+                  <TripPlannerMap
+                    selectedPlace={selectedPlace}
+                    locations={locations}
+                    selectedCity={selectedCity}
+                    showRoutes={true}
+                    mapHeight="300px"
+                    setGoogleMapsLink={setGoogleMapsLink}
+                    tripId={id}
+                  />
+                </div>
+              </Paper>
+
+        
+              {locations.length < 3 ? (
+                <NoCarouselLocation
+                  locations={locations}
+                  comments={comments}
+                  setEstimatedTime={setEstimatedTime}
+                />
+              ) : (
+                <LocationCarousel
+                  locations={locations}
+                  comments={comments}
+                  setEstimatedTime={setEstimatedTime}
+                  estimatedTime={estimatedTime}
+                />
+              )}
+
+        
+              <TripGuestList tripId={id} />
+
+      
+              <CommentGrid
+                tripId={id}
+                locations={locations}
+                userId={userId}
+                comments={comments}
+                setComments={setComments}
+                userObj={userObj}
+              />
+
+              {/* Publish/Edit button for mobile */}
+              {ownTrip && tripStatus && (
+                <Group justify="center">
+                  <Button
+                    color={tripStatus === "ACTIVE" ? "red" : "green"}
+                    onClick={() => handlePublish(currTripId)}
+                    size="lg"
+                    fullWidth
+                  >
+                    {tripStatus === "ACTIVE" ? "Edit" : "Publish"}
+                  </Button>
+                </Group>
+              )}
+            </Stack>
+          ) : (
+           //----------------------------------------------------------> Desktop layout - vertical stack <---------------------------------------------------------
+            <Grid gutter="xl" className="p-4" m="xl">
+            
+              <Grid.Col span={7}>
+                <Stack spacing="xl">
+                  <Group style={{ width: "100%" }}>
+                    {ownTrip && tripStatus === "PLANNING" && (
+                      <Button
+                        size="md"
+                        radius="md"
+                        onClick={() => {
+                          navigate(`/tripplanner/${id}`);
+                        }}
+                      >
+                        Back
+                      </Button>
+                    )}
+                  
+                    <Paper
+                      withBorder
+                      radius="md"
+                      p="sm"
+                      className="bg-white"
+                      flex={1}
+                    >
+                      <TripTimes
+                        currTripId={currTripId}
+                        tripStatus={tripStatus}
+                        locations={locations}
+                        estimatedTime={estimatedTime}
+                        setEstimatedTime={setEstimatedTime}
+                      />
+                    </Paper>
+                  </Group>
+              
+                  <Paper
+                    withBorder
+                    radius="md"
+                    className="bg-gray-100"
                     style={{
+                      height: "350px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      width: "100%",
-                      height: "100%",
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
+                      position: "relative",
+                      overflow: "hidden",
                     }}
                   >
-                    <TripPlannerMap
-                      selectedPlace={selectedPlace}
-                      locations={locations}
-                      selectedCity={selectedCity}
-                      showRoutes={true}
-                      mapHeight="100%"
-                      setGoogleMapsLink={setGoogleMapsLink}
-                      tripId={id}
-                    ></TripPlannerMap>
-                  </div>
-                </Paper>
-                <Group justify="center">
-                  {/* <Button
-                    variant="light"
-                    leftSection={<IconShare size={18} />}
-                    mt="md"
-                    fullWidth
-                    onClick={handleOpenGoogleMaps}
-                  >
-                    Open In Google Maps
-                  </Button> */}
-                </Group>
-                {/* Bottom Image Placeholders / location cards */}
-
-                {locations.length < 3 ? (
-                  <NoCarouselLocation
-                    locations={locations}
-                    comments={comments}
-                    setEstimatedTime={setEstimatedTime}
-                  />
-                ) : (
-                  <LocationCarousel
-                    locations={locations}
-                    comments={comments}
-                    setEstimatedTime={setEstimatedTime}
-                    estimatedTime={estimatedTime}
-                  />
-                )}
-              </Stack>
-            </Grid.Col>
-            {/* Right Column */}
-            <Grid.Col span={5}>
-              <Stack spacing="xl">
-                {/* Trip Details Card */}
-                <TripDetails
-                  tripId={id}
-                  ownTrip={ownTrip}
-                  tripStatus={tripStatus}
-                  isPrivate={isPrivate}
-                  setIsPrivate={setIsPrivate}
-                ></TripDetails>
-                <RSVPForm
-                  tripId={id}
-                  ownTrip={ownTrip}
-                  RSVPStatus={RSVPStatus}
-                  setRSVPStatus={setRSVPStatus}
-                  userId={userId}
-                ></RSVPForm>
-                <TripGuestList tripId={id}></TripGuestList>
-                {/* Comments Section */}
-                <CommentGrid
-                  tripId={id}
-                  locations={locations}
-                  userId={userId}
-                  comments={comments}
-                  setComments={setComments}
-                  userObj = {userObj}
-                >
-                  {" "}
-                </CommentGrid>
-                <Group justify="flex-end">
-                  {ownTrip && tripStatus && (
-                    <Button
-                      color={tripStatus === "ACTIVE" ? "red" : "green"}
-                      onClick={() => handlePublish(currTripId)}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "100%",
+                        height: "100%",
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                      }}
                     >
-                      {tripStatus === "ACTIVE" ? "Edit" : "Publish"}
-                    </Button>
+                      <TripPlannerMap
+                        selectedPlace={selectedPlace}
+                        locations={locations}
+                        selectedCity={selectedCity}
+                        showRoutes={true}
+                        mapHeight="100%"
+                        setGoogleMapsLink={setGoogleMapsLink}
+                        tripId={id}
+                      />
+                    </div>
+                  </Paper>
+           
+                 
+
+                  {locations.length < 3 ? (
+                    <NoCarouselLocation
+                      locations={locations}
+                      comments={comments}
+                      setEstimatedTime={setEstimatedTime}
+                    />
+                  ) : (
+                    <LocationCarousel
+                      locations={locations}
+                      comments={comments}
+                      setEstimatedTime={setEstimatedTime}
+                      estimatedTime={estimatedTime}
+                    />
                   )}
-                </Group>
-              </Stack>
-            </Grid.Col>
-          </Grid>
+                </Stack>
+              </Grid.Col>
+              {/* Right Column */}
+              <Grid.Col span={5}>
+                <Stack spacing="xl">
+                  {/* Trip Details Card */}
+                  <TripDetails
+                    tripId={id}
+                    ownTrip={ownTrip}
+                    tripStatus={tripStatus}
+                    isPrivate={isPrivate}
+                    setIsPrivate={setIsPrivate}
+                  />
+                  <RSVPForm
+                    tripId={id}
+                    ownTrip={ownTrip}
+                    RSVPStatus={RSVPStatus}
+                    setRSVPStatus={setRSVPStatus}
+                    userId={userId}
+                  />
+                  <TripGuestList tripId={id} />
+                  {/* Comments Section */}
+                  <CommentGrid
+                    tripId={id}
+                    locations={locations}
+                    userId={userId}
+                    comments={comments}
+                    setComments={setComments}
+                    userObj={userObj}
+                  >
+                    {" "}
+                  </CommentGrid>
+                  <Group justify="flex-end">
+                    {ownTrip && tripStatus && (
+                      <Button
+                        color={tripStatus === "ACTIVE" ? "red" : "green"}
+                        onClick={() => handlePublish(currTripId)}
+                      >
+                        {tripStatus === "ACTIVE" ? "Edit" : "Publish"}
+                      </Button>
+                    )}
+                  </Group>
+                </Stack>
+              </Grid.Col>
+            </Grid>
+          )}
         </Box>
       </Flex>
     </>
