@@ -57,12 +57,7 @@ const HomePage = ({
         flexDirection: isMobile ? "column" : "row",
       }}
     >
-      {!isMobile ?  (
-        <NavBar currentPage={0} setLocations={setLocations} />
-      ) : (<NavBar currentPage={0} setLocations={setLocations}/>  )}
-      
-    
-     
+      {!isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
       <Box
         style={{
           flex: 1,
@@ -79,10 +74,11 @@ const HomePage = ({
             size={isMobile ? "h2" : 55}
             mb={isMobile ? "md" : "lg"}
             style={{
-              fontSize: isMobile ? "clamp(1.5rem, 4vw, 2.5rem)" : "clamp(2rem, 5vw, 3.5rem)",
+              fontSize: isMobile
+                ? "clamp(1.5rem, 4vw, 2.5rem)"
+                : "clamp(2rem, 5vw, 3.5rem)",
             }}
           >
-
             Welcome {name}!
           </Title>
           {/* only show search bar when API fully loaded */}
@@ -128,11 +124,9 @@ const HomePage = ({
             backgroundColor: "var(--mantine-color-body)",
             borderTop: "1px solid var(--mantine-color-gray-3)",
           }}
-        >
-    
-     
-        </Box>
+        ></Box>
       )}
+       {isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
     </Flex>
   );
 };

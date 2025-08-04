@@ -310,19 +310,6 @@ const TripSummaryPage = ({
       >
         {!isMobile && <NavBar setLocations={setLocations} />}
 
-        {isMobile && (
-          <Box
-            style={{
-              width: "100%",
-              height: "60px",
-              backgroundColor: "var(--mantine-color-body)",
-              borderBottom: "1px solid var(--mantine-color-gray-3)",
-              zIndex: 1000,
-            }}
-          >
-            <NavBar setLocations={setLocations} />
-          </Box>
-        )}
 
         {/* main content */}
         <Box
@@ -602,6 +589,21 @@ const TripSummaryPage = ({
             </Grid>
           )}
         </Box>
+        {isMobile && (
+        <Box
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            zIndex: 1000,
+            backgroundColor: 'var(--mantine-color-body)',
+            borderTop: '1px solid var(--mantine-color-divider)',
+          }}
+        >
+          <NavBar setLocations={setLocations} />
+        </Box>
+      )}
       </Flex>
     </>
   );

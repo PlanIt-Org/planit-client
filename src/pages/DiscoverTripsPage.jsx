@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Text, Container, Flex, Box, Skeleton } from "@mantine/core";
+import { Text, Container, Flex, Box, Skeleton, useMantineTheme } from "@mantine/core";
 import NavBar from "../components/NavBar";
 import TripGrid from "../components/TripGrid";
 import apiClient from "../api/axios";
+import { useMediaQuery } from "@mantine/hooks";
 
 const DiscoverTripsPage = ({ setLocations, userId }) => {
+  const theme = useMantineTheme();
   const [preferredCity, setPreferredCity] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+
+
 
   useEffect(() => {
     if (!userId) {
@@ -39,7 +44,7 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
         alignItems: "stretch",
       }}
     >
-      <NavBar currentPage={1} setLocations={setLocations} />
+      {!isMobile && <NavBar currentPage={1} setLocations={setLocations} />}
       <Box
         style={{
           flex: 1,
@@ -81,6 +86,22 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
           <TripGrid userId={userId} discoverMode={true} />
         </Container>
       </Box>
+     {isMobile && (
+        <Box
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            zIndex: 1000,
+            backgroundColor: 'var(--mantine-color-body)',
+            borderTop: '1px solid var(--mantine-color-divider)',
+          }}
+        >
+          <NavBar currentPage={1} setLocations={setLocations} />
+        </Box>
+      )}
+
     </Flex>
   );
 };

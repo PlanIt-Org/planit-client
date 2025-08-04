@@ -42,20 +42,6 @@ const ProfilePage = ({ setLocations }) => {
     >
       {!isMobile && <NavBar currentPage={3} setLocations={setLocations} />}
 
-      {isMobile && (
-        <Box
-          style={{
-            width: "100%",
-            height: "60px",
-            backgroundColor: "var(--mantine-color-body)",
-            borderBottom: "1px solid var(--mantine-color-gray-3)",
-            zIndex: 1000,
-          }}
-        >
-          <NavBar currentPage={3} setLocations={setLocations} />
-        </Box>
-      )}
-
       {/* main content */}
       <Box
         style={{
@@ -93,10 +79,24 @@ const ProfilePage = ({ setLocations }) => {
             href="/questionnaire"
             style={{ textDecoration: "none", width: isMobile ? "100%" : 350 }}
           ></a>
-          {/* Accordion that lists user trips */}
-          {/* <ProfileTripAccordion userInfo={userInfo}></ProfileTripAccordion> */}
+        
         </Container>
       </Box>
+      {isMobile && (
+        <Box
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            zIndex: 1000,
+            backgroundColor: 'var(--mantine-color-body)',
+            borderTop: '1px solid var(--mantine-color-divider)',
+          }}
+        >
+          <NavBar currentPage={3} setLocations={setLocations} />
+        </Box>
+      )}
     </Flex>
   );
 };

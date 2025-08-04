@@ -50,7 +50,6 @@ function DatePickerPopover({ tripDate, setTripDate }) {
             height: 48,
             minHeight: 48,
             borderRadius: 0,
-            borderRight: "none",
             fontWeight: 500,
             paddingLeft: 14,
             paddingRight: 14,

@@ -14,7 +14,8 @@ import {
   Button,
   Flex,
   Avatar,
-  useMantineTheme
+  useMantineTheme,
+  Box,
 } from "@mantine/core";
 import { useNavigate, useParams } from "react-router-dom";
 import TripFilterSearchBox from "../components/TripFilterSearchBox";
@@ -200,9 +201,7 @@ const TripFilterPage = ({ setLocations }) => {
         alignItems: "stretch",
         flexDirection: isMobile ? "column" : "row",
       }} >
-      {!isMobile ?  (
-        <NavBar currentPage={0} setLocations={setLocations} />
-      ) : (<NavBar currentPage={0} setLocations={setLocations}/>  )}
+      {!isMobile && <NavBar currentPage={4} setLocations={setLocations} />}
       
     
       <Flex
@@ -228,9 +227,9 @@ const TripFilterPage = ({ setLocations }) => {
                 setSearchQuery={setSearchQuery}
                 searchBy={searchBy}
                 setSearchBy={setSearchBy}
-                searchResults={searchResults} // Pass the API results down
-                onSearch={handleSearch} // Pass the search function down
-                onAddUser={handleAddUser} // Pass the add function down
+                searchResults={searchResults} 
+                onSearch={handleSearch} 
+                onAddUser={handleAddUser} 
                 selectedUsers={selectedUsers}
                 setSelectedFilters={setSelectedFilters}
                 setSearchResults={setSearchResults}
@@ -273,6 +272,21 @@ const TripFilterPage = ({ setLocations }) => {
           </Card>
         </Container>
       </Flex>
+      {isMobile && (
+        <Box
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            zIndex: 1000,
+            backgroundColor: 'var(--mantine-color-body)',
+            borderTop: '1px solid var(--mantine-color-divider)',
+          }}
+        >
+          <NavBar currentPage={4} setLocations={setLocations} />
+        </Box>
+      )}
     </Flex>
   );
 };

@@ -1,9 +1,13 @@
 import React from "react";
-import { Text, Container, Flex, Box } from "@mantine/core";
+import { Text, Container, Flex, Box, useMantineTheme } from "@mantine/core";
 import NavBar from "../components/NavBar";
 import TripGrid from "../components/TripGrid";
+import { useMediaQuery } from "@mantine/hooks";
+
 
 const SavedTripsPage = ({ setLocations, userId }) => {
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
   return (
     <Flex
       style={{
@@ -12,7 +16,7 @@ const SavedTripsPage = ({ setLocations, userId }) => {
         alignItems: "stretch",
       }}
     >
-      <NavBar currentPage={2} setLocations={setLocations} />
+      {!isMobile && <NavBar currentPage={2} setLocations={setLocations} />}
 
       {/* main content */}
       <Box
@@ -36,6 +40,21 @@ const SavedTripsPage = ({ setLocations, userId }) => {
           <TripGrid savedOnly={true} userId={userId}/>
         </Container>
       </Box>
+      {isMobile && (
+        <Box
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            width: '100%',
+            zIndex: 1000,
+            backgroundColor: 'var(--mantine-color-body)',
+            borderTop: '1px solid var(--mantine-color-divider)',
+          }}
+        >
+          <NavBar currentPage={2} setLocations={setLocations} />
+        </Box>
+      )}
     </Flex>
   );
 };
