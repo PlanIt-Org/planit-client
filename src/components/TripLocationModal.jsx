@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Modal,
   Card,
@@ -11,9 +11,9 @@ import {
   Divider,
   Avatar,
   Paper,
-} from '@mantine/core';
+} from "@mantine/core";
 
-const TripLocationModal = ({ opened, open, close, location }) => {
+const TripLocationModal = ({ opened, open, close, location, comments }) => {
   if (!location) return null;
 
   return (
@@ -40,14 +40,17 @@ const TripLocationModal = ({ opened, open, close, location }) => {
         body: {
           padding: theme.spacing.md,
           paddingTop: 0,
-        }
+        },
       })}
     >
-      <Card radius="md" style={{ padding: 0, overflow: 'hidden' }}>
+      <Card radius="md" style={{ padding: 0, overflow: "hidden" }}>
         {/* Image Section */}
         <Card.Section>
           <Image
-            src={location.imageUrl || `https://picsum.photos/600/300?random=${location.name}`}
+            src={
+              location.imageUrl ||
+              `https://picsum.photos/600/300?random=${location.name}`
+            }
             alt={location.name}
             fit="cover"
             height={350}
@@ -69,23 +72,53 @@ const TripLocationModal = ({ opened, open, close, location }) => {
         <Divider my="sm" />
 
         {/* Comments */}
-        <Box p="md" pt="xs">
-          <Title order={3} fw={600} mb="sm">Comments</Title>
-          <Stack spacing="md">
-            <Paper p="xs" withBorder radius="md">
-              <Group wrap="nowrap" align="flex-start">
-                <Avatar src="https://i.pravatar.cc/150?img=3" radius="xl" />
-                <Box>
-                  <Text fw={500} size="sm">John Doe</Text>
-                  <Text size="sm" c="dimmed">
-                    Beautiful spot! Would visit again.
-                  </Text>
-                  <Text size="xs" c="gray">2 hours ago</Text>
-                </Box>
-              </Group>
-            </Paper>
-          </Stack>
-        </Box>
+        <Stack spacing="md" mt="md">
+          {(() => {
+            console.log(location, "LETS SEE GOAT");
+            const filteredComments = comments.filter(
+              (comment) =>
+                comment.location.trim().toLowerCase() ===
+                location.name.trim().toLowerCase()
+            );
+
+            if (filteredComments.length > 0) {
+              return filteredComments.map((comment) => (
+                <Paper key={comment.id} p="sm" withBorder radius="md">
+                  <Group>
+                    <Avatar
+                      src={
+                        comment.author?.avatar ||
+                        "https://i.pravatar.cc/150?img=0"
+                      }
+                      alt={comment.author?.name || "Unknown"}
+                      radius="xl"
+                    />
+                    <div>
+                      <Text size="sm" fw={500}>
+                        {comment.author?.name || "Unknown"}
+                      </Text>
+                      {comment.location?.length > 0 && (
+                        <Text size="xs" c="dimmed">
+                          on {comment.location}
+                        </Text>
+                      )}
+                      <Text size="sm" mt={4}>
+                        {comment.text}
+                      </Text>
+                    </div>
+                  </Group>
+                </Paper>
+              ));
+            } else {
+              // If the filtered array is empty, show the "No comments" message just once.
+              return (
+                <Text c="dimmed" ta="center">
+                  No comments yet for this location
+                </Text>
+              );
+            }
+          })()}
+        </Stack>
       </Card>
     </Modal>
   );

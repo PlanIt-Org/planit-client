@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Group } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 
-const CopyTripLink = ({ tripId, goto }) => {
+const CopyTripLink = ({ tripId, goto, tripStatus }) => {
   const inviteLink = `${window.location.origin}/tripsummary/${tripId}`;
 
   const handleTripCopyLink = async () => {
@@ -31,12 +31,16 @@ const CopyTripLink = ({ tripId, goto }) => {
 
   return (
     <Group mt="md" grow>
-      <Button variant="light" onClick={handleTripCopyLink}>
-        Copy Trip Link
-      </Button>
-      {goto &&<Button variant="outline" onClick={handleOpenNewTab}>
-        Go to This Trip
-      </Button>}
+      {tripStatus !== "PLANNING" && (
+        <Button variant="light" onClick={handleTripCopyLink}>
+          Copy Trip Link
+        </Button>
+      )}
+      {goto && (
+        <Button variant="outline" onClick={handleOpenNewTab}>
+          Go to This Trip
+        </Button>
+      )}
     </Group>
   );
 };

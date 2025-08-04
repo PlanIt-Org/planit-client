@@ -1,7 +1,15 @@
 // src/components/SuggestedTripContainer.jsx
 import React, { useEffect } from "react";
 import TripPlannerMap from "../components/TripPlannerMap";
-import { Button, Text, Box, Group, Stack, Flex } from "@mantine/core";
+import {
+  Button,
+  Text,
+  Box,
+  Group,
+  Stack,
+  Flex,
+  useMantineTheme,
+} from "@mantine/core";
 import AutocompleteSearchField from "../components/AutoCompleteSearchField";
 import { useNavigate, useParams } from "react-router-dom";
 import DragDropLocations from "../components/DragDropLocations";
@@ -11,6 +19,7 @@ import { notifications } from "@mantine/notifications";
 import { useState } from "react";
 import apiClient from "../api/axios";
 import { supabase } from "../supabaseClient";
+import { useMediaQuery } from "@mantine/hooks";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -20,13 +29,13 @@ const TripPlannerPage = ({
   setLocations,
   selectedPlace,
   setSelectedPlace,
-  currTripId,
-  setCurrTripId,
   ownTrip,
   setOwnTrip,
 }) => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   useEffect(() => {
     if (!id) {
@@ -47,7 +56,7 @@ const TripPlannerPage = ({
         const loggedInUserId = session?.user?.id;
 
         const res = await apiClient.get(`/trips/${id}`);
-        const tripData = res.data;
+        const tripData = res.data.trip;
 
         if (loggedInUserId && tripData.hostId === loggedInUserId) {
           setOwnTrip(true);
@@ -55,7 +64,6 @@ const TripPlannerPage = ({
           setOwnTrip(false);
         }
 
-        setCurrTripId(tripData.id);
         setLocations(tripData.locations || []);
       } catch (error) {
         console.error("Failed to fetch trip data:", error);
@@ -69,7 +77,7 @@ const TripPlannerPage = ({
     };
 
     fetchTripAndCheckOwnership();
-  }, [id, navigate, setCurrTripId, setLocations]);
+  }, [id, navigate]);
 
   useEffect(() => {
     if (selectedPlace) {
@@ -112,52 +120,51 @@ const TripPlannerPage = ({
         return;
       }
 
-      let tripId = currTripId || id;
+      // if (!ownTrip) {
+      //   const originalTripRes = await apiClient.get(`/trips/${id}`);
+      //   const originalTrip = originalTripRes.data;
 
-      if (!ownTrip) {
-        const originalTripRes = await apiClient.get(`/trips/${currTripId}`);
-        const originalTrip = originalTripRes.data;
+      //   const newTripRes = await apiClient.post("/trips", {
+      //     startTime: originalTrip.startTime,
+      //     endTime: originalTrip.endTime,
+      //     title: `${originalTrip.title} (Copy)`,
+      //     description: originalTrip.description || "",
+      //     city: originalTrip.city || selectedCity?.name || null,
+      //     tripImage: originalTrip.tripImage || null,
+      //     maxGuests: originalTrip.maxGuests || null,
+      //   });
 
-        const newTripRes = await apiClient.post("/trips", {
-          startTime: originalTrip.startTime,
-          endTime: originalTrip.endTime,
-          title: `${originalTrip.title} (Copy)`,
-          description: originalTrip.description || "",
-          city: originalTrip.city || selectedCity?.name || null,
-          tripImage: originalTrip.tripImage || null,
-          maxGuests: originalTrip.maxGuests || null,
-        });
-
-        tripId = newTripRes.data.trip.id;
-        setCurrTripId(tripId);
-        setOwnTrip(true);
-      }
+      //   tripId = newTripRes.data.trip.id;
+      //   setOwnTrip(true);
+      // }
 
       for (const loc of locations) {
         const locationPayload = {
-          place_id: loc.place_id,
+          place_id: loc.googlePlaceId || loc.place_id,
           name: loc.name,
-          formatted_address: loc.formatted_address,
+          formatted_address: loc.address || loc.formatted_address,
           geometry: {
             location: {
               lat:
-                typeof loc.geometry.location.lat === "function"
+                loc.latitude ||
+                (typeof loc.geometry?.location?.lat === "function"
                   ? loc.geometry.location.lat()
-                  : loc.geometry.location.lat,
+                  : loc.geometry?.location?.lat),
               lng:
-                typeof loc.geometry.location.lng === "function"
+                loc.longitude ||
+                (typeof loc.geometry?.location?.lng === "function"
                   ? loc.geometry.location.lng()
-                  : loc.geometry.location.lng,
+                  : loc.geometry?.location?.lng),
             },
           },
           types: loc.types,
-          image_url: loc.imageUrl || null,
+          image_url: loc.image || loc.imageUrl || null, // Use image or imageUrl
         };
 
         const createRes = await apiClient.post("/locations", locationPayload);
         const locationId = createRes.data.id;
 
-        await apiClient.post(`/trips/${tripId}/locations`, { locationId });
+        await apiClient.post(`/trips/${id}/locations`, { locationId });
       }
 
       notifications.show({
@@ -165,7 +172,7 @@ const TripPlannerPage = ({
         message: "Your trip has been saved.",
         color: "green",
       });
-      navigate(`/tripsummary/${tripId}`);
+      navigate(`/tripsummary/${id}`);
     } catch (error) {
       console.error("Error saving trip:", error);
       const message =
@@ -186,107 +193,207 @@ const TripPlannerPage = ({
         width: "100%",
         minHeight: "100vh",
         alignItems: "stretch",
+        flexDirection: isMobile ? "column" : "row",
       }}
     >
-      <NavBar setLocations={setLocations} />
+      {!isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
+
+      {isMobile && (
+        <Box
+          style={{
+            width: "100%",
+            height: "60px",
+            backgroundColor: "var(--mantine-color-body)",
+            borderBottom: "1px solid var(--mantine-color-gray-3)",
+            zIndex: 1000,
+          }}
+        >
+          <NavBar currentPage={0} setLocations={setLocations} />
+        </Box>
+      )}
+
       <Box
         style={{
           flex: 1,
           minWidth: 0,
-          padding: "20px",
+          padding: isMobile ? "16px" : "20px",
           boxSizing: "border-box",
           display: "flex",
           justifyContent: "center",
-          alignItems: "center",
+          alignItems: isMobile ? "flex-start" : "center",
         }}
       >
-        {/*container for the map and search field, arranged horizontally */}
-        <Group
-          style={{
-            height: "80vh",
-            width: "80vw",
-            alignItems: "flex-start",
-            flexWrap: "nowrap",
-            gap: "20px",
-            overflow: "hidden",
-            boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
-            backgroundColor: "#ffffff",
-            borderRadius: "20px",
-          }}
-        >
-          {/* trip planner map & locations container*/}
-          <Box
+        {isMobile ? (
+          // Mobile layout
+          <Stack
             style={{
-              flex: "3",
+              width: "100%",
               height: "100%",
-              display: "flex",
-              flexDirection: "column",
-              overflow: "hidden",
-              borderRadius: "20px 0 0 20px",
+              gap: "16px",
             }}
           >
-            <TripPlannerMap
-              selectedPlace={selectedPlace}
-              locations={locations}
-              selectedCity={selectedCity}
-              showRoutes={false}
-              mapHeight="50%"
-              style={{ flex: "2" }}
-            />
+           
+            <Box
+              style={{
+                flex: 1,
+                minHeight: "300px",
+                borderRadius: "12px",
+                overflow: "hidden",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+              }}
+            >
+              <TripPlannerMap
+                selectedPlace={selectedPlace}
+                locations={locations}
+                selectedCity={selectedCity}
+                showRoutes={false}
+                mapHeight="300px"
+              />
+            </Box>
 
-            {/* added locations */}
-            <Box style={{ flex: "1", overflowY: "auto", padding: "10px" }}>
-              {/* Added a container for locations with scroll */}
-              <Text size="lg" fw={700} my="lg" ta="center">
-                Your Trip Locations:
+      
+            <Stack
+              style={{
+                gap: "16px",
+                padding: "16px",
+                borderRadius: "12px",
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+              }}
+            >
+              <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
+
+              <Text fw={700} ta="center" size="sm">
+                AI Suggested Trips
               </Text>
 
+              <Box style={{ maxHeight: "200px", overflowY: "auto" }}>
+                <SuggestedTripContainer />
+              </Box>
+
+              <Button
+                onClick={handleLetsGoClick}
+                size="lg"
+                radius="xl"
+                fw={700}
+                style={{
+                  width: "100%",
+                  minHeight: 48,
+                  fontSize: 18,
+                }}
+              >
+                Let's Go
+              </Button>
+            </Stack>
+
+         
+            <Box
+              style={{
+                borderRadius: "12px",
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+                padding: "16px",
+              }}
+            >
+              <Text size="lg" fw={700} mb="md" ta="center">
+                Your Trip Locations:
+              </Text>
               <DragDropLocations
                 locations={locations}
                 setLocations={setLocations}
                 id={id}
               />
             </Box>
-          </Box>
-
-          {/* auto complete search stack */}
-          <Stack
+          </Stack>
+        ) : (
+          // Desktop layout
+          <Group
             style={{
-              flex: "2",
-              height: "100%",
-              justifyContent: "flex-start",
-              padding: "20px",
-              borderRadius: "8px",
-              backgroundColor: "rgba(255, 255, 255, 0.95)",
-              boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)",
+              height: "80vh",
+              width: "80vw",
+              alignItems: "flex-start",
+              flexWrap: "nowrap",
+              gap: "20px",
+              overflow: "hidden",
+              boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+              backgroundColor: "#ffffff",
+              borderRadius: "20px",
             }}
           >
-            <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
-            {/*  TODO: change to add AI suggested trips */}
-            <Text fw={700} ta="center">
-              AI Suggested Trips based on your preferences
-            </Text>
-            <Box style={{ flex: 1, overflowY: "auto" }}>
-              <SuggestedTripContainer />
-            </Box>
-            <Button
-              onClick={handleLetsGoClick}
-              size="lg"
-              radius="xl"
-              fw={700}
+            
+            <Box
               style={{
-                marginTop: 24,
-                marginBottom: 8,
-                width: "100%",
-                minHeight: 56,
-                fontSize: 22,
-                letterSpacing: 1,
+                flex: "3",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+                borderRadius: "20px 0 0 20px",
               }}
             >
-              Let's Go
-            </Button>
-          </Stack>
-        </Group>
+              <TripPlannerMap
+                selectedPlace={selectedPlace}
+                locations={locations}
+                selectedCity={selectedCity}
+                showRoutes={false}
+                mapHeight="50%"
+                style={{ flex: "2" }}
+              />
+
+              {/* added locations */}
+              <Box style={{ flex: "1", overflowY: "auto", padding: "10px" }}>
+                {/* Added a container for locations with scroll */}
+                <Text size="lg" fw={700} my="lg" ta="center">
+                  Your Trip Locations:
+                </Text>
+
+                <DragDropLocations
+                  locations={locations}
+                  setLocations={setLocations}
+                  id={id}
+                />
+              </Box>
+            </Box>
+
+            {/* auto complete search stack */}
+            <Stack
+              style={{
+                flex: "2",
+                height: "100%",
+                justifyContent: "flex-start",
+                padding: "20px",
+                borderRadius: "8px",
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)",
+              }}
+            >
+              <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
+              {/*  TODO: change to add AI suggested trips */}
+              <Text fw={700} ta="center">
+                AI Suggested Trips based on your preferences
+              </Text>
+              <Box style={{ flex: 1, overflowY: "auto" }}>
+                <SuggestedTripContainer />
+              </Box>
+              <Button
+                onClick={handleLetsGoClick}
+                size="lg"
+                radius="xl"
+                fw={700}
+                style={{
+                  marginTop: 24,
+                  marginBottom: 8,
+                  width: "100%",
+                  minHeight: 56,
+                  fontSize: 22,
+                  letterSpacing: 1,
+                }}
+              >
+                Let's Go
+              </Button>
+            </Stack>
+          </Group>
+        )}
       </Box>
     </Flex>
   );

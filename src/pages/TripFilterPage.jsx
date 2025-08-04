@@ -13,12 +13,15 @@ import {
   CloseButton,
   Button,
   Flex,
+  Avatar,
+  useMantineTheme
 } from "@mantine/core";
 import { useNavigate, useParams } from "react-router-dom";
 import TripFilterSearchBox from "../components/TripFilterSearchBox";
 import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
-import { useUserPreferences } from "../hooks/useUserPreferences";
+import { useMediaQuery } from "@mantine/hooks";
+
 
 const TripFilterPage = ({ setLocations }) => {
   const navigate = useNavigate();
@@ -28,7 +31,10 @@ const TripFilterPage = ({ setLocations }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]);
-  const { preferences: currentUserPreferences } = useUserPreferences();
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+
+  const [stagedUser, setStagedUser] = useState(null);
 
   const handleSearch = async () => {
     const trimmedQuery = searchQuery.trim();
@@ -43,7 +49,6 @@ const TripFilterPage = ({ setLocations }) => {
       });
 
       if (Array.isArray(response.data)) {
-        // Format the data for Mantine Autocomplete
         const formattedData = response.data.map((user) => ({
           ...user,
           value: user.id,
@@ -62,29 +67,29 @@ const TripFilterPage = ({ setLocations }) => {
     }
   };
 
-  const handleRemoveUser = (userIdToRemove) => {
-    setSelectedUsers(
-      selectedUsers.filter((user) => user.id !== userIdToRemove)
-    );
-  };
+ 
 
   useEffect(() => {
-    const allFilters = [];
-
-    if (currentUserPreferences?.activities?.activityType) {
-      allFilters.push(...currentUserPreferences.activities.activityType);
-    }
+    const filterCounts = {};
 
     selectedUsers.forEach((user) => {
-      if (user.activityPreferences && user.activityPreferences.length > 0) {
-        allFilters.push(...user.activityPreferences);
-      }
+      const allUserPreferences = [
+        ...(user.userPreferences?.activityPreferences || []),
+        ...(user.userPreferences?.dietaryRestrictions || []),
+        ...(user.userPreferences?.travelStyle || []),
+      ];
+
+      allUserPreferences.forEach((preference) => {
+        filterCounts[preference] = (filterCounts[preference] || 0) + 1;
+      });
     });
 
-    const uniqueFilters = [...new Set(allFilters)];
-    setSelectedFilters(uniqueFilters);
-  }, [selectedUsers, currentUserPreferences]);
+    const filtersWithCounts = Object.entries(filterCounts).map(
+      ([name, count]) => ({ name, count })
+    );
 
+    setSelectedFilters(filtersWithCounts);
+  }, [selectedUsers]);
   /**
    * Removes a selected user by their ID.
    * @param {string} idToRemove - The unique ID of the user to be removed.
@@ -95,7 +100,7 @@ const TripFilterPage = ({ setLocations }) => {
       setSelectedUsers(selectedUsers.filter((user) => user.id !== idToRemove));
     } else {
       setSelectedFilters(
-        selectedFilters.filter((filter) => filter !== idToRemove)
+        selectedFilters.filter((filter) => filter.name !== idToRemove)
       );
     }
   }
@@ -138,23 +143,28 @@ const TripFilterPage = ({ setLocations }) => {
     }
 
     if (type === "filters") {
-      return items.map((filter) => (
+      return items.map((filterItem) => (
         <Badge
-          key={filter}
+          key={filterItem.name}
           variant="light"
-          color="gray"
+          color="blue"
           radius="sm"
+          size="lg"
+          leftSection={
+            filterItem.count > 1 ? (
+              <Avatar size="md" color="blue" radius="xl">
+                {filterItem.count}
+              </Avatar>
+            ) : null
+          }
           rightSection={
-            <Group gap="xs" align="center" wrap="nowrap">
-              <Divider orientation="vertical" />
-              <CloseButton
-                size="sm"
-                onClick={() => handleRemove(filter, "filter")}
-              />
-            </Group>
+            <CloseButton
+              size="sm"
+              onClick={() => handleRemove(filterItem.name, "filters")}
+            />
           }
         >
-          {filter}
+          {filterItem.name}
         </Badge>
       ));
     }
@@ -183,8 +193,18 @@ const TripFilterPage = ({ setLocations }) => {
   };
 
   return (
-    <Flex style={{ width: "100%", minHeight: "100vh", alignItems: "stretch" }}>
-      <NavBar setLocations={setLocations} />
+     <Flex
+      style={{
+        width: "100%",
+        minHeight: "100vh",
+        alignItems: "stretch",
+        flexDirection: isMobile ? "column" : "row",
+      }} >
+      {!isMobile ?  (
+        <NavBar currentPage={0} setLocations={setLocations} />
+      ) : (<NavBar currentPage={0} setLocations={setLocations}/>  )}
+      
+    
       <Flex
         style={{ flex: 1, padding: "2rem" }}
         justify="center"
@@ -214,6 +234,8 @@ const TripFilterPage = ({ setLocations }) => {
                 selectedUsers={selectedUsers}
                 setSelectedFilters={setSelectedFilters}
                 setSearchResults={setSearchResults}
+                stagedUser={stagedUser}
+                setStagedUser={setStagedUser}
               />
 
               <Stack gap="xs">

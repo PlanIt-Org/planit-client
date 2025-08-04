@@ -20,7 +20,9 @@ import { useNavigate, Link } from "react-router-dom";
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleOAuthLogin = async (provider) => {
     setLoading(true);
@@ -45,6 +47,7 @@ const RegisterPage = () => {
       const response = await apiClient.post("/users/create", {
         email: email,
         password: password,
+        name: username,
       });
       notifications.show({
         title: "Success!",
@@ -52,7 +55,26 @@ const RegisterPage = () => {
         color: "green",
       });
       console.log("User created:", response.data);
-      window.location.href = "/questionnaire";
+
+      const { data: signUpData, error: signUpError } =
+        await supabase.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: {
+              display_name: username,
+            },
+          },
+        });
+
+      if (signUpError) {
+        throw new Error(
+          `Sign-in failed after registration: ${signUpError.message}`
+        );
+      }
+
+      console.log("Sign-in successful, navigating to questionnaire...");
+      navigate("/questionnaire");
     } catch (error) {
       notifications.show({
         title: "Registration Error",
@@ -93,6 +115,13 @@ const RegisterPage = () => {
 
           <form onSubmit={handleEmailPasswordSignUp}>
             <Stack>
+              <TextInput
+                required
+                label="Username"
+                placeholder="Your username"
+                value={username}
+                onChange={(event) => setUsername(event.currentTarget.value)}
+              />
               <TextInput
                 required
                 label="Email"

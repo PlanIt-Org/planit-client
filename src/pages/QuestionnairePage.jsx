@@ -18,7 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
 import { useUserPreferences } from "../hooks/useUserPreferences";
-import useUpdateDisplayName from "../hooks/useUpdateDisplayName";
+import CityAutoCompleteSearchField from "../components/CityAutoCompleteSearchField";
 
 /**
  * Renders a single question based on its component type and options.
@@ -32,6 +32,30 @@ function renderQuestion({ question, value, onChange }) {
           value={value || ""}
           onChange={(e) => onChange(e.currentTarget.value)}
           required={question.required}
+        />
+      );
+    case "CityAutoComplete":
+      return (
+        <CityAutoCompleteSearchField
+          onPlaceSelected={(place) => {
+            const locationData = {
+              formatted_address: place.formatted_address,
+              name: place.name,
+              place_id: place.place_id,
+              geometry: place.geometry,
+              types: place.types,
+            };
+            onChange(locationData);
+          }}
+          styles={{
+            input: {
+              backgroundColor: "#f8f9fa",
+              border: "1px solid #dee2e6",
+              "&:focus": {
+                borderColor: "#228be6",
+              },
+            },
+          }}
         />
       );
     case "Checkbox.Group":
@@ -96,8 +120,6 @@ const QuestionnairePage = () => {
   const navigate = useNavigate();
   const { preferences: initialPreferences, isLoading: isLoadingPreferences } =
     useUserPreferences();
-  const [updateDisplayName, { isLoading: isLoadingUpdateName, error }] =
-    useUpdateDisplayName();
 
   const questionnaireSteps = [
     {
@@ -111,12 +133,6 @@ const QuestionnairePage = () => {
       type: "question",
       title: "ABOUT YOU",
       questions: [
-        {
-          id: "name",
-          prompt: "What is your name?",
-          component: "TextInput",
-          required: true,
-        },
         {
           id: "age",
           prompt: "What is your age?",
@@ -142,8 +158,7 @@ const QuestionnairePage = () => {
         {
           id: "location",
           prompt: "What city or area are you located in?",
-          // TODO: CONNECT TO GOOGLE MAPS API
-          component: "TextInput",
+          component: "CityAutoComplete",
           required: true,
         },
       ],
@@ -289,13 +304,16 @@ const QuestionnairePage = () => {
     const ageAsNumber = parseInt(flattenedAnswers.age, 10);
     console.log("Preparing to submit preferences. Payload:", flattenedAnswers);
 
-    // Extract name for display name update, do not include in apiPayload
-    const displayName = flattenedAnswers.name;
+    // Handle location data - send the formatted address or the entire object
+    let locationValue = flattenedAnswers.location;
+    if (typeof locationValue === "object" && locationValue.formatted_address) {
+      locationValue = locationValue.formatted_address;
+    }
 
     const apiPayload = {
       age: isNaN(ageAsNumber) ? null : ageAsNumber,
       dietary: flattenedAnswers.dietary || [],
-      location: flattenedAnswers.location || "",
+      location: locationValue.name || "",
       activityType: flattenedAnswers.activityType || [],
       budget: flattenedAnswers.budget || "",
       tripLength: flattenedAnswers.tripLength || "",
@@ -307,17 +325,7 @@ const QuestionnairePage = () => {
     try {
       console.log("Sending PUT request to /api/users/preferences...");
       const response = await apiClient.put("/users/preferences", apiPayload);
-      if (displayName) {
-        try {
-          await updateDisplayName(displayName);
-          console.log("Display name updated successfully.");
-        } catch (nameError) {
-          console.error(
-            "Failed to update display name, but preferences were saved.",
-            nameError
-          );
-        }
-      }
+
       console.log("Request sent. Awaiting response...");
       console.log(
         "Preferences saved successfully. Response data:",
@@ -388,13 +396,21 @@ const QuestionnairePage = () => {
     if (step.id === "personal") return false;
     return step.questions.some((q) => {
       const val = answers[step.id]?.[q.id];
+      if (q.required && q.component === "CityAutoComplete") {
+        // For city autocomplete, check if we have location data
+        return (
+          !val ||
+          (typeof val === "object" && !val.formatted_address) ||
+          (typeof val === "string" && !val.trim())
+        );
+      }
       if (
         q.component === "Checkbox.Group" ||
         (q.component === "Chip.Group" && q.props?.multiple)
       ) {
-        return !val || val.length === 0;
+        return q.required && (!val || val.length === 0);
       }
-      return !val;
+      return q.required && !val;
     });
   };
 

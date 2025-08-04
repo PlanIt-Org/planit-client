@@ -1,0 +1,72 @@
+/* ---- Base & Hero Section ---- */
+.pageWrapper {
+    background-color: #0B132B; /* Deep Space */
+  }
+  
+  .heroSection {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    padding: 16px 32px;
+    background-color: #0B132B; /* Deep space background */
+  }
+  
+  /* ---- Canvas Style ---- */
+  .bgCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+  
+  
+  /* ---- Header ---- */
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 16px 32px;
+    z-index: 10; /* Ensures it's on top */
+    background: rgba(11, 19, 43, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(58, 80, 107, 0.5);
+  }
+  
+  /* ---- Hero Content ---- */
+  .heroContent {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    z-index: 1; /* Sits on top of the canvas */
+  }
+  
+  .titleGradient {
+    background: -webkit-linear-gradient(45deg, #e0e3e5, #ffffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+  }
+  
+  /* ---- Learn More Section ---- */
+  .learnMoreSection {
+    padding: 80px 16px;
+    background-color: #1C2541; /* Stormy Ocean */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+    /* --- FIX ADDED HERE --- */
+    position: relative; /* Creates a stacking context */
+    z-index: 2;         /* Places this section above the background canvas */
+  }
