@@ -9,16 +9,41 @@ import {
   Text,
   Anchor,
   Divider,
+  useMantineTheme,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { supabase } from "../supabaseClient.js";
 import { useNavigate, Link } from "react-router-dom";
+import styled from "@emotion/styled";
+import { keyframes } from "@emotion/react";
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+`;
+
+const AnimatedContainer = styled(Container)`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  animation: ${fadeIn} 0.7s ease;
+`;
+
+const AnimatedPaper = styled(Paper)`
+  width: 100%;
+  max-width: 420px;
+  background: ${({ theme }) => theme.colors["custom-palette"][8]};
+  animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+`;
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const theme = useMantineTheme();
 
   // This handler is for OAuth providers (Google, GitHub, etc.)
   const handleLogin = async (provider, credentials) => {
@@ -62,20 +87,13 @@ const LoginPage = () => {
   };
 
   return (
-    <Container
-      h="100vh"
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Paper
+    <AnimatedContainer theme={theme}>
+      <AnimatedPaper
         withBorder
         shadow="md"
         p={30}
         radius="md"
-        style={{ width: "100%", maxWidth: "420px" }}
+        theme={theme}
       >
         <Title align="center" order={2} mb="lg">
           Welcome Back!
@@ -138,8 +156,8 @@ const LoginPage = () => {
             Register
           </Anchor>
         </Text>
-      </Paper>
-    </Container>
+      </AnimatedPaper>
+    </AnimatedContainer>
   );
 };
 

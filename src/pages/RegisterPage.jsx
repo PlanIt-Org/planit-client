@@ -10,12 +10,36 @@ import {
   Divider,
   Anchor,
   Text,
+  useMantineTheme,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import { supabase } from "../supabaseClient";
 import apiClient from "../api/axios";
 import { useNavigate, Link } from "react-router-dom";
+import styled from "@emotion/styled";
+import { keyframes } from "@emotion/react";
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+`;
+
+const AnimatedContainer = styled(Container)`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  animation: ${fadeIn} 0.7s ease;
+`;
+
+const AnimatedPaper = styled(Paper)`
+  width: 100%;
+  max-width: 420px;
+  background: ${({ theme }) => theme.colors["custom-palette"][8]};
+  animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+`;
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -23,6 +47,7 @@ const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const theme = useMantineTheme();
 
   const handleOAuthLogin = async (provider) => {
     setLoading(true);
@@ -92,21 +117,14 @@ const RegisterPage = () => {
   };
 
   return (
-    <Container
-      h="100vh"
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Paper
+    <AnimatedContainer theme={theme}>
+      <AnimatedPaper
         withBorder
         shadow="md"
         p={30}
         mt={30}
         radius="md"
-        style={{ width: "100%", maxWidth: "420px" }}
+        theme={theme}
       >
         <Stack>
           <Title align="center" order={2}>
@@ -172,8 +190,8 @@ const RegisterPage = () => {
             Login
           </Anchor>
         </Text>
-      </Paper>
-    </Container>
+      </AnimatedPaper>
+    </AnimatedContainer>
   );
 };
 

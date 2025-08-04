@@ -148,9 +148,17 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         flexDirection: "column",
         alignItems: "center",
         margin: isMobile ? theme.spacing.md : theme.spacing.lg,
+        background: theme.colors["custom-palette"][9], // apply theme background
+        borderRadius: theme.radius.md,
+        boxShadow: theme.shadows.xs,
       }}
     >
-      <Text fw={700} size="xl" ta="center">
+      <Text
+        fw={700}
+        size="xl"
+        ta="center"
+        c={theme.colors["custom-palette"][1]}
+      >
         Plan a Trip!
       </Text>
 
@@ -166,6 +174,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
                   height: 44,
                   minHeight: 44,
                   borderRadius: "var(--mantine-radius-md)",
+                  background: theme.colors["custom-palette"][8],
+                  color: theme.colors["custom-palette"][1],
                 },
                 wrapper: { width: "100%" },
               }}
@@ -184,9 +194,15 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
               value={startTime}
               onChange={setStartTime}
               size="md"
-              format="12h"
-              dropdownType="popover"
-              styles={{ input: { fontWeight: 500, height: 44, minHeight: 44 } }}
+              styles={{
+                input: {
+                  fontWeight: 500,
+                  height: 44,
+                  minHeight: 44,
+                  background: theme.colors["custom-palette"][8],
+                  color: theme.colors["custom-palette"][1],
+                },
+              }}
             />
             <TimePicker
               leftSection={clockIcon}
@@ -194,16 +210,27 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
               value={endTime}
               onChange={setEndTime}
               size="md"
-              format="12h"
-              dropdownType="popover"
-              styles={{ input: { fontWeight: 500, height: 44, minHeight: 44 } }}
+              styles={{
+                input: {
+                  fontWeight: 500,
+                  height: 44,
+                  minHeight: 44,
+                  background: theme.colors["custom-palette"][8],
+                  color: theme.colors["custom-palette"][1],
+                },
+              }}
             />
             <Button
               onClick={handleGoClick}
               size="md"
               loading={isCreatingTrip}
               disabled={isCreatingTrip}
-              style={{ height: 44, minHeight: 44 }}
+              style={{
+                height: 44,
+                minHeight: 44,
+                background: theme.colors["custom-palette"][4],
+                color: theme.colors["custom-palette"][9],
+              }}
             >
               Go
             </Button>
@@ -213,7 +240,14 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         <Group
           gap={0}
           align="center"
-          style={{ maxWidth: 1200, margin: "0 auto", minHeight: 64 }}
+          style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            minHeight: 64,
+            background: theme.colors["custom-palette"][9],
+            borderRadius: theme.radius.md,
+            boxShadow: theme.shadows.xs,
+          }}
         >
           <CityAutoCompleteSearchField
             onPlaceSelected={handleCitySelected}
@@ -224,6 +258,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
                 minHeight: 48,
                 borderTopRightRadius: 0,
                 borderBottomRightRadius: 0,
+                background: theme.colors["custom-palette"][8],
+                color: theme.colors["custom-palette"][1],
               },
               wrapper: { flexGrow: 1, minWidth: 360, maxWidth: 700 },
             }}
@@ -241,6 +277,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
                 borderRadius: 0,
                 height: 48,
                 minHeight: 48,
+                background: theme.colors["custom-palette"][8],
+                color: theme.colors["custom-palette"][1],
               },
             }}
           />
@@ -257,6 +295,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
                 borderLeft: "none",
                 height: 48,
                 minHeight: 48,
+                background: theme.colors["custom-palette"][8],
+                color: theme.colors["custom-palette"][1],
               },
             }}
           />
@@ -268,6 +308,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
               borderBottomLeftRadius: 0,
               height: 48,
               minHeight: 48,
+              background: theme.colors["custom-palette"][4],
+              color: theme.colors["custom-palette"][9],
             }}
             loading={isCreatingTrip}
             disabled={isCreatingTrip}
