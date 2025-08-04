@@ -6,9 +6,8 @@ import { Text, Box, ActionIcon } from "@mantine/core";
 import { useListState } from "@mantine/hooks";
 import classes from "../styles/DndListHandle.module.css";
 import { useEffect } from "react";
-// apiClient and notifications are no longer needed for deletion in this component
-// import apiClient from "../api/axios";
-// import { notifications } from "@mantine/notifications";
+import apiClient from "../api/axios";
+import { notifications } from "@mantine/notifications";
 
 function DragDropLocations({ locations, setLocations, id: tripId }) {
   const [internalLocations, internalHandlers] = useListState(locations);
@@ -17,17 +16,38 @@ function DragDropLocations({ locations, setLocations, id: tripId }) {
     internalHandlers.setState(locations);
   }, [locations, internalHandlers]);
 
-  // --- THIS IS THE FIX ---
-  // The handleRemove function is now synchronous and only manages local state.
-  // The API call has been removed.
-  const handleRemove = (indexToRemove) => {
-    const newOrder = internalLocations.filter((_, index) => index !== indexToRemove);
-    
-    // Update the component's internal state
-    internalHandlers.setState(newOrder);
-    
-    // Update the parent component's (TripPlannerPage) state
-    setLocations(newOrder); 
+  const handleRemove = async (indexToRemove) => {
+    const locationToRemove = internalLocations[indexToRemove];
+    const placeId = locationToRemove.googlePlaceId;
+
+    if (!placeId) {
+      notifications.show({
+        title: "Deletion error",
+        message: "Location missing identifier",
+        color: "red",
+      });
+      return;
+    }
+
+    try {
+      await apiClient.delete(`/trips/${tripId}/locations/${placeId}`);
+
+      const newOrder = internalLocations.filter((_, i) => i !== indexToRemove);
+      internalHandlers.setState(newOrder);
+      setLocations(newOrder);
+
+      notifications.show({
+        title: "Location removed",
+        message: `${locationToRemove.name} has been deleted from your trip.`,
+        color: "green",
+      });
+    } catch (error) {
+      notifications.show({
+        title: "Error deleting location",
+        message: error.response?.data?.message || error.message,
+        color: "red",
+      });
+    }
   };
 
   const items = internalLocations.map((location, index) => (

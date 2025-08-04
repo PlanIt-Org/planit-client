@@ -9,6 +9,7 @@ import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
 import { notifications } from "@mantine/notifications";
 import DatePickerPopover from "./DatePickerPopover";
 import apiClient from "../api/axios";
+import dayjs from "dayjs";
 
 const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   const navigate = useNavigate();
@@ -25,15 +26,16 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
     console.log("Selected City:", place);
   };
 
-  const combineDateAndTime = (datePart, timeString) => {
-    if (!datePart || !timeString) return null;
+  const combineDateAndTime = (date, timeString) => {
+    if (!date || !timeString) return null;
     const [hours, minutes] = timeString.split(":").map(Number);
-    const combined = new Date(datePart);
-    combined.setHours(hours);
-    combined.setMinutes(minutes);
-    combined.setSeconds(0);
-    combined.setMilliseconds(0);
-    return combined.toISOString();
+
+    return dayjs(date)
+      .hour(hours)
+      .minute(minutes)
+      .second(0)
+      .millisecond(0)
+      .format("YYYY-MM-DDTHH:mm:ss");
   };
 
   const handleGoClick = async () => {

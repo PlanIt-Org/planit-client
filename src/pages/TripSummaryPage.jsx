@@ -542,6 +542,7 @@ const TripSummaryPage = ({
                       locations={locations}
                       comments={comments}
                       setEstimatedTime={setEstimatedTime}
+                      estimatedTime={estimatedTime}
                     />
                   ) : (
                     <LocationCarousel
@@ -570,6 +571,7 @@ const TripSummaryPage = ({
                     RSVPStatus={RSVPStatus}
                     setRSVPStatus={setRSVPStatus}
                     userId={userId}
+                    tripStatus={tripStatus}
                   />
                   <TripGuestList tripId={id} />
                   {/* Comments Section */}
