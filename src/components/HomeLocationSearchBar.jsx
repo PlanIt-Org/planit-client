@@ -1,11 +1,20 @@
 // src/components/HomeLocationSearchBar.jsx
-import { Text, Button, Group, NativeSelect, Box } from "@mantine/core";
+import {
+  Text,
+  Button,
+  Group,
+  NativeSelect,
+  Box,
+  useMantineTheme,
+  Stack,
+} from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
 import { notifications } from "@mantine/notifications";
 import DatePickerPopover from "./DatePickerPopover";
 import apiClient from "../api/axios";
+import { useMediaQuery } from "@mantine/hooks";
 
 const generateTimeOptions = () => {
   const times = [];
@@ -24,6 +33,8 @@ const generateTimeOptions = () => {
 const timeOptions = generateTimeOptions();
 const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   const navigate = useNavigate();
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -149,90 +160,159 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        margin: "32px 0",
+        margin: isMobile ? "16px 0" : "32px 0",
       }}
     >
-      <Text fw={700} size="xl">
+      <Text fw={700} size={isMobile ? "lg" : "xl"} ta="center">
         Plan a Trip!
       </Text>
-      <Group
-        gap={0}
-        align="center"
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          minHeight: 64,
-        }}
-      >
-        {/* City Autocomplete */}
-        <CityAutoCompleteSearchField
-          onPlaceSelected={handleCitySelected}
-          size="lg"
-          styles={{
-            input: {
-              height: 48,
-              minHeight: 48,
-              borderTopRightRadius: 0,
-              borderBottomRightRadius: 0,
-            },
-            wrapper: {
-              flexGrow: 1,
-              minWidth: 360,
-              maxWidth: 700,
-            },
-          }}
-        />
-        {/* Time Selectors and Go Button */}
-        <DatePickerPopover tripDate={tripDate} setTripDate={setTripDate} />
-        <NativeSelect
-          data={[{ value: "", label: "Start time" }, ...timeOptions]}
-          value={startTime}
-          onChange={(event) => setStartTime(event.currentTarget.value)}
-          aria-label="Select start time"
-          size="lg"
-          styles={{
-            input: {
-              fontWeight: 500,
-              borderRadius: 0,
-              height: 48,
-              minHeight: 48,
-            },
-          }}
-        />
-        <NativeSelect
-          data={[{ value: "", label: "End time" }, ...timeOptions]}
-          value={endTime}
-          onChange={(event) => setEndTime(event.currentTarget.value)}
-          aria-label="Select end time"
-          size="lg"
-          styles={{
-            input: {
-              fontWeight: 500,
-              borderRadius: 0,
-              borderLeft: "none",
-              borderRight: "none",
-              height: 48,
-              minHeight: 48,
-            },
-          }}
-        />
-        <Button
-          onClick={() => {
-            handleGoClick();
-          }}
-          size="lg"
+      {isMobile ? (
+        // Mobile layout - stacked vertically
+        <Stack gap="sm" w="100%" mt="md">
+          <Group gap="sm" grow>
+            <CityAutoCompleteSearchField
+              onPlaceSelected={handleCitySelected}
+              size="md"
+              placeholder="Search for a city..."
+              styles={{
+                input: {
+                  height: 44,
+                  minHeight: 44,
+                  borderRadius: "var(--mantine-radius-md)",
+                },
+                wrapper: {
+                  width: "100%",
+                },
+              }}
+            />
+            <DatePickerPopover tripDate={tripDate} setTripDate={setTripDate} />
+          </Group>
+          <Group gap="sm" grow>
+            <NativeSelect
+              data={[{ value: "", label: "Start time" }, ...timeOptions]}
+              value={startTime}
+              onChange={(event) => setStartTime(event.currentTarget.value)}
+              aria-label="Select start time"
+              size="md"
+              styles={{
+                input: {
+                  fontWeight: 500,
+                  height: 44,
+                  minHeight: 44,
+                },
+              }}
+            />
+            <NativeSelect
+              data={[{ value: "", label: "End time" }, ...timeOptions]}
+              value={endTime}
+              onChange={(event) => setEndTime(event.currentTarget.value)}
+              aria-label="Select end time"
+              size="md"
+              styles={{
+                input: {
+                  fontWeight: 500,
+                  height: 44,
+                  minHeight: 44,
+                },
+              }}
+            />
+            <Button
+              onClick={() => {
+                handleGoClick();
+              }}
+              size="md"
+              style={{
+                height: 44,
+                minHeight: 44,
+              }}
+              loading={isCreatingTrip}
+              disabled={isCreatingTrip}
+            >
+              Go
+            </Button>
+          </Group>
+        </Stack>
+      ) : (
+        // Desktop layout - horizontal
+        <Group
+          gap={0}
+          align="center"
           style={{
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
-            height: 48,
-            minHeight: 48,
+            maxWidth: 1200,
+            margin: "0 auto",
+            minHeight: 64,
           }}
-          loading={isCreatingTrip}
-          disabled={isCreatingTrip}
         >
-          Go
-        </Button>
-      </Group>
+          {/* City Autocomplete */}
+          <CityAutoCompleteSearchField
+            onPlaceSelected={handleCitySelected}
+            size="lg"
+            styles={{
+              input: {
+                height: 48,
+                minHeight: 48,
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+              },
+              wrapper: {
+                flexGrow: 1,
+                minWidth: 360,
+                maxWidth: 700,
+              },
+            }}
+          />
+          {/* Time Selectors and Go Button */}
+          <DatePickerPopover tripDate={tripDate} setTripDate={setTripDate} />
+          <NativeSelect
+            data={[{ value: "", label: "Start time" }, ...timeOptions]}
+            value={startTime}
+            onChange={(event) => setStartTime(event.currentTarget.value)}
+            aria-label="Select start time"
+            size="lg"
+            styles={{
+              input: {
+                fontWeight: 500,
+                borderRadius: 0,
+                height: 48,
+                minHeight: 48,
+              },
+            }}
+          />
+          <NativeSelect
+            data={[{ value: "", label: "End time" }, ...timeOptions]}
+            value={endTime}
+            onChange={(event) => setEndTime(event.currentTarget.value)}
+            aria-label="Select end time"
+            size="lg"
+            styles={{
+              input: {
+                fontWeight: 500,
+                borderRadius: 0,
+                borderLeft: "none",
+                borderRight: "none",
+                height: 48,
+                minHeight: 48,
+              },
+            }}
+          />
+          <Button
+            onClick={() => {
+              handleGoClick();
+            }}
+            size="lg"
+            style={{
+              borderTopLeftRadius: 0,
+              borderBottomLeftRadius: 0,
+              height: 48,
+              minHeight: 48,
+            }}
+            loading={isCreatingTrip}
+            disabled={isCreatingTrip}
+          >
+            Go
+          </Button>
+        </Group>
+      )}
     </Box>
   );
 };

@@ -96,10 +96,11 @@ const TripFilterSearchBox = ({
         justify="center"
         align="flex-end"
         style={{ width: "100%" }}
+        wrap = "unwrap"
       >
         <Select
           label="Search By"
-          style={{ width: 120 }}
+          style={{ width: 100 }}
           data={["name", "email"]}
           value={searchBy}
           onChange={setSearchBy}
