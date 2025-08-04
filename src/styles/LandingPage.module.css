@@ -1,78 +1,72 @@
-/* LandingPage.module.css */
-
-.root {
-    position: relative;
-    background-color: #11284b;
-    background-size: cover;
-    background-position: center;
-    /* The combined gradient and background image that creates the "globe" effect */
-    background-image: linear-gradient(250deg, rgba(130, 201, 30, 0) 0%, #062343 70%),
-      url(https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8&auto=format&fit=crop&w=1080&q=80);
-    padding-top: calc(var(--mantine-spacing-xl) * 2);
-    padding-bottom: calc(var(--mantine-spacing-xl) * 4);
+/* ---- Base & Hero Section ---- */
+.pageWrapper {
+    background-color: #0B132B; /* Deep Space */
   }
   
-  .inner {
+  .heroSection {
+    min-height: 100vh;
+    width: 100%;
     display: flex;
-    justify-content: space-between;
-    padding-top: calc(var(--mantine-spacing-xl) * 2);
-    padding-bottom: calc(var(--mantine-spacing-xl) * 4);
-  
-    /* CORRECTED SYNTAX */
-    @media (max-width: var(--mantine-breakpoint-md)) {
-      flex-direction: column;
-    }
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    padding: 16px 32px;
+    background-color: #0B132B; /* Deep space background */
   }
   
-  .content {
-    max-width: 600px;
-    margin-right: calc(var(--mantine-spacing-xl) * 3);
-  
-    /* CORRECTED SYNTAX */
-    @media (max-width: var(--mantine-breakpoint-lg)) {
-      max-width: 100%;
-      margin-right: 0;
-    }
+  /* ---- Canvas Style ---- */
+  .bgCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
   }
   
-  .title {
-    color: var(--mantine-color-white);
-    font-family: Outfit, var(--mantine-font-family);
-    font-weight: 700;
-    line-height: 1.1;
-    font-size: 48px;
   
-    /* CORRECTED SYNTAX */
-    @media (max-width: var(--mantine-breakpoint-md)) {
-      font-size: 38px;
-      line-height: 1.2;
-    }
-  }
-  
-  .description {
-    color: var(--mantine-color-white);
-    opacity: 0.8;
-    margin-top: var(--mantine-spacing-xl);
-    max-width: 500px;
-  }
-  
-  .control {
-    font-family: Outfit, var(--mantine-font-family);
-    padding-left: 40px;
-    padding-right: 40px;
-    font-size: var(--mantine-font-size-lg);
-  
-    /* CORRECTED SYNTAX */
-    @media (max-width: var(--mantine-breakpoint-md)) {
-      flex: 1;
-    }
-  }
-  
+  /* ---- Header ---- */
   .header {
-    padding-bottom: calc(var(--mantine-spacing-xl) * 2);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 16px 32px;
+    z-index: 10; /* Ensures it's on top */
+    background: rgba(11, 19, 43, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(58, 80, 107, 0.5);
+  }
   
-    /* CORRECTED SYNTAX */
-    @media (max-width: var(--mantine-breakpoint-md)) {
-      padding-bottom: calc(var(--mantine-spacing-xl));
-    }
+  /* ---- Hero Content ---- */
+  .heroContent {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    z-index: 1; /* Sits on top of the canvas */
+  }
+  
+  .titleGradient {
+    background: -webkit-linear-gradient(45deg, #e0e3e5, #ffffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+  }
+  
+  /* ---- Learn More Section ---- */
+  .learnMoreSection {
+    padding: 80px 16px;
+    background-color: #1C2541; /* Stormy Ocean */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+    /* --- FIX ADDED HERE --- */
+    position: relative; /* Creates a stacking context */
+    z-index: 2;         /* Places this section above the background canvas */
   }
