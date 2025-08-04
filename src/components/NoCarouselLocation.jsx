@@ -22,7 +22,7 @@ const getCoords = (loc) => {
   return null;
 };
 
-const NoCarouselLocation = ({ locations, comments, setEstimatedTime }) => {
+const NoCarouselLocation = ({ locations, comments, setEstimatedTime, estimatedTime }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [finalMode, setFinalMode] = useState(null);
@@ -113,6 +113,7 @@ const NoCarouselLocation = ({ locations, comments, setEstimatedTime }) => {
                     finalMode={finalMode}
                     setFinalMode={setFinalMode}
                     setEstimatedTime={setEstimatedTime}
+                    estimatedTime={estimatedTime}
                     origin={`${originCoords.lat},${originCoords.lng}`}
                     destination={`${destinationCoords.lat},${destinationCoords.lng}`}
                   />

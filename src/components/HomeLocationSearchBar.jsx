@@ -9,6 +9,7 @@ import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
 import { notifications } from "@mantine/notifications";
 import DatePickerPopover from "./DatePickerPopover";
 import apiClient from "../api/axios";
+import dayjs from "dayjs";
 
 const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   const navigate = useNavigate();
@@ -25,15 +26,16 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
     console.log("Selected City:", place);
   };
 
-  const combineDateAndTime = (datePart, timeString) => {
-    if (!datePart || !timeString) return null;
+  const combineDateAndTime = (date, timeString) => {
+    if (!date || !timeString) return null;
     const [hours, minutes] = timeString.split(":").map(Number);
-    const combined = new Date(datePart);
-    combined.setHours(hours);
-    combined.setMinutes(minutes);
-    combined.setSeconds(0);
-    combined.setMilliseconds(0);
-    return combined.toISOString();
+
+    return dayjs(date)
+      .hour(hours)
+      .minute(minutes)
+      .second(0)
+      .millisecond(0)
+      .format("YYYY-MM-DDTHH:mm:ss");
   };
 
   const handleGoClick = async () => {
@@ -130,9 +132,9 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
 
   const mobileWrapStyle = (theme) => ({
     [`@media (max-width: ${theme.breakpoints.sm})`]: {
-      flexWrap: 'wrap',
+      flexWrap: "wrap",
       // Target direct children to add vertical spacing only when wrapped
-      '& > *': {
+      "& > *": {
         marginBottom: `calc(${theme.spacing.sm} / 2)`,
       },
     },
@@ -153,56 +155,59 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
       </Text>
 
       {isMobile ? (
-       <Stack spacing="sm" w="100%" mt="md">
-        <Group 
-            spacing="sm" 
-            grow 
-            sx={mobileWrapStyle} 
-        >
+        <Stack spacing="sm" w="100%" mt="md">
+          <Group spacing="sm" grow sx={mobileWrapStyle}>
             <CityAutoCompleteSearchField
-                onPlaceSelected={handleCitySelected}
-                size="md"
-                placeholder="Search for a city..."
-                styles={{
-                    input: { height: 44, minHeight: 44, borderRadius: "var(--mantine-radius-md)" },
-                    wrapper: { width: "100%" },
-                }}
+              onPlaceSelected={handleCitySelected}
+              size="md"
+              placeholder="Search for a city..."
+              styles={{
+                input: {
+                  height: 44,
+                  minHeight: 44,
+                  borderRadius: "var(--mantine-radius-md)",
+                },
+                wrapper: { width: "100%" },
+              }}
             />
-            <DatePickerPopover size="xs" tripDate={tripDate} setTripDate={setTripDate} />
-        </Group>
+            <DatePickerPopover
+              size="xs"
+              tripDate={tripDate}
+              setTripDate={setTripDate}
+            />
+          </Group>
 
-        <Group 
-            spacing="sm" 
-            grow 
-            sx={mobileWrapStyle} 
-        >
+          <Group spacing="sm" grow sx={mobileWrapStyle}>
             <TimePicker
-                leftSection={clockIcon}
-                placeholder="Start time"
-                value={startTime}
-                onChange={setStartTime}
-                size="md"
-                styles={{ input: { fontWeight: 500, height: 44, minHeight: 44 } }}
+              leftSection={clockIcon}
+              placeholder="Start time"
+              value={startTime}
+              onChange={setStartTime}
+              size="md"
+              format="12h"
+              dropdownType="popover"
+              styles={{ input: { fontWeight: 500, height: 44, minHeight: 44 } }}
             />
             <TimePicker
-                leftSection={clockIcon}
-                placeholder="End time"
-                value={endTime}
-                onChange={setEndTime}
-                size="md"
-                styles={{ input: { fontWeight: 500, height: 44, minHeight: 44 } }}
+              leftSection={clockIcon}
+              placeholder="End time"
+              value={endTime}
+              onChange={setEndTime}
+              size="md"
+              format="12h"
+              dropdownType="popover"
+              styles={{ input: { fontWeight: 500, height: 44, minHeight: 44 } }}
             />
             <Button
-                onClick={handleGoClick}
-                size="md"
-                loading={isCreatingTrip}
-                disabled={isCreatingTrip}
-                style={{ height: 44, minHeight: 44 }}
+              onClick={handleGoClick}
+              size="md"
+              loading={isCreatingTrip}
+              disabled={isCreatingTrip}
+              style={{ height: 44, minHeight: 44 }}
             >
-                Go
+              Go
             </Button>
-        </Group>
-   
+          </Group>
         </Stack>
       ) : (
         <Group
