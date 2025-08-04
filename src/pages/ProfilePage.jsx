@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Container, Flex, Box, Divider } from "@mantine/core";
+import { Container, Flex, Box, Divider, useMantineTheme } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
 import ProfileTripAccordion from "../components/ProfileTripAccordion";
@@ -10,6 +11,8 @@ const ProfilePage = ({ setLocations }) => {
   const { session, setSession } = useAuth();
   const [userInfo, setUserInfo] = useState(null);
   const [error, setError] = useState("");
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   const fetchCurrentUser = async () => {
     try {
@@ -34,26 +37,43 @@ const ProfilePage = ({ setLocations }) => {
         width: "100%",
         minHeight: "100vh",
         alignItems: "stretch",
+        flexDirection: isMobile ? "column" : "row",
       }}
     >
-      <NavBar currentPage={3} setLocations={setLocations} />
+      {!isMobile && <NavBar currentPage={3} setLocations={setLocations} />}
+
+      {isMobile && (
+        <Box
+          style={{
+            width: "100%",
+            height: "60px",
+            backgroundColor: "var(--mantine-color-body)",
+            borderBottom: "1px solid var(--mantine-color-gray-3)",
+            zIndex: 1000,
+          }}
+        >
+          <NavBar currentPage={3} setLocations={setLocations} />
+        </Box>
+      )}
+
       {/* main content */}
       <Box
         style={{
           flex: 1,
           minWidth: 0,
-          padding: 20,
+          padding: isMobile ? "16px" : "20px",
           boxSizing: "border-box",
         }}
       >
         <Container
-          size="sm"
+          size={isMobile ? "xs" : "sm"}
           style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            minHeight: "100vh",
+            minHeight: isMobile ? "calc(100vh - 60px)" : "100vh",
+            width: "100%",
           }}
         >
           {/* Profile Card */}
@@ -62,12 +82,16 @@ const ProfilePage = ({ setLocations }) => {
             setUser={setSession}
             userInfo={userInfo}
             refreshUserInfo={fetchCurrentUser}
-          ></ProfileCard>
+          />
           {/* Questionnaire Link */}
-          <Divider my="xl" labelPosition="center" style={{ width: 350 }} />
+          <Divider
+            my="xl"
+            labelPosition="center"
+            style={{ width: isMobile ? "100%" : 350 }}
+          />
           <a
             href="/questionnaire"
-            style={{ textDecoration: "none", width: 350 }}
+            style={{ textDecoration: "none", width: isMobile ? "100%" : 350 }}
           ></a>
           {/* Accordion that lists user trips */}
           {/* <ProfileTripAccordion userInfo={userInfo}></ProfileTripAccordion> */}
