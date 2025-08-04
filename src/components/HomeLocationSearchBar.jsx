@@ -157,7 +157,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         <Group 
             spacing="sm" 
             grow 
-            sx={mobileWrapStyle} // This makes the inputs wrap and adds space
+            sx={mobileWrapStyle} 
         >
             <CityAutoCompleteSearchField
                 onPlaceSelected={handleCitySelected}
@@ -174,7 +174,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         <Group 
             spacing="sm" 
             grow 
-            sx={mobileWrapStyle} // This makes the inputs wrap and adds space
+            sx={mobileWrapStyle} 
         >
             <TimePicker
                 leftSection={clockIcon}
