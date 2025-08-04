@@ -393,7 +393,7 @@ const TripGrid = ({
                 <strong>Description:</strong>{" "}
                 {selectedTrip.description || "No description provided."}
               </Text>
-              {!(!discoverMode && selectedTrip.hostId === userId) && (
+              {!discoverMode && (
                 <Text size="sm" c="dimmed">
                   <strong>Time:</strong>{" "}
                   {selectedTrip.startTime
@@ -431,9 +431,11 @@ const TripGrid = ({
                   </ul>
                 </div>
               )}
-              <Group mt={16} justify="space-between">
-                <CopyTripLink goto={true} tripId={selectedTrip.id} />
-              </Group>
+             {!discoverMode && (
+                <Group mt={16} justify="space-between">
+                  <CopyTripLink goto={true} tripId={selectedTrip.id} />
+                </Group>
+              )}
             </Stack>
           </div>
         )}
