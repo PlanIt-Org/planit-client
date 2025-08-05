@@ -118,7 +118,7 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
         const formattedComments = commentsRes.map((comment) => ({
           id: comment.id,
           // THE FIX for the crash: Use optional chaining
-          author: { name: comment.author?.name || "Unknown User", avatar: generateAvatarUrl(comment.author?.email) },
+          author: { name: comment.author?.name || "Guest", avatar: generateAvatarUrl(comment.author?.email) },
           text: comment.text,
           location: comment.location?.name || "",
         }));

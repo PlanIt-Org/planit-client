@@ -26,7 +26,7 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus, tripStatus }) {
       setRSVPStatus(status);
 
       if (status === "no") {
-        navigate("/");
+        navigate("/home");
       } else {
         notifications.show({
           title: "RSVP Received!",
