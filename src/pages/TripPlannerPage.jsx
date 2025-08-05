@@ -35,14 +35,13 @@ const fadeIn = keyframes`
 const floatUp = keyframes`
   from {
     opacity: 0;
-    transform: translateY(20px);
+    margin-top: 20px;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    margin-top: 0;
   }
 `;
-
 // A full-page wrapper that uses the theme's background color
 const PageWrapper = styled(Flex)`
   width: 100%;
