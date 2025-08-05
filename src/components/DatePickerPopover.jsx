@@ -51,7 +51,7 @@ function DatePickerPopover({ tripDate, setTripDate }) {
             fontWeight: 500,
             paddingLeft: 14,
             paddingRight: 14,
-            background: theme.colors["custom-palette"][8], // #141c36
+            background: theme.colors["custom-palette"][8],
             color: theme.colors["custom-palette"][2],
           }}
         >

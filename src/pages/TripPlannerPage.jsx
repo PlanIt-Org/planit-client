@@ -47,7 +47,7 @@ const PageWrapper = styled(Flex)`
   width: 100%;
   min-height: 100vh;
   align-items: stretch;
-  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
   animation: ${fadeIn} 0.5s ease-out;
 `;
 
@@ -88,7 +88,7 @@ const SearchSection = styled(Stack)`
   height: 100%;
   justify-content: flex-start;
   padding: 24px;
-  background-color: ${({ theme }) => theme.colors["custom-palette"][9]};
+  background-color: ${({ theme }) => theme.colors["custom-palette"][7]};
 `;
 
 const InteractiveButton = styled(Button)`

@@ -40,7 +40,7 @@ const AnimatedFlex = styled(Flex)`
   min-height: 100vh;
   align-items: stretch;
   flex-direction: ${({ ismobile }) => (ismobile === "true" ? "column" : "row")};
-  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
   animation: ${fadeIn} 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
@@ -51,7 +51,7 @@ const AnimatedBox = styled(Box)`
     ismobile === "true" ? theme.spacing.md : theme.spacing.lg};
   box-sizing: border-box;
   padding-bottom: ${({ ismobile }) => (ismobile === "true" ? "80px" : "20px")};
-  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
   animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
@@ -199,6 +199,9 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
                   p="sm"
                   className="bg-white"
                   flex={1}
+                  style={{
+                    border: `1px solid ${theme.colors["custom-palette"][6]}`,
+                  }}
                 >
                   <TripTimes
                     currTripId={id}
@@ -235,6 +238,7 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
                   justifyContent: "center",
                   position: "relative",
                   overflow: "hidden",
+                  border: `1px solid ${theme.colors["custom-palette"][6]}`,
                 }}
               >
                 <div
@@ -319,6 +323,9 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
                       p="sm"
                       className="bg-white"
                       flex={1}
+                      style={{
+                        border: `1px solid ${theme.colors["custom-palette"][6]}`,
+                      }}
                     >
                       <TripTimes
                         currTripId={id}
@@ -339,6 +346,7 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
                       justifyContent: "center",
                       position: "relative",
                       overflow: "hidden",
+                      border: `1px solid ${theme.colors["custom-palette"][6]}`,
                     }}
                   >
                     <div

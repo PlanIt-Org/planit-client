@@ -162,7 +162,7 @@ const TripFilterSearchBox = ({
         )}
         {isMobile ?  <Button    size="xs" onClick={handleAddClick}>Add</Button> : <Button onClick={handleAddClick}>Add</Button>}
       </Group>
-      <Group mt="md">
+      <Group mt="md" justify="center">
         {showNotification && (
           <Notification
             icon={<IconX size={20} />}
