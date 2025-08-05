@@ -10,6 +10,7 @@ import {
   Flex,
   Text,
   useMantineTheme,
+  Divider,
 } from "@mantine/core";
 import { useEffect } from "react";
 import TripCategory from "../components/TripCategory";
@@ -21,7 +22,7 @@ import { useState } from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import styled from "@emotion/styled";
 import { keyframes } from "@emotion/react";
-import TwinklingStars from "../components/TwinklingStars"; // Add this import
+import TwinklingStars from "../components/TwinklingStars";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px);}
@@ -86,6 +87,7 @@ const HomePage = ({
           <Title
             order={1}
             ta="center"
+            justify="center"
             size={isMobile ? "h2" : 55}
             mb={isMobile ? "md" : "lg"}
             variant="gradient"
@@ -119,6 +121,12 @@ const HomePage = ({
               setActive={setActive}
             />
           </Box>
+          <Divider
+            my="sm"
+            style={{
+              borderColor: theme.colors["custom-palette"][6],
+            }}
+          />
           {/*  Your Trips */}
           <Box mt={isMobile ? "md" : "lg"}>
             <TripGrid

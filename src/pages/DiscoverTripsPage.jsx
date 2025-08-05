@@ -6,13 +6,41 @@ import {
   Box,
   Skeleton,
   useMantineTheme,
-  Paper,
   Title,
+  Divider,
 } from "@mantine/core";
 import NavBar from "../components/NavBar";
 import TripGrid from "../components/TripGrid";
 import apiClient from "../api/axios";
 import { useMediaQuery } from "@mantine/hooks";
+import styled from "@emotion/styled";
+import { keyframes } from "@emotion/react";
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+`;
+
+const AnimatedFlex = styled(Flex)`
+  width: 100%;
+  min-height: 100vh;
+  align-items: stretch;
+  flex-direction: ${({ ismobile }) => (ismobile === "true" ? "column" : "row")};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
+  animation: ${fadeIn} 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+`;
+
+const AnimatedBox = styled(Box)`
+  flex: 1;
+  min-width: 0;
+  padding: ${({ ismobile, theme }) =>
+    ismobile === "true" ? theme.spacing.md : theme.spacing.lg};
+  box-sizing: border-box;
+  padding-bottom: ${({ ismobile }) => (ismobile === "true" ? "80px" : "20px")};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
+  animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+`;
 
 const DiscoverTripsPage = ({ setLocations, userId }) => {
   const theme = useMantineTheme();
@@ -44,26 +72,9 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
   }, [userId]);
 
   return (
-    <Flex
-      style={{
-        width: "100%",
-        minHeight: "100vh",
-        alignItems: "stretch",
-        flexDirection: isMobile ? "column" : "row",
-        background: theme.colors["custom-palette"][7], // match HomePage background
-      }}
-    >
+    <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
       {!isMobile && <NavBar currentPage={1} setLocations={setLocations} />}
-      <Box
-        style={{
-          flex: 1,
-          minWidth: 0,
-          padding: isMobile ? "16px" : "20px",
-          boxSizing: "border-box",
-          paddingBottom: isMobile ? "80px" : "20px",
-          background: theme.colors["custom-palette"][7], // match HomePage content background
-        }}
-      >
+      <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
         <Container size="lg" py="lg">
           <Title
             order={1}
@@ -113,9 +124,15 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
               </Text>
             )}
           </Box>
+          <Divider
+            my="sm"
+            style={{
+              borderColor: theme.colors["custom-palette"][6],
+            }}
+          />
           <TripGrid userId={userId} discoverMode={true} />
         </Container>
-      </Box>
+      </AnimatedBox>
       {isMobile && (
         <Box
           style={{
@@ -131,7 +148,7 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
           <NavBar currentPage={1} setLocations={setLocations} />
         </Box>
       )}
-    </Flex>
+    </AnimatedFlex>
   );
 };
 

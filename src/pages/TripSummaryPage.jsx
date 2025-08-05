@@ -352,6 +352,9 @@ const TripSummaryPage = ({
                   p="sm"
                   className="bg-white"
                   flex={1}
+                  style={{
+                    border: `1px solid ${theme.colors["custom-palette"][6]}`,
+                  }}
                 >
                   <TripTimes
                     currTripId={currTripId}
@@ -390,6 +393,7 @@ const TripSummaryPage = ({
                   justifyContent: "center",
                   position: "relative",
                   overflow: "hidden",
+                  border: `1px solid ${theme.colors["custom-palette"][6]}`,
                 }}
               >
                 <div
@@ -489,6 +493,9 @@ const TripSummaryPage = ({
                       p="sm"
                       className="bg-white"
                       flex={1}
+                      style={{
+                        border: `1px solid ${theme.colors["custom-palette"][6]}`,
+                      }}
                     >
                       <TripTimes
                         currTripId={currTripId}
@@ -511,6 +518,7 @@ const TripSummaryPage = ({
                       justifyContent: "center",
                       position: "relative",
                       overflow: "hidden",
+                      border: `1px solid ${theme.colors["custom-palette"][6]}`,
                     }}
                   >
                     <div

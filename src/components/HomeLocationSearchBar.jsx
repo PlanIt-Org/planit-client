@@ -149,7 +149,6 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         margin: isMobile ? theme.spacing.md : theme.spacing.lg,
         background: theme.colors["custom-palette"][7],
         borderRadius: theme.radius.md,
-        boxShadow: theme.shadows.xs,
       }}
     >
       <Text
@@ -245,7 +244,6 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
             minHeight: 64,
             background: theme.colors["custom-palette"][7],
             borderRadius: theme.radius.md,
-            boxShadow: theme.shadows.xs,
           }}
         >
           <CityAutoCompleteSearchField
@@ -259,6 +257,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
                 borderBottomRightRadius: 0,
                 background: theme.colors["custom-palette"][8],
                 color: theme.colors["custom-palette"][1],
+                border: `1px solid ${theme.colors["custom-palette"][4]}`,
               },
               wrapper: { flexGrow: 1, minWidth: 360, maxWidth: 700 },
             }}

@@ -188,7 +188,17 @@ const TripDetails = ({
         <Group justify="space-between">
           {ownTrip && (
             <Button
-              color={isPrivate ? "red" : "green"}
+              color={
+                isPrivate
+                  ? theme.colors["custom-palette"][2]
+                  : theme.colors["custom-palette"][6]
+              }
+              style={{
+                backgroundColor: isPrivate
+                  ? theme.colors["custom-palette"][2]
+                  : theme.colors["custom-palette"][6],
+                color: theme.colors["custom-palette"][isPrivate ? 8 : 0],
+              }}
               onClick={handleTogglePrivacy}
             >
               {isPrivate ? "Make Public" : "Make Private"}
@@ -207,46 +217,58 @@ const TripDetails = ({
         </Group>
         <Stack className="text-center py-4" style={{ textAlign: "center" }}>
           {/* ---------------THIS IS FOR THE Title-----------  */}
-          <Group>
+          <Group align="center" wrap="nowrap" style={{ width: "100%" }}>
             {ownTrip && isEditingTitle ? (
-              <TextInput
-                value={inputTitle}
-                onChange={(event) => setInputTitle(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    handleSaveTitle();
-                  }
-                }}
-                style={{ flexGrow: 1 }}
-              />
-            ) : (
-              <Text
-                style={{ flexGrow: 1 }}
-                size="lg"
-                c={theme.colors["custom-palette"][1]}
-              >
-                {inputTitle || "No title provided."}
-              </Text>
-            )}
-
-            {ownTrip && (
-              <ActionIcon
-                onClick={() => {
-                  if (isEditingTitle) {
-                    handleSaveTitle();
-                  } else {
-                    setIsEditingTitle(true);
-                  }
-                }}
-                variant="subtle"
-                color="gray"
-              >
-                {isEditingTitle ? (
+              <>
+                <TextInput
+                  value={inputTitle}
+                  onChange={(event) => setInputTitle(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      handleSaveTitle();
+                    }
+                  }}
+                  style={{ flexGrow: 1, textAlign: "center" }}
+                />
+                <ActionIcon
+                  onClick={handleSaveTitle}
+                  variant="subtle"
+                  color="gray"
+                  ml={4}
+                >
                   <IconCheck style={{ width: rem(18) }} />
-                ) : (
-                  <IconPencil style={{ width: rem(18) }} />
+                </ActionIcon>
+              </>
+            ) : (
+              <>
+                <Text
+                  size="lg"
+                  fw={900}
+                  c={theme.colors["custom-palette"][0]}
+                  style={{
+                    letterSpacing: 1,
+                    textTransform: "uppercase",
+                    background: `linear-gradient(90deg, ${theme.colors["custom-palette"][2]}, ${theme.colors["custom-palette"][4]})`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    display: "inline-block",
+                    textAlign: "center",
+                    width: "100%",
+                  }}
+                >
+                  {inputTitle || "No title provided."}
+                </Text>
+                {ownTrip && (
+                  <ActionIcon
+                    onClick={() => setIsEditingTitle(true)}
+                    variant="subtle"
+                    color="gray"
+                    ml={4}
+                  >
+                    <IconPencil style={{ width: rem(18) }} />
+                  </ActionIcon>
                 )}
-              </ActionIcon>
+              </>
             )}
           </Group>
 
@@ -257,14 +279,18 @@ const TripDetails = ({
                 value={inputDesc}
                 onChange={(event) => setInputDesc(event.currentTarget.value)}
                 placeholder="Enter a trip description..."
-                style={{ flexGrow: 1 }}
+                style={{ flexGrow: 1, textAlign: "center" }} // MODIFIED
                 autosize
                 minRows={3}
               />
             ) : (
               <Text
                 c={theme.colors["custom-palette"][3]}
-                style={{ flexGrow: 1, whiteSpace: "pre-wrap" }}
+                style={{
+                  flexGrow: 1,
+                  whiteSpace: "pre-wrap",
+                  textAlign: "center",
+                }} // MODIFIED
                 size="sm"
               >
                 {inputDesc || "No description provided."}
@@ -293,16 +319,30 @@ const TripDetails = ({
           </Group>
 
           <Box
-            p="sm"
+            p="md"
             style={{
               background: theme.colors["custom-palette"][7],
               borderRadius: 8,
               border: `1px solid ${theme.colors["custom-palette"][6]}`,
             }}
           >
-            <Text size="sm" c={theme.colors["custom-palette"][2]} fw={500}>
-              HOSTED BY: {hostName}
-            </Text>
+            <Group justify="center">
+              <Text
+                size="lg"
+                fw={700}
+                c={theme.colors["custom-palette"][1]}
+                ta="center"
+                style={{
+                  letterSpacing: 0.5,
+                  textShadow: `0 1px 8px ${theme.colors["custom-palette"][8]}33`,
+                }}
+              >
+                Hosted By:{" "}
+                <span style={{ color: theme.colors["custom-palette"][0] }}>
+                  {hostName}
+                </span>
+              </Text>
+            </Group>
           </Box>
         </Stack>
         <CopyTripLink tripId={tripId} tripStatus={tripStatus} />

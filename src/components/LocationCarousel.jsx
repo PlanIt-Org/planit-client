@@ -38,13 +38,9 @@ const LocationCarousel = ({
   const carouselSlides = [];
 
   locations.forEach((loc, index) => {
-    // Add the location card slide
     carouselSlides.push(
       <Carousel.Slide
         key={loc.id || `loc-${index}`}
-        // --- THIS IS THE CHANGE ---
-        // On desktop, we give the location card a flexible base width.
-        // It will grow to fill space but has a substantial minimum size.
         style={!isMobile ? { flex: "1 0 320px", minWidth: 0 } : {}}
       >
         <Card
@@ -84,14 +80,10 @@ const LocationCarousel = ({
       </Carousel.Slide>
     );
 
-    // If it's not the last location, add the route info as its own slide
     if (index < locations.length - 1) {
       carouselSlides.push(
         <Carousel.Slide
           key={`route-${index}`}
-          // --- THIS IS THE CHANGE ---
-          // On desktop, the route slide has a smaller, fixed width.
-          // It will not grow or shrink.
           style={
             !isMobile
               ? { flex: "0 0 150px" }
@@ -122,12 +114,8 @@ const LocationCarousel = ({
     <Carousel
       withIndicators
       slideGap="md"
-      // --- THIS IS THE CHANGE ---
-      // We remove the slideSize prop to allow individual slides to control their own width via flexbox styles.
-      // On mobile, the default 100% width will apply.
       slideSize={isMobile ? "100%" : undefined}
       align="start"
-      // Scrolling one slide at a time is more intuitive with variable widths
       slidesToScroll={1}
       emblaOptions={{ loop: false, containScroll: "trimSnaps" }}
       nextControlIcon={<IconChevronCompactRight size={30} />}
