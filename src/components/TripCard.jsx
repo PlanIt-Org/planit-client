@@ -117,7 +117,7 @@ const TripCard = ({
       </Group>
       <Group justify="space-between" mt="md" mb="xs">
         <Text size="sm" c="dimmed">
-          Hosted By {trip.host?.name || "Unknown"}
+          Hosted By: {trip.host?.name || "Unknown"}
         </Text>
         {!canDelete && (
           <Text size="sm" c="dimmed">

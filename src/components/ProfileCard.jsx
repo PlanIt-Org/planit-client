@@ -180,7 +180,7 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
           </div>
 
           <Text size="lg" weight={700}>
-            {userInfo.user_metadata?.display_name || userInfo.email}
+            {userInfo.user_metadata?.display_name}
           </Text>
 
           <Text c="dimmed" size="sm">
@@ -219,15 +219,6 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
           </InteractiveButton>
 
           <LogoutButton />
-
-          <InteractiveButton
-            fullWidth
-            size="md"
-            color="blue"
-            onClick={() => (window.location.href = "/questionnaire")}
-          >
-            Edit your Questionnaire
-          </InteractiveButton>
         </Flex>
       </AnimatedCard>
     </>

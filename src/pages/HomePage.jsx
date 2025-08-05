@@ -10,6 +10,7 @@ import {
   Flex,
   Text,
   useMantineTheme,
+  Divider,
 } from "@mantine/core";
 import { useEffect } from "react";
 import TripCategory from "../components/TripCategory";
@@ -21,6 +22,7 @@ import { useState } from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import styled from "@emotion/styled";
 import { keyframes } from "@emotion/react";
+import TwinklingStars from "../components/TwinklingStars";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px);}
@@ -32,8 +34,9 @@ const AnimatedFlex = styled(Flex)`
   min-height: 100vh;
   align-items: stretch;
   flex-direction: ${({ ismobile }) => (ismobile === "true" ? "column" : "row")};
-  background: ${({ theme }) => theme.colors["custom-palette"][9]};
-  animation: ${fadeIn} 0.7s cubic-bezier(0.4,0,0.2,1);
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
+  animation: ${fadeIn} 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 `;
 
 const AnimatedBox = styled(Box)`
@@ -43,8 +46,8 @@ const AnimatedBox = styled(Box)`
     ismobile === "true" ? theme.spacing.md : theme.spacing.lg};
   box-sizing: border-box;
   padding-bottom: ${({ ismobile }) => (ismobile === "true" ? "80px" : "20px")};
-  background: ${({ theme }) => theme.colors["custom-palette"][9]};
-  animation: ${fadeIn} 0.9s cubic-bezier(0.4,0,0.2,1);
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
+  animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 const HomePage = ({
@@ -77,16 +80,20 @@ const HomePage = ({
 
   return (
     <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
-      {!isMobile && <NavBar currentPage={0} />}
+
+      <TwinklingStars />
+      {!isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
+
       <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
         <Container size="mid" py="0">
           <Title
             order={1}
             ta="center"
+            justify="center"
             size={isMobile ? "h2" : 55}
             mb={isMobile ? "md" : "lg"}
             variant="gradient"
-            gradient={{ from: "blue", to: "cyan" }}
+            gradient={{ from: "blue", to: "white" }}
             style={{
               fontSize: isMobile
                 ? "clamp(1.5rem, 4vw, 2.5rem)"
@@ -116,6 +123,12 @@ const HomePage = ({
               setActive={setActive}
             />
           </Box>
+          <Divider
+            my="sm"
+            style={{
+              borderColor: theme.colors["custom-palette"][6],
+            }}
+          />
           {/*  Your Trips */}
           <Box mt={isMobile ? "md" : "lg"}>
             <TripGrid
@@ -137,7 +150,7 @@ const HomePage = ({
             left: 0,
             right: 0,
             zIndex: 1000,
-            backgroundColor: theme.colors["custom-palette"][2],
+            backgroundColor: theme.colors["custom-palette"][3],
             borderTop: `1px solid ${theme.colors["custom-palette"][6]}`,
           }}
         ></Box>

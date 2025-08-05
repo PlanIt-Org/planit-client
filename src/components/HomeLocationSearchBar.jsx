@@ -133,7 +133,6 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   const mobileWrapStyle = (theme) => ({
     [`@media (max-width: ${theme.breakpoints.sm})`]: {
       flexWrap: "wrap",
-      // Target direct children to add vertical spacing only when wrapped
       "& > *": {
         marginBottom: `calc(${theme.spacing.sm} / 2)`,
       },
@@ -148,9 +147,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         flexDirection: "column",
         alignItems: "center",
         margin: isMobile ? theme.spacing.md : theme.spacing.lg,
-        background: theme.colors["custom-palette"][9], // apply theme background
+        background: theme.colors["custom-palette"][7],
         borderRadius: theme.radius.md,
-        boxShadow: theme.shadows.xs,
       }}
     >
       <Text
@@ -229,7 +227,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
                 height: 44,
                 minHeight: 44,
                 background: theme.colors["custom-palette"][4],
-                color: theme.colors["custom-palette"][9],
+                color: theme.colors["custom-palette"][7],
               }}
             >
               Go
@@ -244,9 +242,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
             maxWidth: 1200,
             margin: "0 auto",
             minHeight: 64,
-            background: theme.colors["custom-palette"][9],
+            background: theme.colors["custom-palette"][7],
             borderRadius: theme.radius.md,
-            boxShadow: theme.shadows.xs,
           }}
         >
           <CityAutoCompleteSearchField
@@ -260,6 +257,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
                 borderBottomRightRadius: 0,
                 background: theme.colors["custom-palette"][8],
                 color: theme.colors["custom-palette"][1],
+                border: `1px solid ${theme.colors["custom-palette"][4]}`,
               },
               wrapper: { flexGrow: 1, minWidth: 360, maxWidth: 700 },
             }}
@@ -309,7 +307,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
               height: 48,
               minHeight: 48,
               background: theme.colors["custom-palette"][4],
-              color: theme.colors["custom-palette"][9],
+              color: theme.colors["custom-palette"][7],
             }}
             loading={isCreatingTrip}
             disabled={isCreatingTrip}

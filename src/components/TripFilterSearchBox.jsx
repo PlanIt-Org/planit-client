@@ -9,8 +9,10 @@ import {
   rem,
   Select,
   Notification,
+  useMantineTheme,
 } from "@mantine/core";
 import { IconSearch, IconX } from "@tabler/icons-react";
+import { useMediaQuery } from "@mantine/hooks";
 
 const TripFilterSearchBox = ({
   searchQuery,
@@ -27,13 +29,14 @@ const TripFilterSearchBox = ({
   setStagedUser,
 }) => {
   const [showNotification, setShowNotification] = useState(false);
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   // console.log("Current user", stagedUser)
-  
 
   const renderAutocompleteOption = ({ option }) => {
     const user = searchResults.find((item) => item.id === option.value);
-    console.log("Current user for render", user)
+    console.log("Current user for render", user);
 
     if (!user) return null;
     return (
@@ -47,8 +50,6 @@ const TripFilterSearchBox = ({
       </Group>
     );
   };
-
-
 
   const handleAddClick = () => {
     if (stagedUser) {
@@ -88,40 +89,80 @@ const TripFilterSearchBox = ({
         justify="center"
         align="flex-end"
         style={{ width: "100%" }}
-        wrap = "unwrap"
+        wrap="unwrap"
       >
-        <Select
-          label="Search By"
-          style={{ width: 100 }}
-          data={["name", "email"]}
-          value={searchBy}
-          onChange={setSearchBy}
-          allowDeselect={false}
-        />
-        <Autocomplete
-          label="&nbsp;"
-          data={searchResults}
-          value={searchQuery}
-          onChange={handleQueryChange}
-          renderOption={renderAutocompleteOption}
-          placeholder="Search for user..."
-          style={{ flexGrow: 1 }}
-          leftSection={
-            <ActionIcon onClick={onSearch} variant="transparent" color="gray">
-              <IconSearch style={{ width: rem(18), height: rem(18) }} />
-            </ActionIcon>
-          }
-          filter={({ options, search }) => options}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              onSearch();
+        {isMobile ? (
+          <Select
+            label="Search By"
+            size="xs"
+            style={{ width: 100 }}
+            data={["name", "email"]}
+            value={searchBy}
+            onChange={setSearchBy}
+            allowDeselect={false}
+          />
+        ) : (
+          <Select
+            label="Search By"
+            style={{ width: 100 }}
+            data={["name", "email"]}
+            value={searchBy}
+            onChange={setSearchBy}
+            allowDeselect={false}
+          />
+        )}
+
+        {isMobile ? (
+          <Autocomplete
+            label="&nbsp;"
+            data={searchResults}
+            value={searchQuery}
+            size="xs"
+            onChange={handleQueryChange}
+            renderOption={renderAutocompleteOption}
+            placeholder="Search for user..."
+            style={{ flexGrow: 1 }}
+            leftSection={
+              <ActionIcon onClick={onSearch} variant="transparent" color="gray">
+                <IconSearch style={{ width: rem(18), height: rem(18) }} />
+              </ActionIcon>
             }
-          }}
-        />
-        <Button onClick={handleAddClick}>Add</Button>
+            filter={({ options, search }) => options}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                onSearch();
+              }
+            }}
+          />
+        ) : (
+          <Autocomplete
+            label="&nbsp;"
+            data={searchResults}
+            value={searchQuery}
+            onChange={handleQueryChange}
+            renderOption={renderAutocompleteOption}
+            placeholder="Search for user..."
+            style={{ flexGrow: 1 }}
+            leftSection={
+              <ActionIcon onClick={onSearch} variant="transparent" color="gray">
+                <IconSearch style={{ width: rem(18), height: rem(18) }} />
+              </ActionIcon>
+            }
+            filter={({ options, search }) => options}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                onSearch();
+              }
+            }}
+            
+          />
+          
+        )}
+        {isMobile ?  <Button    size="xs" onClick={handleAddClick}>Add</Button> : <Button onClick={handleAddClick}>Add</Button>}
       </Group>
-      <Group mt="md">
+      <Group mt="md" justify="center">
         {showNotification && (
           <Notification
             icon={<IconX size={20} />}

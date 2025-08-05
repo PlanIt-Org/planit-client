@@ -1,41 +1,78 @@
 import React from "react";
-import { Text, Container, Flex, Box, useMantineTheme } from "@mantine/core";
+import {
+  Container,
+  Flex,
+  Box,
+  useMantineTheme,
+  Divider,
+  Title,
+} from "@mantine/core";
 import NavBar from "../components/NavBar";
 import TripGrid from "../components/TripGrid";
 import { useMediaQuery } from "@mantine/hooks";
+import styled from "@emotion/styled";
+import { keyframes } from "@emotion/react";
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+`;
+
+const AnimatedFlex = styled(Flex)`
+  width: 100%;
+  min-height: 100vh;
+  align-items: stretch;
+  flex-direction: ${({ ismobile }) => (ismobile === "true" ? "column" : "row")};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
+  animation: ${fadeIn} 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+`;
+
+const AnimatedBox = styled(Box)`
+  flex: 1;
+  min-width: 0;
+  padding: ${({ ismobile, theme }) =>
+    ismobile === "true" ? theme.spacing.md : theme.spacing.lg};
+  box-sizing: border-box;
+  padding-bottom: ${({ ismobile }) => (ismobile === "true" ? "80px" : "20px")};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
+  animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+`;
 
 const SavedTripsPage = ({ setLocations, userId }) => {
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
   return (
-    <Flex
-      style={{
-        width: "100%",
-        minHeight: "100vh",
-        alignItems: "stretch",
-        background: theme.colors["custom-palette"][9], // page background
-      }}
-    >
-      {!isMobile && <NavBar currentPage={2}/>}
+
+    <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
+      {!isMobile && <NavBar currentPage={2} setLocations={setLocations} />}
+
 
       {/* main content */}
-      <Box
-        style={{
-          flex: 1,
-          minWidth: 0,
-          padding: 20,
-          boxSizing: "border-box",
-          background: theme.colors["custom-palette"][9], // content background
-        }}
-      >
+      <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
         <Container size="lg" py="xl">
-          <Text ta="center" fw={700} size="3rem" mb="xl">
+          <Title
+            order={1}
+            ta="center"
+            mb="xl"
+            variant="gradient"
+            gradient={{ from: "blue", to: "cyan" }}
+            style={{
+              fontSize: isMobile
+                ? "clamp(1.8rem, 5vw, 2.5rem)"
+                : "clamp(2.2rem, 4vw, 3rem)",
+            }}
+          >
             Your Saved Trips
-          </Text>
-
+          </Title>
+          <Divider
+            my="sm"
+            style={{
+              borderColor: theme.colors["custom-palette"][6],
+            }}
+          />
           <TripGrid savedOnly={true} userId={userId} />
         </Container>
-      </Box>
+      </AnimatedBox>
       {isMobile && (
         <Box
           style={{
@@ -51,7 +88,7 @@ const SavedTripsPage = ({ setLocations, userId }) => {
           <NavBar currentPage={2}/>
         </Box>
       )}
-    </Flex>
+    </AnimatedFlex>
   );
 };
 

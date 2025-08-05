@@ -13,7 +13,6 @@ import {
   UnstyledButton,
   useMantineTheme,
 } from "@mantine/core";
-import { MantineLogo } from "@mantinex/mantine-logo";
 import { useMediaQuery } from "@mantine/hooks";
 import classes from "../styles/NavBarMinimal.module.css";
 import { IconWorldSearch } from "@tabler/icons-react";
@@ -71,6 +70,7 @@ function NavBar({ currentPage }) {
         setActive(index);
         navigate(link.path);
       }}
+      iconSize={isMobile ? 28 : 32}
     />
   ));
 
