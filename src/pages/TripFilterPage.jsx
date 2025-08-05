@@ -30,14 +30,14 @@ const TripFilterPage = ({ setLocations }) => {
   const [searchBy, setSearchBy] = useState("name");
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [selectedFilters, setSelectedFilters] = useState([]); //stores the selected filter
+  const [selectedFilters, setSelectedFilters] = useState([]); 
   const location = useLocation();
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   const [stagedUser, setStagedUser] = useState(null);
 
-  const isNewTrip = location.state?.isNew;
+
 
   const handleSearch = async () => {
     const trimmedQuery = searchQuery.trim();
@@ -64,25 +64,32 @@ const TripFilterPage = ({ setLocations }) => {
     }
   };
 
-  const handleAddUser = (userToAdd) => {
-    if (!selectedUsers.some((user) => user.id === userToAdd.id)) {
-      setSelectedUsers([...selectedUsers, userToAdd]);
-    }
-    // setAllUsers(...userToAdd)
-    console.log("I choose", selectedUsers);
-  };
-
-  //this function fetch the Trip Preference if they exist
-  async function fetchTripPreference() {
+useEffect(() => {
+  const fetchInitialData = async () => {
     try {
-      const response = await apiClient.get(`/trips/${tripId}/TripPreference`);
+      // Use Promise.all to fetch both sets of data concurrently for better performance
+      const [preferenceResponse, guestResponse] = await Promise.all([
+        apiClient.get(`/trips/${tripId}/TripPreference`),
+        apiClient.get(`/trips/${tripId}/proposed-guests`)
+      ]);
 
-      const preferenceSummary = response.data;
-      console.log("Fetched preference summary:", preferenceSummary);
+      // --- Process Guests ---
+      const guestList = guestResponse.data;
+      if (guestList && guestList.length > 0) {
+        const proposedGuestList = guestList.map(guest => ({
+          id: guest.id,
+          name: guest.name,
+        }));
+        setSelectedUsers(proposedGuestList);
+      }
 
-      if (preferenceSummary) {
+      // --- Process Filters ---
+      const preferenceSummary = preferenceResponse.data;
+      
+      if (preferenceSummary && Object.keys(preferenceSummary).length > 0) {
+     
         let allActiveFilters = [];
-
+    
         if (preferenceSummary.activityPreferences) {
           Object.entries(preferenceSummary.activityPreferences).forEach(
             ([key, count]) => {
@@ -90,13 +97,8 @@ const TripFilterPage = ({ setLocations }) => {
             }
           );
         }
-        if (preferenceSummary.dietaryRestrictions) {
-          Object.entries(preferenceSummary.dietaryRestrictions).forEach(
-            ([key, count]) => {
-              allActiveFilters.push({ name: key, count: count });
-            }
-          );
-        }
+
+
         if (preferenceSummary.lifestyleChoices) {
           Object.entries(preferenceSummary.lifestyleChoices).forEach(
             ([key, count]) => {
@@ -104,6 +106,15 @@ const TripFilterPage = ({ setLocations }) => {
             }
           );
         }
+
+        if (preferenceSummary.budget) {
+          Object.entries(preferenceSummary.budget).forEach(
+            ([key, count]) => {
+              allActiveFilters.push({ name: key, count: count });
+            }
+          );
+        }
+
         if (preferenceSummary.travelStyle) {
           Object.entries(preferenceSummary.travelStyle).forEach(
             ([key, count]) => {
@@ -111,98 +122,78 @@ const TripFilterPage = ({ setLocations }) => {
             }
           );
         }
-        if (preferenceSummary.budgetDistribution) {
-          Object.entries(preferenceSummary.budgetDistribution).forEach(
-            ([key, count]) => {
-              allActiveFilters.push({ name: key, count: count });
-            }
-          );
-        }
 
-        console.log("Setting selected filters to:", allActiveFilters);
+        
         setSelectedFilters(allActiveFilters);
-      }
+      } 
+    
+
     } catch (error) {
-      return; //new Trip
+      console.error("Failed to fetch initial trip data. This might be a new trip.", error);
+
     }
-  }
+  };
 
-  //This function fetches the proposed Guest
-  async function fetchPropostedGuest() {
-    try {
-      const response = await apiClient.get(`/trips/${tripId}/proposed-guests`);
+  fetchInitialData();
 
-      const guestList = response.data;
-      console.log("My G list ", guestList);
+  
 
-      let PropostedGuestList = {
-        id: null,
-        name: null,
-      };
+}, [tripId]); // This effect runs only once when the page loads
 
-      const proposedGuestList = guestList.map((guest) => {
-        // For each 'guest' in the original array,
-        // return a new object with only the properties you want.
-        return {
-          id: guest.id,
-          name: guest.name,
-        };
-      });
 
-      setSelectedUsers(proposedGuestList);
 
-      // Now, 'proposedGuestList' is a new array with the transformed objects.
-      console.log("My new proposed guest list ", proposedGuestList);
-    } catch (error) {
-      return; //new Trip
-    }
-  }
+const recalculateFilters = (users) => {
+  const filterCounts = {};
 
-  useEffect(() => {
-    console.log("Fetching existing trip data...");
-    fetchTripPreference();
-    fetchPropostedGuest();
-  }, [tripId]);
+  users.forEach((user) => {
 
-  useEffect(() => {
-    const filterCounts = {};
-
-    selectedUsers.forEach((user) => {
+    if (user.userPreferences) {
       const allUserPreferences = [
-        ...(user.userPreferences?.activityPreferences || []),
-        ...(user.userPreferences?.dietaryRestrictions || []),
-        ...(user.userPreferences?.travelStyle || []),
-        ...(user.userPreferences?.lifestyleChoices || []),
-        ...(user.userPreferences?.budget || []),
+        ...(user.userPreferences.activityPreferences || []),
+        ...(user.userPreferences.dietaryRestrictions || []),
+        ...(user.userPreferences.travelStyle || []),
+        ...(user.userPreferences.lifestyleChoices || []),
       ];
-
-      console.log("all user prefeernce", allUserPreferences);
+  
+      if (user.userPreferences.budget) {
+        allUserPreferences.push(user.userPreferences.budget);
+      }
 
       allUserPreferences.forEach((preference) => {
         filterCounts[preference] = (filterCounts[preference] || 0) + 1;
       });
-    });
-
-    const filtersWithCounts = Object.entries(filterCounts).map(
-      ([name, count]) => ({ name, count })
-    );
-
-    setSelectedFilters(filtersWithCounts);
-  }, [selectedUsers]);
-  /**
-   * Removes a selected user by their ID.
-   * @param {string} idToRemove - The unique ID of the user to be removed.
-   * @param {string} type - Specifies the list to modify ('users' or 'filters').
-   */
-  function handleRemove(idToRemove, type) {
-    if (type === "users") {
-      setSelectedUsers(selectedUsers.filter((user) => user.id !== idToRemove));
-    } else {
-      setSelectedFilters(
-        selectedFilters.filter((filter) => filter.name !== idToRemove)
-      );
     }
+  });
+
+  const filtersWithCounts = Object.entries(filterCounts).map(
+    ([name, count]) => ({ name, count })
+  );
+
+  setSelectedFilters(filtersWithCounts);
+};
+
+const handleAddUser = (userToAdd) => {
+  if (!selectedUsers.some((user) => user.id === userToAdd.id)) {
+    const newUsers = [...selectedUsers, userToAdd];
+    setSelectedUsers(newUsers);
+    // Recalculate filters after adding a user
+    recalculateFilters(newUsers); 
   }
+};
+
+
+function handleRemove(idToRemove, type) {
+  if (type === "users") {
+    const newUsers = selectedUsers.filter((user) => user.id !== idToRemove);
+    setSelectedUsers(newUsers);
+
+    recalculateFilters(newUsers); 
+  } else {
+    setSelectedFilters(
+      selectedFilters.filter((filter) => filter.name !== idToRemove)
+    );
+  }
+}
 
   /**
    * Formats a filter name for display.
@@ -263,7 +254,7 @@ const TripFilterPage = ({ setLocations }) => {
     }
 
     if (type === "filters") {
-      console.log("Items", items);
+
       return items.map((filterItem) => (
         <Badge
           key={filterItem.name}
@@ -292,25 +283,8 @@ const TripFilterPage = ({ setLocations }) => {
 
     return null;
   }
-
   const handleCreateGuestAndNavigate = async () => {
-    const guestData = selectedUsers.map((user) => ({
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-    }));
 
-    //Add the guests to the proposedGuestList
-    try {
-      const response = await apiClient.post(
-        `/trips/${tripId}/guests`,
-        guestData
-      );
-    } catch (error) {
-      console.error("Failed to create trip:", error);
-    }
-
-    //Add the filters to the TripPreference
     const aggregatedFilters = {
       activityPreferences: {},
       dietaryRestrictions: {},
@@ -318,73 +292,92 @@ const TripFilterPage = ({ setLocations }) => {
       lifestyleChoices: {},
       travelStyle: {},
     };
-
-    const selectedFilterNames = selectedFilters.map((filter) => filter.name);
-
-    selectedUsers.forEach((user) => {
-      const prefs = user.userPreferences;
-      console.log("All selected filters", selectedFilterNames);
-      if (!prefs) {
-        return;
-      }
-
-      if (prefs.activityPreferences) {
-        prefs.activityPreferences.forEach((pref) => {
-          if (selectedFilterNames.includes(pref.trim())) {
-            aggregatedFilters.activityPreferences[pref] =
-              (aggregatedFilters.activityPreferences[pref] || 0) + 1;
-          }
-        });
-      }
-
-      if (prefs.dietaryRestrictions) {
-        prefs.dietaryRestrictions.forEach((pref) => {
-          if (selectedFilterNames.includes(pref)) {
-            aggregatedFilters.dietaryRestrictions[pref] =
-              (aggregatedFilters.dietaryRestrictions[pref] || 0) + 1;
-          }
-        });
-      }
-
-      if (prefs && prefs.budget) {
-        if (selectedFilterNames.includes(prefs.budget)) {
-          aggregatedFilters.budgetDistribution[prefs.budget] =
-            (aggregatedFilters.budgetDistribution[prefs.budget] || 0) + 1;
-        }
-      }
-
-      if (prefs.lifestyleChoices) {
-        prefs.lifestyleChoices.forEach((pref) => {
-          if (selectedFilterNames.includes(pref)) {
-            aggregatedFilters.lifestyleChoices[pref] =
-              (aggregatedFilters.lifestyleChoices[pref] || 0) + 1;
-          }
-        });
-      }
-
-      if (prefs.travelStyle) {
-        prefs.travelStyle.forEach((pref) => {
-          if (selectedFilterNames.includes(pref)) {
-            aggregatedFilters.travelStyle[pref] =
-              (aggregatedFilters.travelStyle[pref] || 0) + 1;
-          }
-        });
+  
+ 
+    selectedFilters.forEach(filter => {
+      const knownActivities = [
+        'Cafes & Coffee Shops',
+        'Restaurants & Dining',
+        'Bars & Nightlife',
+        'Live Music & Concerts',
+        'Theaters & Performing Arts',
+        'Museums & Art Galleries',
+        'Outdoor Activities & Parks',
+        'Sports & Recreation',
+        'Shopping',
+        'Family-Friendly Attractions',
+        'Unique & Trendy Spots'
+      ];
+      const knownDiets = ['Vegetarian', 'Dairy-Free', 'Gluten-Free', 'Halal', 'Kosher', 'Pescatarian', 'Vegan'];
+      const knownLifestyles = [
+        'Active',
+        'Relaxed',
+        'Adventurous',
+        'Cultural',
+        'Social',
+        'Family-Oriented',
+        'Night Owl',
+        'Early Bird'
+      ];
+      const knownStyles =  ['Quick Hangouts', 'Day Trips'];
+      const knownBudgets = ['1', '2', '3', '4'];
+  
+      if (knownActivities.includes(filter.name)) {
+        aggregatedFilters.activityPreferences[filter.name] = filter.count;
+      } else if (knownDiets.includes(filter.name)) {
+        aggregatedFilters.dietaryRestrictions[filter.name] = filter.count;
+      } else if (knownLifestyles.includes(filter.name)) {
+        aggregatedFilters.lifestyleChoices[filter.name] = filter.count;
+      } else if (knownStyles.includes(filter.name)) {
+        aggregatedFilters.travelStyle[filter.name] = filter.count;
+      } else if (knownBudgets.includes(filter.name)) {
+        aggregatedFilters.budgetDistribution[filter.name] = filter.count;
       }
     });
 
-    console.log("All the Filters", aggregatedFilters);
 
-    //Add the tripFilters to the Filter
+
+
+  
+    
+
+      const guestData = selectedUsers.map(user => ({
+        id: user.id,
+        email: user.email,
+        name: user.name
+      }));
+
+
+          
+       try {
+        await apiClient.post(
+          `/trips/${tripId}/guests`,
+          guestData
+          
+        );
+      } catch (error) {
+        console.error("Failed to save preferences:", error);
+        alert("Could not save the preferences. Please try again.");
+      }
+
+  
+
+
+      //send the propostedGuest to the backend
+
+      
+      
+    // Send the correctly built object to the backend
     try {
-      const response = await apiClient.post(
+      await apiClient.post(
         `/trips/${tripId}/TripPreference`,
         aggregatedFilters
       );
     } catch (error) {
-      console.error("Failed to create trip:", error);
-      alert("Could not create the trip. Please try again.");
+      console.error("Failed to save preferences:", error);
+      alert("Could not save the preferences. Please try again.");
     }
-
+  
     navigate(`/tripplanner/${tripId}`);
   };
 
