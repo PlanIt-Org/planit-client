@@ -14,12 +14,11 @@ function DragDropLocations({ locations, setLocations, id: tripId }) {
 
   useEffect(() => {
     internalHandlers.setState(locations);
-  }, [locations, internalHandlers]);
+  }, [locations]);
 
   const handleRemove = async (indexToRemove) => {
     const locationToRemove = internalLocations[indexToRemove];
   
-    // This function now handles both new and saved locations
     const removeFromState = () => {
       const newOrder = internalLocations.filter((_, i) => i !== indexToRemove);
       internalHandlers.setState(newOrder);
@@ -31,13 +30,11 @@ function DragDropLocations({ locations, setLocations, id: tripId }) {
       });
     };
   
-    // If the location is new, just remove it from the state without an API call.
     if (locationToRemove.isNew) {
       removeFromState();
-      return; // Stop execution here
+      return; 
     }
   
-    // Otherwise, it's a saved location. Proceed with the API call.
     const placeId = locationToRemove.googlePlaceId;
   
     if (!placeId) {
@@ -50,9 +47,8 @@ function DragDropLocations({ locations, setLocations, id: tripId }) {
     }
   
     try {
-      // This part now only runs for locations that exist in the database
       await apiClient.delete(`/trips/${tripId}/locations/${placeId}`);
-      removeFromState(); // Reuse the state removal logic on success
+      removeFromState();
     } catch (error) {
       notifications.show({
         title: "Error deleting location",
@@ -63,12 +59,62 @@ function DragDropLocations({ locations, setLocations, id: tripId }) {
       });
     }
   };
+
+  const handleDragEnd = async ({ destination, source }) => {
+    // Exit if the item was dropped outside a valid area
+    if (!destination) return;
+
+    // Store the original order in case we need to revert on error
+    const originalOrder = Array.from(internalLocations);
+
+    // Create the new order for an optimistic UI update
+    const newOrder = Array.from(internalLocations);
+    const [reorderedItem] = newOrder.splice(source.index, 1);
+    newOrder.splice(destination.index, 0, reorderedItem);
+
+    // --- 1. Optimistic UI Update ---
+    // Update the state immediately for a snappy user experience.
+    internalHandlers.setState(newOrder);
+    setLocations(newOrder);
+
+    // --- 2. Persist the New Order to the Backend ---
+    try {
+      // Extract the unique IDs of the locations in their new order.
+      const locationIds = newOrder.map(loc => loc.googlePlaceId);
+
+      // Make the API call to your new backend endpoint.
+      await apiClient.put(`/trips/${tripId}/locations/order`, { locationIds });
+
+      // Optional: Show a temporary success notification.
+      notifications.show({
+        title: "Order Saved",
+        message: "Your new location order has been saved.",
+        color: "green",
+        autoClose: 2000,
+      });
+
+    } catch (error) {
+      console.error("Failed to save location order:", error);
+
+      // --- 3. Revert on Error ---
+      // If the API call fails, revert the UI back to the original order.
+      internalHandlers.setState(originalOrder);
+      setLocations(originalOrder);
+
+      // Show an error message to the user.
+      notifications.show({
+        title: "Error Saving Order",
+        message: "Could not save the new location order. Please try again.",
+        color: "red",
+      });
+    }
+  };
+
   const items = internalLocations.map((location, index) => (
     <Draggable
-      // Use the stable, unique ID for both key and draggableId
-      key={location.googlePlaceId || `location-${index}`} // Fallback if ID is missing
+      key={location.googlePlaceId || `location-${index}`}
       index={index}
-      draggableId={location.googlePlaceId || `location-${index}`} // Must be a string
+      draggableId={String(location.googlePlaceId || `location-${index}`)}
     >
       {(provided, snapshot) => (
         <div
@@ -78,7 +124,6 @@ function DragDropLocations({ locations, setLocations, id: tripId }) {
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
-          {/* ... rest of your component is fine */}
           <div {...provided.dragHandleProps} className={classes.dragHandle}>
             <IconGripVertical size={18} stroke={1.5} />
           </div>
@@ -103,17 +148,6 @@ function DragDropLocations({ locations, setLocations, id: tripId }) {
       )}
     </Draggable>
   ));
-
-  const handleDragEnd = ({ destination, source }) => {
-    if (!destination) return;
-
-    const newOrder = Array.from(internalLocations);
-    const [reorderedItem] = newOrder.splice(source.index, 1);
-    newOrder.splice(destination.index, 0, reorderedItem);
-    internalHandlers.setState(newOrder);
-
-    setLocations(newOrder);
-  };
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
