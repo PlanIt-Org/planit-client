@@ -16,7 +16,7 @@ import {
   Avatar,
   useMantineTheme,
 } from "@mantine/core";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import TripFilterSearchBox from "../components/TripFilterSearchBox";
 import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
@@ -30,11 +30,13 @@ const TripFilterPage = ({ setLocations }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedFilters, setSelectedFilters] = useState([]); //stores the selected filter
-  // const [allUsers, setAllUsers] = useState({});//stores all user objects
+  const location = useLocation();
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   const [stagedUser, setStagedUser] = useState(null);
+
+  const isNewTrip = location.state?.isNew;
 
   const handleSearch = async () => {
     const trimmedQuery = searchQuery.trim();
@@ -155,11 +157,12 @@ const TripFilterPage = ({ setLocations }) => {
     }
   }
 
-  // Add useEffect to call fetchTripPreference when component mounts
   useEffect(() => {
+    console.log("Fetching existing trip data...");
     fetchTripPreference();
     fetchPropostedGuest();
   }, [tripId]);
+
   useEffect(() => {
     const filterCounts = {};
 
@@ -259,7 +262,7 @@ const TripFilterPage = ({ setLocations }) => {
     }
 
     if (type === "filters") {
-      console.log("Items", items)
+      console.log("Items", items);
       return items.map((filterItem) => (
         <Badge
           key={filterItem.name}
@@ -299,7 +302,7 @@ const TripFilterPage = ({ setLocations }) => {
     //Add the guests to the proposedGuestList
     try {
       const response = await apiClient.post(
-        `/trips/${tripId}/proposed-guests`,
+        `/trips/${tripId}/guests`,
         guestData
       );
     } catch (error) {
