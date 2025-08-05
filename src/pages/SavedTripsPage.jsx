@@ -13,7 +13,7 @@ const SavedTripsPage = ({ setLocations, userId }) => {
         width: "100%",
         minHeight: "100vh",
         alignItems: "stretch",
-        background: theme.colors["custom-palette"][9], // page background
+        background: theme.colors["custom-palette"][7], // page background
       }}
     >
       {!isMobile && <NavBar currentPage={2} setLocations={setLocations} />}
@@ -25,7 +25,7 @@ const SavedTripsPage = ({ setLocations, userId }) => {
           minWidth: 0,
           padding: 20,
           boxSizing: "border-box",
-          background: theme.colors["custom-palette"][9], // content background
+          background: theme.colors["custom-palette"][7], // content background
         }}
       >
         <Container size="lg" py="xl">

@@ -1,8 +1,15 @@
 import React from "react";
 import { Carousel } from "@mantine/carousel";
-import { Card, Image, Box, Group, Text, Title, useMantineTheme } from "@mantine/core";
 import {
-  IconBubbleFilled,
+  Card,
+  Image,
+  Box,
+  Group,
+  Text,
+  Title,
+  useMantineTheme,
+} from "@mantine/core";
+import {
   IconChevronCompactRight,
   IconChevronCompactLeft,
 } from "@tabler/icons-react";
@@ -11,7 +18,12 @@ import TripLocationModal from "./TripLocationModal";
 import { useState } from "react";
 import RouteBetween from "./RouteBetween";
 
-const LocationCarousel = ({ locations, comments, setEstimatedTime, estimatedTime }) => {
+const LocationCarousel = ({
+  locations,
+  comments,
+  setEstimatedTime,
+  estimatedTime,
+}) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [finalMode, setFinalMode] = useState(null);
@@ -33,28 +45,41 @@ const LocationCarousel = ({ locations, comments, setEstimatedTime, estimatedTime
         // --- THIS IS THE CHANGE ---
         // On desktop, we give the location card a flexible base width.
         // It will grow to fill space but has a substantial minimum size.
-        style={!isMobile ? { flex: '1 0 320px', minWidth: 0 } : {}}
+        style={!isMobile ? { flex: "1 0 320px", minWidth: 0 } : {}}
       >
         <Card
           withBorder
           radius="md"
-          style={{ overflow: 'hidden', padding: 0, cursor: 'pointer', height: '100%' }}
+          style={{
+            overflow: "hidden",
+            padding: 0,
+            cursor: "pointer",
+            height: "100%",
+          }}
           onClick={() => handleCardClick(loc)}
         >
           <Card.Section>
-            <Image src={loc.imageUrl || `https://picsum.photos/300/200?random=${index}`} alt={loc.name} height={200} fit="cover" />
+            <Image
+              src={
+                loc.imageUrl || `https://picsum.photos/300/200?random=${index}`
+              }
+              alt={loc.name}
+              height={200}
+              fit="cover"
+            />
           </Card.Section>
           <Box m="md">
             <Group justify="space-between" mt={4} mb={2}>
-              <Title fw={500} size="xl">{loc.name}</Title>
+              <Title fw={500} size="xl">
+                {loc.name}
+              </Title>
             </Group>
             <Text size="sm" c="dimmed">
-              <ul style={{ margin: 0, paddingLeft: "1.2em" }}><li>{loc.formatted_address}</li></ul>
+              <ul style={{ margin: 0, paddingLeft: "1.2em" }}>
+                <li>{loc.formatted_address}</li>
+              </ul>
             </Text>
           </Box>
-          <div style={{ position: "absolute", top: 8, right: 8, background: "white", borderRadius: "50%", padding: 4, boxShadow: "0 2px 8px rgba(0,0,0,0.1)", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <IconBubbleFilled size={24} color="#333" />
-          </div>
         </Card>
       </Carousel.Slide>
     );
@@ -67,7 +92,16 @@ const LocationCarousel = ({ locations, comments, setEstimatedTime, estimatedTime
           // --- THIS IS THE CHANGE ---
           // On desktop, the route slide has a smaller, fixed width.
           // It will not grow or shrink.
-          style={!isMobile ? { flex: '0 0 150px' } : { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 2rem' }}
+          style={
+            !isMobile
+              ? { flex: "0 0 150px" }
+              : {
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0 2rem",
+                }
+          }
         >
           <RouteBetween
             finalMode={finalMode}
@@ -75,13 +109,14 @@ const LocationCarousel = ({ locations, comments, setEstimatedTime, estimatedTime
             setEstimatedTime={setEstimatedTime}
             estimatedTime={estimatedTime}
             origin={`${loc.geometry.location.lat},${loc.geometry.location.lng}`}
-            destination={`${locations[index + 1].geometry.location.lat},${locations[index + 1].geometry.location.lng}`}
+            destination={`${locations[index + 1].geometry.location.lat},${
+              locations[index + 1].geometry.location.lng
+            }`}
           />
         </Carousel.Slide>
       );
     }
   });
-
 
   return (
     <Carousel
@@ -94,7 +129,7 @@ const LocationCarousel = ({ locations, comments, setEstimatedTime, estimatedTime
       align="start"
       // Scrolling one slide at a time is more intuitive with variable widths
       slidesToScroll={1}
-      emblaOptions={{ loop: false, containScroll: 'trimSnaps' }}
+      emblaOptions={{ loop: false, containScroll: "trimSnaps" }}
       nextControlIcon={<IconChevronCompactRight size={30} />}
       previousControlIcon={<IconChevronCompactLeft size={30} />}
     >
