@@ -56,7 +56,7 @@ const mockdata = [
   // { icon: IconFingerprint, label: 'Security' },
 ];
 
-function NavBar({ currentPage, setLocations }) {
+function NavBar({ currentPage }) {
   const [active, setActive] = useState(currentPage);
   const navigate = useNavigate();
   const theme = useMantineTheme();
@@ -69,10 +69,6 @@ function NavBar({ currentPage, setLocations }) {
       active={index === active}
       onClick={() => {
         setActive(index);
-
-        if (index === 0) {
-          setLocations([]);
-        }
         navigate(link.path);
       }}
     />

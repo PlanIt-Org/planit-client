@@ -16,7 +16,7 @@ const SavedTripsPage = ({ setLocations, userId }) => {
         background: theme.colors["custom-palette"][9], // page background
       }}
     >
-      {!isMobile && <NavBar currentPage={2} setLocations={setLocations} />}
+      {!isMobile && <NavBar currentPage={2}/>}
 
       {/* main content */}
       <Box
@@ -48,7 +48,7 @@ const SavedTripsPage = ({ setLocations, userId }) => {
             borderTop: `1px solid ${theme.colors["custom-palette"][6]}`, // navbar border
           }}
         >
-          <NavBar currentPage={2} setLocations={setLocations} />
+          <NavBar currentPage={2}/>
         </Box>
       )}
     </Flex>

@@ -201,7 +201,7 @@ const TripFilterPage = ({ setLocations }) => {
         alignItems: "stretch",
         flexDirection: isMobile ? "column" : "row",
       }} >
-      {!isMobile && <NavBar currentPage={4} setLocations={setLocations} />}
+      {!isMobile && <NavBar currentPage={4}/>}
       
     
       <Flex
@@ -284,7 +284,7 @@ const TripFilterPage = ({ setLocations }) => {
             borderTop: '1px solid var(--mantine-color-divider)',
           }}
         >
-          <NavBar currentPage={4} setLocations={setLocations} />
+          <NavBar currentPage={4} />
         </Box>
       )}
     </Flex>

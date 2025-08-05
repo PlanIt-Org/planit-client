@@ -74,7 +74,6 @@ const TripLocationModal = ({ opened, open, close, location, comments }) => {
         {/* Comments */}
         <Stack spacing="md" mt="md">
           {(() => {
-            console.log(location, "LETS SEE GOAT");
             const filteredComments = comments.filter(
               (comment) =>
                 comment.location.trim().toLowerCase() ===
@@ -90,12 +89,12 @@ const TripLocationModal = ({ opened, open, close, location, comments }) => {
                         comment.author?.avatar ||
                         "https://i.pravatar.cc/150?img=0"
                       }
-                      alt={comment.author?.name || "Unknown"}
+                      alt={comment.author?.name || comment.author?.email || "Guest"}
                       radius="xl"
                     />
                     <div>
                       <Text size="sm" fw={500}>
-                        {comment.author?.name || "Unknown"}
+                      {comment.author?.name || comment.author?.email || "Guest"}
                       </Text>
                       {comment.location?.length > 0 && (
                         <Text size="xs" c="dimmed">

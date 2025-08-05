@@ -18,8 +18,28 @@ function DragDropLocations({ locations, setLocations, id: tripId }) {
 
   const handleRemove = async (indexToRemove) => {
     const locationToRemove = internalLocations[indexToRemove];
+  
+    // This function now handles both new and saved locations
+    const removeFromState = () => {
+      const newOrder = internalLocations.filter((_, i) => i !== indexToRemove);
+      internalHandlers.setState(newOrder);
+      setLocations(newOrder);
+      notifications.show({
+        title: "Location removed",
+        message: `${locationToRemove.name} has been removed from your list.`,
+        color: "green",
+      });
+    };
+  
+    // If the location is new, just remove it from the state without an API call.
+    if (locationToRemove.isNew) {
+      removeFromState();
+      return; // Stop execution here
+    }
+  
+    // Otherwise, it's a saved location. Proceed with the API call.
     const placeId = locationToRemove.googlePlaceId;
-
+  
     if (!placeId) {
       notifications.show({
         title: "Deletion error",
@@ -28,33 +48,27 @@ function DragDropLocations({ locations, setLocations, id: tripId }) {
       });
       return;
     }
-
+  
     try {
+      // This part now only runs for locations that exist in the database
       await apiClient.delete(`/trips/${tripId}/locations/${placeId}`);
-
-      const newOrder = internalLocations.filter((_, i) => i !== indexToRemove);
-      internalHandlers.setState(newOrder);
-      setLocations(newOrder);
-
-      notifications.show({
-        title: "Location removed",
-        message: `${locationToRemove.name} has been deleted from your trip.`,
-        color: "green",
-      });
+      removeFromState(); // Reuse the state removal logic on success
     } catch (error) {
       notifications.show({
         title: "Error deleting location",
-        message: error.response?.data?.message || error.message,
+        message:
+          error.response?.data?.message ||
+          "This location might have already been removed.",
         color: "red",
       });
     }
   };
-
   const items = internalLocations.map((location, index) => (
     <Draggable
-      key={location.place_id || `${location.name}-${index}`}
+      // Use the stable, unique ID for both key and draggableId
+      key={location.googlePlaceId || `location-${index}`} // Fallback if ID is missing
       index={index}
-      draggableId={location.place_id || `${location.name}-${index}`}
+      draggableId={location.googlePlaceId || `location-${index}`} // Must be a string
     >
       {(provided, snapshot) => (
         <div
@@ -64,6 +78,7 @@ function DragDropLocations({ locations, setLocations, id: tripId }) {
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
+          {/* ... rest of your component is fine */}
           <div {...provided.dragHandleProps} className={classes.dragHandle}>
             <IconGripVertical size={18} stroke={1.5} />
           </div>

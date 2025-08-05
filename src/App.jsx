@@ -30,8 +30,6 @@ const ProtectedRoute = ({ children }) => {
 
 function App({ isMapsApiLoaded }) {
   const [selectedCity, setSelectedCity] = useState("");
-  const [locations, setLocations] = useState([]);
-  const [selectedPlace, setSelectedPlace] = useState(null);
   const [ownTrip, setOwnTrip] = useState(true);
   const { session } = useAuth();
   const location = useLocation();
@@ -57,7 +55,6 @@ function App({ isMapsApiLoaded }) {
                 selectedCity={selectedCity}
                 setSelectedCity={setSelectedCity}
                 isMapsApiLoaded={isMapsApiLoaded}
-                setLocations={setLocations}
                 // put the whole user into the homepage info
                 user={session?.user}
               />
@@ -68,7 +65,7 @@ function App({ isMapsApiLoaded }) {
           path="/profile"
           element={
             <ProtectedRoute>
-              <ProfilePage user={session?.user} setLocations={setLocations} />
+              <ProfilePage user={session?.user} />
             </ProtectedRoute>
           }
         />
@@ -86,11 +83,7 @@ function App({ isMapsApiLoaded }) {
             <ProtectedRoute>
               <TripPlannerPage
                 selectedCity={selectedCity}
-                setSelectedCity={setSelectedCity}
-                locations={locations}
-                setLocations={setLocations}
-                setSelectedPlace={setSelectedPlace}
-                selectedPlace={selectedPlace}
+                setSelectedCity={setSelectedCity}     
                 ownTrip={ownTrip}
                 setOwnTrip={setOwnTrip}
               />
@@ -102,12 +95,9 @@ function App({ isMapsApiLoaded }) {
           element={
             <ProtectedRoute>
               <TripSummaryPage
-                locations={locations}
                 selectedCity={selectedCity}
                 setSelectedCity={setSelectedCity}
-                setLocations={setLocations}
-                setSelectedPlace={setSelectedPlace}
-                selectedPlace={selectedPlace}
+         
                 userId={session?.user.id}
                 userObj = {session?.user}
                 ownTrip={ownTrip}
@@ -120,7 +110,7 @@ function App({ isMapsApiLoaded }) {
           path="/tripfilter/:tripId"
           element={
             <ProtectedRoute>
-              <TripFilterPage setLocations={setLocations} />
+              <TripFilterPage/>
             </ProtectedRoute>
           }
         />
@@ -129,7 +119,6 @@ function App({ isMapsApiLoaded }) {
           element={
             <ProtectedRoute>
               <DiscoverTripsPage
-                setLocations={setLocations}
                 userId={session?.user?.id}
               />
             </ProtectedRoute>
@@ -140,7 +129,6 @@ function App({ isMapsApiLoaded }) {
           element={
             <ProtectedRoute>
               <SavedTripsPage
-                setLocations={setLocations}
                 userId={session?.user?.id}
               />
             </ProtectedRoute>

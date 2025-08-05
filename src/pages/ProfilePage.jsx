@@ -69,7 +69,7 @@ const ProfilePage = ({ setLocations }) => {
         background: theme.colors["custom-palette"][9], // match HomePage background
       }}
     >
-      {!isMobile && <NavBar currentPage={3} setLocations={setLocations} />}
+      {!isMobile && <NavBar currentPage={3}/>}
 
       {/* main content */}
       <AnimatedBox
@@ -130,7 +130,7 @@ const ProfilePage = ({ setLocations }) => {
             borderTop: `1px solid ${theme.colors["custom-palette"][6]}`,
           }}
         >
-          <NavBar currentPage={3} setLocations={setLocations} />
+          <NavBar currentPage={3}  />
         </Box>
       )}
     </StyledPageWrapper>

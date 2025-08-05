@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Grid,
   Stack,
@@ -9,43 +8,19 @@ import {
   Group,
   Button,
   Avatar,
-  Card,
-  Image,
   Box,
-  Title,
-  Modal,
-  Container,
-  Combobox,
-  useCombobox,
-  InputBase,
-  Input,
   Flex,
   useMantineTheme,
+  Card,
+  Title,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-
-import { Carousel } from "@mantine/carousel";
-import axios from "axios";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const API_GEO_URL = import.meta.env.VITE_GEO_API_KEY;
-
-import {
-  IconBubbleFilled,
-  IconChevronCompactRight,
-  IconChevronCompactLeft,
-  IconShare,
-} from "@tabler/icons-react";
-
-import { LoremIpsum } from "react-lorem-ipsum";
-import { useDisclosure } from "@mantine/hooks";
-import TripPlannerMap from "../components/TripPlannerMap";
 import { notifications } from "@mantine/notifications";
+import TripPlannerMap from "../components/TripPlannerMap";
 import NavBar from "../components/NavBar";
-import { useNavigate } from "react-router-dom";
 import LocationCarousel from "../components/LocationCarousel";
 import TripDetails from "../components/TripDetails";
 import TripGuestList from "../components/TripGuestList";
-import TripLocationModal from "../components/TripLocationModal";
 import CommentGrid from "../components/CommentGrid";
 import NoCarouselLocation from "../components/NoCarouselLocation";
 import RSVPForm from "../components/RSVPForm";
@@ -80,255 +55,127 @@ const AnimatedBox = styled(Box)`
   animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
-const TripSummaryPage = ({
-  selectedCity,
-  locations,
-  selectedPlace,
-  setLocations,
-  userId,
-  userObj,
-}) => {
-  const [googleMapsLink, setGoogleMapsLink] = useState("");
-  const [filterValue, setFilterValue] = React.useState(null);
-  const combobox = useCombobox({});
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const [currTripId, setCurrTripId] = useState(null);
-  const [tripStatus, setTripStatus] = useState(null);
-  const [ownTrip, setOwnTrip] = useState(false);
-  const [isPrivate, setIsPrivate] = useState(true);
-  const [isTimeLoading, setIsTimeLoading] = useState(true);
-  const [RSVPStatus, setRSVPStatus] = useState(null);
-  const [comments, setComments] = useState([]);
-  const [estimatedTime, setEstimatedTime] = useState(0);
-  const { generateAvatarUrl } = useProfilePicture(userObj);
-  const theme = useMantineTheme();
-  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
-
-  useEffect(() => {
-    if (id) {
-      setCurrTripId(id);
-    }
-    console.log("This is the ID:", id);
-  }, [id]);
-
-  useEffect(() => {
-    // If there's no trip ID, do nothing.
-    if (ownTrip) {
-      return;
-    }
-    if (!currTripId) {
-      setIsTimeLoading(false);
-      return;
-    }
-
-    const fetchLocationsAndStatus = async () => {
-      try {
-        const response = await apiClient.get(`/trips/${currTripId}/locations`);
-        const dbLocations = response.data.locations;
-
-        if (!Array.isArray(dbLocations)) {
-          console.error("Invalid response format:", response.data);
-          setLocations([]);
-          return;
-        }
-
-        const transformed = dbLocations.map((loc) => ({
-          name: loc.name,
-          formatted_address: loc.address,
-          place_id: loc.googlePlaceId,
-          imageUrl: loc.image,
-          types: loc.types,
-          geometry: {
-            location: {
-              lat: loc.latitude,
-              lng: loc.longitude,
-            },
-          },
-        }));
-
-        setLocations(transformed);
-
-        const hostRes = await apiClient.get(`/trips/${currTripId}/host`);
-        const { hostId } = hostRes.data;
-
-        setOwnTrip(String(hostId) === String(userId));
-
-        console.log("hostId:", hostId);
-        console.log("userId:", userId);
-        console.log("ownTrip?", String(hostId) === String(userId));
-
-        const tripRes = await apiClient.get(`/trips/${currTripId}/status`);
-        setTripStatus(tripRes.data?.data?.status);
-        console.log("Trip status is:", tripRes.data?.data?.status);
-      } catch (err) {
-        console.error("Failed to fetch locations or trip status:", err);
-      }
-    };
-
-    fetchLocationsAndStatus();
-  }, [currTripId, setLocations, userId]);
-
-  useEffect(() => {
-    // Add a log to see if the hook is being skipped
-    if (ownTrip) {
-      console.log("RSVP fetch skipped: User owns the trip.");
-      // If the user is the owner, they can't RSVP. Set status to a final state.
-      setRSVPStatus(null);
-      return;
-    }
-    if (!currTripId || !userId) {
-      console.log("RSVP fetch skipped: Missing tripId or userId.");
-      return;
-    }
-
-    const fetchRsvpStatus = async () => {
-      // Reset status to loading every time the tripId changes
-      setRSVPStatus(undefined);
-      console.log(
-        `Requesting RSVP status for trip: /trip/${currTripId}/my-rsvp`
-      );
-
-      try {
-        const response = await apiClient.get(`/trip/${currTripId}/my-rsvp`);
-
-        // CRITICAL STEP: Log the entire response from the server
-        console.log("✅ Full API Response for my-rsvp:", response);
-
-        // Check if the data and status property exist before trying to access them
-        if (response && response.data && response.data.status) {
-          const status = response.data.status.toLowerCase();
-          console.log("✅ SUCCESS: Setting RSVPStatus to:", status);
-          setRSVPStatus(status);
-        } else {
-          // This will catch cases where the API response has an unexpected format
-          console.error("❌ API response format is unexpected:", response.data);
-          setRSVPStatus(null); // Set to a non-loading state
-        }
-      } catch (error) {
-        if (error.response) {
-          // Log the full error response if the API call fails
-          console.error("❌ API Error fetching RSVP status:", error.response);
-          if (error.response.status === 404) {
-            console.log(
-              "User has not RSVP'd yet (404). Setting status to null."
-            );
-            setRSVPStatus(null);
-          } else {
-            // For other errors (like 500), set to null to stop the loading state
-            setRSVPStatus(null);
-          }
-        } else {
-          // Handle network errors where there's no response object
-          console.error(
-            "❌ Network error fetching RSVP status:",
-            error.message
-          );
-        }
-      }
-    };
-
-    fetchRsvpStatus();
-  }, [currTripId, userId, ownTrip]);
-
-  ////Commentss
-
-  /**
-   * Fetches all comments for a specific trip ID.
-   * @param {string} tripId - The ID of the trip.
-   * @returns {Promise<Array>} An array of comment objects.
-   */
-  async function fetchAllCommentsForTrip(tripId) {
+// Helper function outside the component
+async function fetchAllCommentsForTrip(tripId) {
     try {
       const response = await apiClient.get(`/comments/trips/${tripId}`);
-
       return response.data;
     } catch (error) {
       console.error("Failed to fetch comments for trip:", error);
       throw error;
     }
-  }
+}
+
+
+const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  
+  const [locations, setLocations] = useState([]);
+  const [tripData, setTripData] = useState(null); // Use a single object for trip data
+  const [comments, setComments] = useState([]);
+  const [RSVPStatus, setRSVPStatus] = useState(null);
+  const [isTimeLoading, setIsTimeLoading] = useState(true);
+
+  const { generateAvatarUrl } = useProfilePicture(userObj);
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+
+  // Derived state - no need for separate useState
+  const ownTrip = tripData ? String(tripData.hostId) === String(userId) : false;
+  const tripStatus = tripData ? tripData.status : null;
 
   useEffect(() => {
-    const loadComments = async () => {
-      if (currTripId) {
-        const allCommentsFromDB = await fetchAllCommentsForTrip(currTripId);
-        console.log("all commentsx", allCommentsFromDB);
+    if (!id) return;
+  
+    const fetchAllPageData = async () => {
+      try {
+        setIsTimeLoading(true);
+  
+        // 1. Fetch all data concurrently
+        const [tripRes, commentsRes] = await Promise.all([
+          apiClient.get(`/trips/${id}`), // Fetch the main trip object which includes locations, host, etc.
+          fetchAllCommentsForTrip(id),
+        ]);
+        
+        const fetchedTrip = tripRes.data.trip;
+        setTripData(fetchedTrip);
 
-        const newFormatedComments = allCommentsFromDB.map((comment) => ({
-          id: comment.id,
-          author: {
-            name: comment.author.name || comment.author.email,
-            avatar: generateAvatarUrl(userObj.email),
-          },
-          text: comment.text,
-
-          location: comment.location.name || "General Comment",
+        // --- Process Locations ---
+        const dbLocations = fetchedTrip.locations || [];
+        const transformedLocations = dbLocations.map((loc) => ({
+            name: loc.name, 
+            address: loc.address, 
+            googlePlaceId: loc.googlePlaceId, 
+            imageUrl: loc.image, 
+            types: loc.types,
+            geometry: { location: { lat: parseFloat(loc.latitude), lng: parseFloat(loc.longitude) } },
         }));
-        setComments(newFormatedComments);
+        setLocations(transformedLocations);
+        
+        // --- Process Comments (with safety check) ---
+        const formattedComments = commentsRes.map((comment) => ({
+          id: comment.id,
+          // THE FIX for the crash: Use optional chaining
+          author: { name: comment.author?.name || "Unknown User", avatar: generateAvatarUrl(comment.author?.email) },
+          text: comment.text,
+          location: comment.location?.name || "",
+        }));
+        setComments(formattedComments);
+        
+        // --- Process RSVP Status (with race condition fix) ---
+        const isOwner = String(fetchedTrip.hostId) === String(userId);
+        if (isOwner) {
+          setRSVPStatus(null); // Hosts can't RSVP
+        } else {
+          try {
+            const rsvpRes = await apiClient.get(`/trip/${id}/my-rsvp`);
+            setRSVPStatus(rsvpRes.data?.status?.toLowerCase() || null);
+          } catch (error) {
+            if (error.response?.status === 404) {
+              setRSVPStatus(null); // Not RSVP'd yet
+            }
+          }
+        }
+  
+      } catch (err) {
+        console.error("Failed to fetch page data:", err);
+        notifications.show({ title: "Error", message: "Could not load trip details.", color: "red" });
+      } finally {
+        setIsTimeLoading(false);
       }
     };
+  
+    fetchAllPageData();
+  }, [id, userId]); // Removed userObj as generateAvatarUrl can be passed down
 
-    loadComments(); // Call the new async function
-  }, [currTripId]); // The effect runs whenever tripId changes
 
-  useEffect(() => {
-    console.log(
-      `%cRSVPStatus changed to: %c${RSVPStatus}`,
-      "color: blue; font-weight: bold;",
-      "color: green; font-weight: bold;"
-    );
-  }, [RSVPStatus]);
-
-  const handleOpenGoogleMaps = () => {
-    if (googleMapsLink) {
-      window.open(googleMapsLink, "_blank"); // open link in new tab
-    } else {
-      notifications.show({
-        title: "No Directions Available",
-        message:
-          "Please ensure a valid trip route is displayed to open in Google Maps.",
-        color: "red",
-        position: "bottom-center",
-        autoClose: 5000,
-      });
-    }
-  };
-
-  const handlePublish = async (tripId) => {
+  const handlePublish = async () => {
+    if (!tripData) return;
     const newStatus = tripStatus === "ACTIVE" ? "PLANNING" : "ACTIVE";
-
     try {
-      await apiClient.put(`/trips/${tripId}/status`, {
-        status: newStatus,
-      });
-
-      setTripStatus(newStatus);
-
+      await apiClient.put(`/trips/${id}/status`, { status: newStatus });
+      setTripData(prev => ({...prev, status: newStatus})); // Update local state immediately
       notifications.show({
         title: `Trip ${newStatus === "ACTIVE" ? "Published" : "Unpublished"}`,
-        message:
-          newStatus === "ACTIVE"
-            ? "Your trip is now live!"
-            : "Your trip is back to draft mode.",
+        message: newStatus === "ACTIVE" ? "Your trip is now live!" : "Your trip is back to draft mode.",
         color: "green",
       });
     } catch (err) {
       console.error("Failed to update trip status:", err);
-      notifications.show({
-        title: "Error",
-        message: `Could not ${
-          newStatus === "ACTIVE" ? "publish" : "unpublish"
-        } the trip.`,
-        color: "red",
-      });
+      notifications.show({ title: "Error", message: `Could not update trip status.`, color: "red" });
     }
   };
+
+  // The rest of your component's JSX will now use the derived state
+  // (ownTrip, tripStatus) and the fetched state (locations, comments, etc.)
+  // For brevity, the JSX is omitted but should remain structurally the same.
+  // Just ensure it uses `tripData` where appropriate, e.g., `tripData.isPrivate`.
 
   return (
     <>
       <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
-        {!isMobile && <NavBar setLocations={setLocations} />}
+        {!isMobile && <NavBar />}
         <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
           {isMobile ? (
             //----------------------------------------------------------> Mobile layout - vertical stack <---------------------------------------------------------
@@ -345,7 +192,6 @@ const TripSummaryPage = ({
                     Back
                   </Button>
                 )}
-                {/* Time Information */}
                 <Paper
                   withBorder
                   radius="md"
@@ -354,11 +200,9 @@ const TripSummaryPage = ({
                   flex={1}
                 >
                   <TripTimes
-                    currTripId={currTripId}
+                    currTripId={id}
                     tripStatus={tripStatus}
                     locations={locations}
-                    estimatedTime={estimatedTime}
-                    setEstimatedTime={setEstimatedTime}
                   />
                 </Paper>
               </Group>
@@ -367,8 +211,8 @@ const TripSummaryPage = ({
                 tripId={id}
                 ownTrip={ownTrip}
                 tripStatus={tripStatus}
-                isPrivate={isPrivate}
-                setIsPrivate={setIsPrivate}
+                isPrivate={tripData?.isPrivate}
+                setIsPrivate={(isPrivate) => setTripData(prev => ({...prev, isPrivate}))}
               />
 
               <RSVPForm
@@ -405,38 +249,24 @@ const TripSummaryPage = ({
                   }}
                 >
                   <TripPlannerMap
-                    selectedPlace={selectedPlace}
                     locations={locations}
                     selectedCity={selectedCity}
                     showRoutes={true}
                     mapHeight="300px"
-                    setGoogleMapsLink={setGoogleMapsLink}
                     tripId={id}
                   />
                 </div>
               </Paper>
 
-              {isMobile ? (
-                // always carousel on mobile
-                <LocationCarousel
-                  locations={locations}
-                  comments={comments}
-                  setEstimatedTime={setEstimatedTime}
-                  estimatedTime={estimatedTime}
-                />
-              ) : // desktop carousel if locations > 3
-              locations.length < 3 ? (
+              {locations.length < 3 ? (
                 <NoCarouselLocation
                   locations={locations}
                   comments={comments}
-                  setEstimatedTime={setEstimatedTime}
                 />
               ) : (
                 <LocationCarousel
                   locations={locations}
                   comments={comments}
-                  setEstimatedTime={setEstimatedTime}
-                  estimatedTime={estimatedTime}
                 />
               )}
 
@@ -451,12 +281,11 @@ const TripSummaryPage = ({
                 userObj={userObj}
               />
 
-              {/* Publish/Edit button for mobile */}
               {ownTrip && tripStatus && (
                 <Group justify="center">
                   <Button
                     color={tripStatus === "ACTIVE" ? "red" : "green"}
-                    onClick={() => handlePublish(currTripId)}
+                    onClick={handlePublish}
                     size="lg"
                     fullWidth
                   >
@@ -491,11 +320,9 @@ const TripSummaryPage = ({
                       flex={1}
                     >
                       <TripTimes
-                        currTripId={currTripId}
+                        currTripId={id}
                         tripStatus={tripStatus}
                         locations={locations}
-                        estimatedTime={estimatedTime}
-                        setEstimatedTime={setEstimatedTime}
                       />
                     </Paper>
                   </Group>
@@ -526,12 +353,10 @@ const TripSummaryPage = ({
                       }}
                     >
                       <TripPlannerMap
-                        selectedPlace={selectedPlace}
                         locations={locations}
                         selectedCity={selectedCity}
                         showRoutes={true}
                         mapHeight="100%"
-                        setGoogleMapsLink={setGoogleMapsLink}
                         tripId={id}
                       />
                     </div>
@@ -541,29 +366,23 @@ const TripSummaryPage = ({
                     <NoCarouselLocation
                       locations={locations}
                       comments={comments}
-                      setEstimatedTime={setEstimatedTime}
-                      estimatedTime={estimatedTime}
                     />
                   ) : (
                     <LocationCarousel
                       locations={locations}
                       comments={comments}
-                      setEstimatedTime={setEstimatedTime}
-                      estimatedTime={estimatedTime}
                     />
                   )}
                 </Stack>
               </Grid.Col>
-              {/* Right Column */}
               <Grid.Col span={5}>
                 <Stack spacing="xl">
-                  {/* Trip Details Card */}
                   <TripDetails
                     tripId={id}
                     ownTrip={ownTrip}
                     tripStatus={tripStatus}
-                    isPrivate={isPrivate}
-                    setIsPrivate={setIsPrivate}
+                    isPrivate={tripData?.isPrivate}
+                    setIsPrivate={(isPrivate) => setTripData(prev => ({...prev, isPrivate}))}
                   />
                   <RSVPForm
                     tripId={id}
@@ -574,7 +393,6 @@ const TripSummaryPage = ({
                     tripStatus={tripStatus}
                   />
                   <TripGuestList tripId={id} />
-                  {/* Comments Section */}
                   <CommentGrid
                     tripId={id}
                     locations={locations}
@@ -582,14 +400,12 @@ const TripSummaryPage = ({
                     comments={comments}
                     setComments={setComments}
                     userObj={userObj}
-                  >
-                    {" "}
-                  </CommentGrid>
+                  />
                   <Group justify="flex-end">
                     {ownTrip && tripStatus && (
                       <Button
                         color={tripStatus === "ACTIVE" ? "red" : "green"}
-                        onClick={() => handlePublish(currTripId)}
+                        onClick={handlePublish}
                       >
                         {tripStatus === "ACTIVE" ? "Edit" : "Publish"}
                       </Button>
@@ -612,7 +428,7 @@ const TripSummaryPage = ({
               borderTop: `1px solid ${theme.colors["custom-palette"][6]}`,
             }}
           >
-            <NavBar setLocations={setLocations} />
+            <NavBar />
           </Box>
         )}
       </AnimatedFlex>
