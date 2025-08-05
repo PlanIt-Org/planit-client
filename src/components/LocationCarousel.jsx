@@ -117,17 +117,19 @@ const LocationCarousel = ({
   });
 
   return (
-    <Carousel
-      withIndicators
-      slideGap="md"
-      slideSize={isMobile ? "100%" : undefined}
-      align="start"
-      slidesToScroll={1}
-      emblaOptions={{ loop: false, containScroll: "trimSnaps" }}
-      nextControlIcon={<IconChevronCompactRight size={30} />}
-      previousControlIcon={<IconChevronCompactLeft size={30} />}
-    >
-      {carouselSlides}
+    <>
+      <Carousel
+        withIndicators
+        slideGap="md"
+        slideSize={isMobile ? "100%" : undefined}
+        align="start"
+        emblaOptions={{ loop: false, containScroll: 'trimSnaps' }}
+        nextControlIcon={<IconChevronCompactRight size={30} />}
+        previousControlIcon={<IconChevronCompactLeft size={30} />}
+      >
+        {carouselSlides}
+      </Carousel>
+
       <TripLocationModal
         opened={opened}
         open={open}
@@ -135,7 +137,7 @@ const LocationCarousel = ({
         location={selectedLocation}
         comments={comments}
       />
-    </Carousel>
+    </>
   );
 };
 
