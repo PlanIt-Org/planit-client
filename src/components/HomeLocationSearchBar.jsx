@@ -9,6 +9,7 @@ import CityAutoCompleteSearchField from "./CityAutoCompleteSearchField";
 import { notifications } from "@mantine/notifications";
 import DatePickerPopover from "./DatePickerPopover";
 import apiClient from "../api/axios";
+import dayjs from "dayjs";
 
 const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
   const navigate = useNavigate();
@@ -25,15 +26,16 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
     console.log("Selected City:", place);
   };
 
-  const combineDateAndTime = (datePart, timeString) => {
-    if (!datePart || !timeString) return null;
+  const combineDateAndTime = (date, timeString) => {
+    if (!date || !timeString) return null;
     const [hours, minutes] = timeString.split(":").map(Number);
-    const combined = new Date(datePart);
-    combined.setHours(hours);
-    combined.setMinutes(minutes);
-    combined.setSeconds(0);
-    combined.setMilliseconds(0);
-    return combined.toISOString();
+
+    return dayjs(date)
+      .hour(hours)
+      .minute(minutes)
+      .second(0)
+      .millisecond(0)
+      .format("YYYY-MM-DDTHH:mm:ss");
   };
 
   const handleGoClick = async () => {
@@ -130,9 +132,9 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
 
   const mobileWrapStyle = (theme) => ({
     [`@media (max-width: ${theme.breakpoints.sm})`]: {
-      flexWrap: 'wrap',
+      flexWrap: "wrap",
       // Target direct children to add vertical spacing only when wrapped
-      '& > *': {
+      "& > *": {
         marginBottom: `calc(${theme.spacing.sm} / 2)`,
       },
     },
@@ -146,69 +148,106 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
         flexDirection: "column",
         alignItems: "center",
         margin: isMobile ? theme.spacing.md : theme.spacing.lg,
+        background: theme.colors["custom-palette"][9], // apply theme background
+        borderRadius: theme.radius.md,
+        boxShadow: theme.shadows.xs,
       }}
     >
-      <Text fw={700} size="xl" ta="center">
+      <Text
+        fw={700}
+        size="xl"
+        ta="center"
+        c={theme.colors["custom-palette"][1]}
+      >
         Plan a Trip!
       </Text>
 
       {isMobile ? (
-       <Stack spacing="sm" w="100%" mt="md">
-        <Group 
-            spacing="sm" 
-            grow 
-            sx={mobileWrapStyle} 
-        >
+        <Stack spacing="sm" w="100%" mt="md">
+          <Group spacing="sm" grow sx={mobileWrapStyle}>
             <CityAutoCompleteSearchField
-                onPlaceSelected={handleCitySelected}
-                size="md"
-                placeholder="Search for a city..."
-                styles={{
-                    input: { height: 44, minHeight: 44, borderRadius: "var(--mantine-radius-md)" },
-                    wrapper: { width: "100%" },
-                }}
+              onPlaceSelected={handleCitySelected}
+              size="md"
+              placeholder="Search for a city..."
+              styles={{
+                input: {
+                  height: 44,
+                  minHeight: 44,
+                  borderRadius: "var(--mantine-radius-md)",
+                  background: theme.colors["custom-palette"][8],
+                  color: theme.colors["custom-palette"][1],
+                },
+                wrapper: { width: "100%" },
+              }}
             />
-            <DatePickerPopover size="xs" tripDate={tripDate} setTripDate={setTripDate} />
-        </Group>
+            <DatePickerPopover
+              size="xs"
+              tripDate={tripDate}
+              setTripDate={setTripDate}
+            />
+          </Group>
 
-        <Group 
-            spacing="sm" 
-            grow 
-            sx={mobileWrapStyle} 
-        >
+          <Group spacing="sm" grow sx={mobileWrapStyle}>
             <TimePicker
-                leftSection={clockIcon}
-                placeholder="Start time"
-                value={startTime}
-                onChange={setStartTime}
-                size="md"
-                styles={{ input: { fontWeight: 500, height: 44, minHeight: 44 } }}
+              leftSection={clockIcon}
+              placeholder="Start time"
+              value={startTime}
+              onChange={setStartTime}
+              size="md"
+              styles={{
+                input: {
+                  fontWeight: 500,
+                  height: 44,
+                  minHeight: 44,
+                  background: theme.colors["custom-palette"][8],
+                  color: theme.colors["custom-palette"][1],
+                },
+              }}
             />
             <TimePicker
-                leftSection={clockIcon}
-                placeholder="End time"
-                value={endTime}
-                onChange={setEndTime}
-                size="md"
-                styles={{ input: { fontWeight: 500, height: 44, minHeight: 44 } }}
+              leftSection={clockIcon}
+              placeholder="End time"
+              value={endTime}
+              onChange={setEndTime}
+              size="md"
+              styles={{
+                input: {
+                  fontWeight: 500,
+                  height: 44,
+                  minHeight: 44,
+                  background: theme.colors["custom-palette"][8],
+                  color: theme.colors["custom-palette"][1],
+                },
+              }}
             />
             <Button
-                onClick={handleGoClick}
-                size="md"
-                loading={isCreatingTrip}
-                disabled={isCreatingTrip}
-                style={{ height: 44, minHeight: 44 }}
+              onClick={handleGoClick}
+              size="md"
+              loading={isCreatingTrip}
+              disabled={isCreatingTrip}
+              style={{
+                height: 44,
+                minHeight: 44,
+                background: theme.colors["custom-palette"][4],
+                color: theme.colors["custom-palette"][9],
+              }}
             >
-                Go
+              Go
             </Button>
-        </Group>
-   
+          </Group>
         </Stack>
       ) : (
         <Group
           gap={0}
           align="center"
-          style={{ maxWidth: 1200, margin: "0 auto", minHeight: 64 }}
+          style={{
+            maxWidth: 1200,
+            margin: "0 auto",
+            minHeight: 64,
+            background: theme.colors["custom-palette"][9],
+            borderRadius: theme.radius.md,
+            boxShadow: theme.shadows.xs,
+          }}
         >
           <CityAutoCompleteSearchField
             onPlaceSelected={handleCitySelected}
@@ -219,6 +258,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
                 minHeight: 48,
                 borderTopRightRadius: 0,
                 borderBottomRightRadius: 0,
+                background: theme.colors["custom-palette"][8],
+                color: theme.colors["custom-palette"][1],
               },
               wrapper: { flexGrow: 1, minWidth: 360, maxWidth: 700 },
             }}
@@ -236,6 +277,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
                 borderRadius: 0,
                 height: 48,
                 minHeight: 48,
+                background: theme.colors["custom-palette"][8],
+                color: theme.colors["custom-palette"][1],
               },
             }}
           />
@@ -252,6 +295,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
                 borderLeft: "none",
                 height: 48,
                 minHeight: 48,
+                background: theme.colors["custom-palette"][8],
+                color: theme.colors["custom-palette"][1],
               },
             }}
           />
@@ -263,6 +308,8 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
               borderBottomLeftRadius: 0,
               height: 48,
               minHeight: 48,
+              background: theme.colors["custom-palette"][4],
+              color: theme.colors["custom-palette"][9],
             }}
             loading={isCreatingTrip}
             disabled={isCreatingTrip}

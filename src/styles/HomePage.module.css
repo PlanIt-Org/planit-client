@@ -1,0 +1,34 @@
+.mainContent {
+    flex: 1;
+    min-width: 0;
+    padding: 40px;
+    box-sizing: border-box;
+    background-color: #1A1B1E; /* A slightly lighter dark shade */
+  }
+  
+  .contentHeader {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  
+  .welcomeTitle {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #f8f9fa;
+  }
+  
+  /* This targets the <span> wrapping the user's name */
+  .welcomeTitle span {
+    background: -webkit-linear-gradient(45deg, #a0c4ff, #c3daff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+  }
+  
+  /* Wrapper for the TripGrid for smooth animations */
+  .tripGridWrapper {
+    position: relative; /* Needed for AnimatePresence */
+    min-height: 400px; /* Prevents layout jump during transitions */
+  }

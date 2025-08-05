@@ -1,19 +1,18 @@
 import { useState } from "react";
 import { DatePicker } from "@mantine/dates";
-import { Popover, Button } from "@mantine/core";
+import { Popover, Button, useMantineTheme } from "@mantine/core";
 import { IconCalendar } from "@tabler/icons-react";
 import "@mantine/dates/styles.css";
 import { useMemo } from "react";
 
 function DatePickerPopover({ tripDate, setTripDate }) {
   const [opened, setOpened] = useState(false);
-
+  const theme = useMantineTheme();
 
   function parseDateLocal(dateString) {
     const [year, month, day] = dateString.split("-").map(Number);
     return new Date(year, month - 1, day);
   }
-
 
   const formattedDate = useMemo(() => {
     const parsedDate =
@@ -22,7 +21,7 @@ function DatePickerPopover({ tripDate, setTripDate }) {
         : tripDate
         ? parseDateLocal(tripDate)
         : null;
-  
+
     return parsedDate && !isNaN(parsedDate)
       ? new Intl.DateTimeFormat("en-US", {
           month: "short",
@@ -38,7 +37,6 @@ function DatePickerPopover({ tripDate, setTripDate }) {
       onChange={setOpened}
       position="bottom-start"
       shadow="md"
-      withArrow
     >
       <Popover.Target>
         <Button
@@ -50,10 +48,11 @@ function DatePickerPopover({ tripDate, setTripDate }) {
             height: 48,
             minHeight: 48,
             borderRadius: 0,
-            borderRight: "none",
             fontWeight: 500,
             paddingLeft: 14,
             paddingRight: 14,
+            background: theme.colors["custom-palette"][8], // #141c36
+            color: theme.colors["custom-palette"][2],
           }}
         >
           {formattedDate}

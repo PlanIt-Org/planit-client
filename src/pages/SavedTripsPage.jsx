@@ -1,18 +1,22 @@
 import React from "react";
-import { Text, Container, Flex, Box } from "@mantine/core";
+import { Text, Container, Flex, Box, useMantineTheme } from "@mantine/core";
 import NavBar from "../components/NavBar";
 import TripGrid from "../components/TripGrid";
+import { useMediaQuery } from "@mantine/hooks";
 
 const SavedTripsPage = ({ setLocations, userId }) => {
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
   return (
     <Flex
       style={{
         width: "100%",
         minHeight: "100vh",
         alignItems: "stretch",
+        background: theme.colors["custom-palette"][9], // page background
       }}
     >
-      <NavBar currentPage={2} setLocations={setLocations} />
+      {!isMobile && <NavBar currentPage={2} setLocations={setLocations} />}
 
       {/* main content */}
       <Box
@@ -21,21 +25,32 @@ const SavedTripsPage = ({ setLocations, userId }) => {
           minWidth: 0,
           padding: 20,
           boxSizing: "border-box",
+          background: theme.colors["custom-palette"][9], // content background
         }}
       >
         <Container size="lg" py="xl">
-          <Text
-            ta="center"
-            fw={700}
-            size="3rem"
-            mb="xl"
-          >
+          <Text ta="center" fw={700} size="3rem" mb="xl">
             Your Saved Trips
           </Text>
 
-          <TripGrid savedOnly={true} userId={userId}/>
+          <TripGrid savedOnly={true} userId={userId} />
         </Container>
       </Box>
+      {isMobile && (
+        <Box
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            width: "100%",
+            zIndex: 1000,
+            backgroundColor: theme.colors["custom-palette"][8], // navbar bg
+            borderTop: `1px solid ${theme.colors["custom-palette"][6]}`, // navbar border
+          }}
+        >
+          <NavBar currentPage={2} setLocations={setLocations} />
+        </Box>
+      )}
     </Flex>
   );
 };

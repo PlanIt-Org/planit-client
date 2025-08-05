@@ -12,6 +12,7 @@ import {
   TextInput,
   Textarea,
   rem,
+  useMantineTheme,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import CopyTripLink from "./CopyTripLink";
@@ -21,7 +22,13 @@ import { useState, useEffect } from "react";
 import { useDeleteTrip } from "../hooks/useDeleteTrip";
 import apiClient from "../api/axios";
 
-const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) => {
+const TripDetails = ({
+  tripId,
+  ownTrip,
+  tripStatus,
+  isPrivate,
+  setIsPrivate,
+}) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [isEditingDesc, setIsEditingDesc] = useState(false);
@@ -29,6 +36,7 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
   const [inputDesc, setInputDesc] = useState("");
   const [hostName, setHostName] = useState("Loading...");
   const { deleteTrip } = useDeleteTrip();
+  const theme = useMantineTheme();
 
   useEffect(() => {
     const fetchTripDetails = async () => {
@@ -36,7 +44,12 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
         try {
           const response = await apiClient.get(`/trips/${tripId}`);
 
-          const { title, description, host, private: tripIsPrivate } = response.data.trip;
+          const {
+            title,
+            description,
+            host,
+            private: tripIsPrivate,
+          } = response.data.trip;
           setHostName(host?.name || "Loading...");
           setInputTitle(title || "");
           setInputDesc(description || "");
@@ -56,16 +69,16 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
     fetchTripDetails();
   }, [tripId]);
 
-
-
   const handleTogglePrivacy = async () => {
     const newPrivacyState = !isPrivate;
     try {
-      await apiClient.put(`/trips/${tripId}/privacy`, { private: newPrivacyState });
-      setIsPrivate(newPrivacyState); 
+      await apiClient.put(`/trips/${tripId}/privacy`, {
+        private: newPrivacyState,
+      });
+      setIsPrivate(newPrivacyState);
       notifications.show({
         title: "Success!",
-        message: `Trip is now ${newPrivacyState ? 'private' : 'public'}.`,
+        message: `Trip is now ${newPrivacyState ? "private" : "public"}.`,
         color: "green",
       });
     } catch (error) {
@@ -161,23 +174,31 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
   };
 
   return (
-    <Card shadow="sm" p="lg" radius="md" withBorder>
+    <Card
+      shadow="sm"
+      p="lg"
+      radius="md"
+      withBorder
+      style={{
+        background: theme.colors["custom-palette"][8],
+        color: theme.colors["custom-palette"][1],
+      }}
+    >
       <Stack spacing="md">
         <Group justify="space-between">
-
           {ownTrip && (
-              <Button
-                color={isPrivate ? "red" : "green"}
-                onClick={handleTogglePrivacy}
-              >
-                {isPrivate ? 'Make Public' : 'Make Private'}
-              </Button>
-            )}
+            <Button
+              color={isPrivate ? "red" : "green"}
+              onClick={handleTogglePrivacy}
+            >
+              {isPrivate ? "Make Public" : "Make Private"}
+            </Button>
+          )}
           {ownTrip && (
             <Button
               variant="filled"
               color="red"
-              onClick={open} // Opens the confirmation modal
+              onClick={open}
               disabled={tripStatus === "COMPLETED"}
             >
               Delete Trip
@@ -199,7 +220,11 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
                 style={{ flexGrow: 1 }}
               />
             ) : (
-              <Text style={{ flexGrow: 1 }} size="lg">
+              <Text
+                style={{ flexGrow: 1 }}
+                size="lg"
+                c={theme.colors["custom-palette"][1]}
+              >
                 {inputTitle || "No title provided."}
               </Text>
             )}
@@ -238,7 +263,7 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
               />
             ) : (
               <Text
-                c="dimmed"
+                c={theme.colors["custom-palette"][3]}
                 style={{ flexGrow: 1, whiteSpace: "pre-wrap" }}
                 size="sm"
               >
@@ -270,12 +295,12 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
           <Box
             p="sm"
             style={{
-              background: "#f3f4f6",
+              background: theme.colors["custom-palette"][7],
               borderRadius: 8,
-              border: "1px solid #e5e7eb",
+              border: `1px solid ${theme.colors["custom-palette"][6]}`,
             }}
           >
-            <Text size="sm" color="gray" weight={500}>
+            <Text size="sm" c={theme.colors["custom-palette"][2]} fw={500}>
               HOSTED BY: {hostName}
             </Text>
           </Box>
@@ -289,16 +314,14 @@ const TripDetails = ({ tripId, ownTrip, tripStatus, isPrivate, setIsPrivate }) =
         centered
       >
         <Text>
-          Are you sure you want to delete this trip? This action cannot be undone.
+          Are you sure you want to delete this trip? This action cannot be
+          undone.
         </Text>
         <Group mt="md" justify="flex-end">
           <Button variant="default" onClick={close}>
             No
           </Button>
-          <Button
-            color="red"
-            onClick={handleDeleteTrip} // Always calls the delete handler
-          >
+          <Button color="red" onClick={handleDeleteTrip}>
             Yes, Delete Trip
           </Button>
         </Group>

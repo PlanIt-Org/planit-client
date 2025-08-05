@@ -1,3 +1,4 @@
+// src/components/DragDropLocations.jsx
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { IconGripVertical, IconX } from "@tabler/icons-react";
 import cx from "clsx";
@@ -6,8 +7,9 @@ import { useListState } from "@mantine/hooks";
 import classes from "../styles/DndListHandle.module.css";
 import { useEffect } from "react";
 import apiClient from "../api/axios";
+import { notifications } from "@mantine/notifications";
 
-function DragDropLocations({ locations, setLocations, id }) {
+function DragDropLocations({ locations, setLocations, id: tripId }) {
   const [internalLocations, internalHandlers] = useListState(locations);
 
   useEffect(() => {
@@ -16,31 +18,36 @@ function DragDropLocations({ locations, setLocations, id }) {
 
   const handleRemove = async (indexToRemove) => {
     const locationToRemove = internalLocations[indexToRemove];
-    // Ensure you are using the correct property for the Google Place ID.
-    // Based on your previous code, it's `place_id`.
     const placeId = locationToRemove.googlePlaceId;
 
-    if (!id || !placeId) {
-      console.error("Missing trip ID or location Place ID.");
+    if (!placeId) {
+      notifications.show({
+        title: "Deletion error",
+        message: "Location missing identifier",
+        color: "red",
+      });
       return;
     }
 
-    console.log("Removing location from trip:", id, "with Place ID:", placeId);
-
     try {
-      // --- THIS IS THE CORRECTED LINE ---
-      // Add the '/trips' prefix to match your backend routing.
-      await apiClient.delete(`/trips/${id}/locations/${placeId}`);
-    } catch (err) {
-      console.error("Failed to remove location from trip:", err);
-      // Optionally, show a notification to the user here.
-      return; // Don't update local state if server request fails.
-    }
+      await apiClient.delete(`/trips/${tripId}/locations/${placeId}`);
 
-    // This part only runs if the API call was successful.
-    const newOrder = internalLocations.filter((_, index) => index !== indexToRemove);
-    internalHandlers.setState(newOrder);
-    setLocations(newOrder);
+      const newOrder = internalLocations.filter((_, i) => i !== indexToRemove);
+      internalHandlers.setState(newOrder);
+      setLocations(newOrder);
+
+      notifications.show({
+        title: "Location removed",
+        message: `${locationToRemove.name} has been deleted from your trip.`,
+        color: "green",
+      });
+    } catch (error) {
+      notifications.show({
+        title: "Error deleting location",
+        message: error.response?.data?.message || error.message,
+        color: "red",
+      });
+    }
   };
 
   const items = internalLocations.map((location, index) => (

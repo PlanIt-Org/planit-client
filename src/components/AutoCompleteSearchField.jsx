@@ -1,9 +1,10 @@
 import React from "react";
 import { usePlacesWidget } from "react-google-autocomplete";
-import { TextInput } from "@mantine/core";
+import { TextInput, useMantineTheme } from "@mantine/core";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 
 const AutocompleteSearchField = ({ onPlaceSelected }) => {
+  const theme = useMantineTheme();
   const { ref: autocompleteInputRef } = usePlacesWidget({
     onPlaceSelected: (place) => {
       const imageUrl =
@@ -42,10 +43,15 @@ const AutocompleteSearchField = ({ onPlaceSelected }) => {
       label="Search for a place"
       placeholder="e.g., Eiffel Tower, Paris"
       variant="filled"
-      style={{
-        backgroundColor: "white",
-        margin: "10px",
-        borderRadius: "4px",
+      styles={{
+        input: {
+          background: theme.colors["custom-palette"][8],
+          color: theme.colors["custom-palette"][1],
+          borderRadius: theme.radius.md,
+        },
+        root: {
+          margin: "10px",
+        },
       }}
       ref={autocompleteInputRef}
     />

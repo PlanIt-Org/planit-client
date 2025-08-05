@@ -19,6 +19,33 @@ import HomeLocationSearchBar from "../components/HomeLocationSearchBar";
 import NavBar from "../components/NavBar";
 import { useState } from "react";
 import { useMediaQuery } from "@mantine/hooks";
+import styled from "@emotion/styled";
+import { keyframes } from "@emotion/react";
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+`;
+
+const AnimatedFlex = styled(Flex)`
+  width: 100%;
+  min-height: 100vh;
+  align-items: stretch;
+  flex-direction: ${({ ismobile }) => (ismobile === "true" ? "column" : "row")};
+  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  animation: ${fadeIn} 0.7s cubic-bezier(0.4,0,0.2,1);
+`;
+
+const AnimatedBox = styled(Box)`
+  flex: 1;
+  min-width: 0;
+  padding: ${({ ismobile, theme }) =>
+    ismobile === "true" ? theme.spacing.md : theme.spacing.lg};
+  box-sizing: border-box;
+  padding-bottom: ${({ ismobile }) => (ismobile === "true" ? "80px" : "20px")};
+  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  animation: ${fadeIn} 0.9s cubic-bezier(0.4,0,0.2,1);
+`;
 
 const HomePage = ({
   selectedCity,
@@ -46,43 +73,28 @@ const HomePage = ({
 
   useEffect(() => {
     setSelectedCity("");
-  }, []);
+  }, [setSelectedCity]);
 
   return (
-    <Flex
-      style={{
-        width: "100%",
-        minHeight: "100vh",
-        alignItems: "stretch",
-        flexDirection: isMobile ? "column" : "row",
-      }}
-    >
-      {!isMobile ?  (
-        <NavBar currentPage={0} setLocations={setLocations} />
-      ) : (<NavBar currentPage={0} setLocations={setLocations}/>  )}
-      
-    
-     
-      <Box
-        style={{
-          flex: 1,
-          minWidth: 0,
-          padding: isMobile ? "16px" : "20px",
-          boxSizing: "border-box",
-          paddingBottom: isMobile ? "80px" : "20px",
-        }}
-      >
+    <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
+      {!isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
+      <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
         <Container size="mid" py="0">
           <Title
             order={1}
             ta="center"
             size={isMobile ? "h2" : 55}
             mb={isMobile ? "md" : "lg"}
+            variant="gradient"
+            gradient={{ from: "blue", to: "cyan" }}
             style={{
-              fontSize: isMobile ? "clamp(1.5rem, 4vw, 2.5rem)" : "clamp(2rem, 5vw, 3.5rem)",
+              fontSize: isMobile
+                ? "clamp(1.5rem, 4vw, 2.5rem)"
+                : "clamp(2rem, 5vw, 3.5rem)",
+              letterSpacing: "0.5px",
+              transition: "color 0.3s",
             }}
           >
-
             Welcome {name}!
           </Title>
           {/* only show search bar when API fully loaded */}
@@ -116,7 +128,7 @@ const HomePage = ({
           {/* Public Trips, TODO: make this filter based off the user's location */}
           {/* <TripGrid title="Discover Trips"></TripGrid> */}
         </Container>
-      </Box>
+      </AnimatedBox>
       {isMobile && (
         <Box
           style={{
@@ -125,15 +137,13 @@ const HomePage = ({
             left: 0,
             right: 0,
             zIndex: 1000,
-            backgroundColor: "var(--mantine-color-body)",
-            borderTop: "1px solid var(--mantine-color-gray-3)",
+            backgroundColor: theme.colors["custom-palette"][2],
+            borderTop: `1px solid ${theme.colors["custom-palette"][6]}`,
           }}
-        >
-    
-     
-        </Box>
+        ></Box>
       )}
-    </Flex>
+      {isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
+    </AnimatedFlex>
   );
 };
 
