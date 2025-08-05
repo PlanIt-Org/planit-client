@@ -28,8 +28,12 @@ const TripFilterSearchBox = ({
 }) => {
   const [showNotification, setShowNotification] = useState(false);
 
+  // console.log("Current user", stagedUser)
+  
+
   const renderAutocompleteOption = ({ option }) => {
     const user = searchResults.find((item) => item.id === option.value);
+    console.log("Current user for render", user)
 
     if (!user) return null;
     return (
@@ -44,19 +48,7 @@ const TripFilterSearchBox = ({
     );
   };
 
-  useEffect(() => {
-    const allFilters = [];
 
-    selectedUsers.forEach((user) => {
-      if (user.activityPreferences && user.activityPreferences.length > 0) {
-        allFilters.push(...user.activityPreferences);
-      }
-    });
-
-    const uniqueFilters = [...new Set(allFilters)];
-
-    setSelectedFilters(uniqueFilters);
-  }, [selectedUsers]);
 
   const handleAddClick = () => {
     if (stagedUser) {

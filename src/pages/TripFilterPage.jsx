@@ -15,14 +15,13 @@ import {
   Flex,
   Avatar,
   useMantineTheme,
-  Box,
+  Box
 } from "@mantine/core";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import TripFilterSearchBox from "../components/TripFilterSearchBox";
 import NavBar from "../components/NavBar";
 import apiClient from "../api/axios";
 import { useMediaQuery } from "@mantine/hooks";
-
 
 const TripFilterPage = ({ setLocations }) => {
   const navigate = useNavigate();
@@ -31,11 +30,14 @@ const TripFilterPage = ({ setLocations }) => {
   const [searchBy, setSearchBy] = useState("name");
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState([]); 
+  const location = useLocation();
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   const [stagedUser, setStagedUser] = useState(null);
+
+
 
   const handleSearch = async () => {
     const trimmedQuery = searchQuery.trim();
@@ -62,49 +64,157 @@ const TripFilterPage = ({ setLocations }) => {
     }
   };
 
-  const handleAddUser = (userToAdd) => {
-    if (!selectedUsers.some((user) => user.id === userToAdd.id)) {
-      setSelectedUsers([...selectedUsers, userToAdd]);
+useEffect(() => {
+  const fetchInitialData = async () => {
+    try {
+      // Use Promise.all to fetch both sets of data concurrently for better performance
+      const [preferenceResponse, guestResponse] = await Promise.all([
+        apiClient.get(`/trips/${tripId}/TripPreference`),
+        apiClient.get(`/trips/${tripId}/proposed-guests`)
+      ]);
+
+      // --- Process Guests ---
+      const guestList = guestResponse.data;
+      if (guestList && guestList.length > 0) {
+        const proposedGuestList = guestList.map(guest => ({
+          id: guest.id,
+          name: guest.name,
+        }));
+        setSelectedUsers(proposedGuestList);
+      }
+
+      // --- Process Filters ---
+      const preferenceSummary = preferenceResponse.data;
+      
+      if (preferenceSummary && Object.keys(preferenceSummary).length > 0) {
+     
+        let allActiveFilters = [];
+    
+        if (preferenceSummary.activityPreferences) {
+          Object.entries(preferenceSummary.activityPreferences).forEach(
+            ([key, count]) => {
+              allActiveFilters.push({ name: key, count: count });
+            }
+          );
+        }
+
+
+        if (preferenceSummary.lifestyleChoices) {
+          Object.entries(preferenceSummary.lifestyleChoices).forEach(
+            ([key, count]) => {
+              allActiveFilters.push({ name: key, count: count });
+            }
+          );
+        }
+
+        if (preferenceSummary.budget) {
+          Object.entries(preferenceSummary.budget).forEach(
+            ([key, count]) => {
+              allActiveFilters.push({ name: key, count: count });
+            }
+          );
+        }
+
+        if (preferenceSummary.travelStyle) {
+          Object.entries(preferenceSummary.travelStyle).forEach(
+            ([key, count]) => {
+              allActiveFilters.push({ name: key, count: count });
+            }
+          );
+        }
+
+        
+        setSelectedFilters(allActiveFilters);
+      } 
+    
+
+    } catch (error) {
+      console.error("Failed to fetch initial trip data. This might be a new trip.", error);
+
     }
   };
 
- 
+  fetchInitialData();
 
-  useEffect(() => {
-    const filterCounts = {};
+  
 
-    selectedUsers.forEach((user) => {
+}, [tripId]); // This effect runs only once when the page loads
+
+
+
+const recalculateFilters = (users) => {
+  const filterCounts = {};
+
+  users.forEach((user) => {
+
+    if (user.userPreferences) {
       const allUserPreferences = [
-        ...(user.userPreferences?.activityPreferences || []),
-        ...(user.userPreferences?.dietaryRestrictions || []),
-        ...(user.userPreferences?.travelStyle || []),
+        ...(user.userPreferences.activityPreferences || []),
+        ...(user.userPreferences.dietaryRestrictions || []),
+        ...(user.userPreferences.travelStyle || []),
+        ...(user.userPreferences.lifestyleChoices || []),
       ];
+  
+      if (user.userPreferences.budget) {
+        allUserPreferences.push(user.userPreferences.budget);
+      }
 
       allUserPreferences.forEach((preference) => {
         filterCounts[preference] = (filterCounts[preference] || 0) + 1;
       });
-    });
-
-    const filtersWithCounts = Object.entries(filterCounts).map(
-      ([name, count]) => ({ name, count })
-    );
-
-    setSelectedFilters(filtersWithCounts);
-  }, [selectedUsers]);
-  /**
-   * Removes a selected user by their ID.
-   * @param {string} idToRemove - The unique ID of the user to be removed.
-   * @param {string} type - Specifies the list to modify ('users' or 'filters').
-   */
-  function handleRemove(idToRemove, type) {
-    if (type === "users") {
-      setSelectedUsers(selectedUsers.filter((user) => user.id !== idToRemove));
-    } else {
-      setSelectedFilters(
-        selectedFilters.filter((filter) => filter.name !== idToRemove)
-      );
     }
+  });
+
+  const filtersWithCounts = Object.entries(filterCounts).map(
+    ([name, count]) => ({ name, count })
+  );
+
+  setSelectedFilters(filtersWithCounts);
+};
+
+const handleAddUser = (userToAdd) => {
+  if (!selectedUsers.some((user) => user.id === userToAdd.id)) {
+    const newUsers = [...selectedUsers, userToAdd];
+    setSelectedUsers(newUsers);
+    // Recalculate filters after adding a user
+    recalculateFilters(newUsers); 
   }
+};
+
+
+function handleRemove(idToRemove, type) {
+  if (type === "users") {
+    const newUsers = selectedUsers.filter((user) => user.id !== idToRemove);
+    setSelectedUsers(newUsers);
+
+    recalculateFilters(newUsers); 
+  } else {
+    setSelectedFilters(
+      selectedFilters.filter((filter) => filter.name !== idToRemove)
+    );
+  }
+}
+
+  /**
+   * Formats a filter name for display.
+   * If the name is a number, it returns a string of dollar signs.
+   * Otherwise, it returns the original name.
+   * @param {string | number} name - The filter name to format.
+   * @returns {string} The formatted name.
+   */
+  const formatFilterName = (name) => {
+    if (!name) {
+      return "";
+    }
+
+    const num = Number(name);
+
+    if (!isNaN(num) && num >= 0) {
+      return "$".repeat(num);
+    }
+
+    return name;
+  };
 
   /**
    * Renders an array of items (either user objects or filter strings) as dismissible Badges.
@@ -144,6 +254,7 @@ const TripFilterPage = ({ setLocations }) => {
     }
 
     if (type === "filters") {
+
       return items.map((filterItem) => (
         <Badge
           key={filterItem.name}
@@ -165,43 +276,121 @@ const TripFilterPage = ({ setLocations }) => {
             />
           }
         >
-          {filterItem.name}
+          {formatFilterName(filterItem.name)}
         </Badge>
       ));
     }
 
     return null;
   }
-
   const handleCreateGuestAndNavigate = async () => {
-    const guestData = selectedUsers.map((user) => ({
-      userId: user.id,
-      email: user.email,
-      name: user.name,
-    }));
 
+    const aggregatedFilters = {
+      activityPreferences: {},
+      dietaryRestrictions: {},
+      budgetDistribution: {},
+      lifestyleChoices: {},
+      travelStyle: {},
+    };
+  
+ 
+    selectedFilters.forEach(filter => {
+      const knownActivities = [
+        'Cafes & Coffee Shops',
+        'Restaurants & Dining',
+        'Bars & Nightlife',
+        'Live Music & Concerts',
+        'Theaters & Performing Arts',
+        'Museums & Art Galleries',
+        'Outdoor Activities & Parks',
+        'Sports & Recreation',
+        'Shopping',
+        'Family-Friendly Attractions',
+        'Unique & Trendy Spots'
+      ];
+      const knownDiets = ['Vegetarian', 'Dairy-Free', 'Gluten-Free', 'Halal', 'Kosher', 'Pescatarian', 'Vegan'];
+      const knownLifestyles = [
+        'Active',
+        'Relaxed',
+        'Adventurous',
+        'Cultural',
+        'Social',
+        'Family-Oriented',
+        'Night Owl',
+        'Early Bird'
+      ];
+      const knownStyles =  ['Quick Hangouts', 'Day Trips'];
+      const knownBudgets = ['1', '2', '3', '4'];
+  
+      if (knownActivities.includes(filter.name)) {
+        aggregatedFilters.activityPreferences[filter.name] = filter.count;
+      } else if (knownDiets.includes(filter.name)) {
+        aggregatedFilters.dietaryRestrictions[filter.name] = filter.count;
+      } else if (knownLifestyles.includes(filter.name)) {
+        aggregatedFilters.lifestyleChoices[filter.name] = filter.count;
+      } else if (knownStyles.includes(filter.name)) {
+        aggregatedFilters.travelStyle[filter.name] = filter.count;
+      } else if (knownBudgets.includes(filter.name)) {
+        aggregatedFilters.budgetDistribution[filter.name] = filter.count;
+      }
+    });
+
+
+
+
+  
+    
+
+      const guestData = selectedUsers.map(user => ({
+        id: user.id,
+        email: user.email,
+        name: user.name
+      }));
+
+
+          
+       try {
+        await apiClient.post(
+          `/trips/${tripId}/guests`,
+          guestData
+          
+        );
+      } catch (error) {
+        console.error("Failed to save preferences:", error);
+      }
+
+  
+
+
+      //send the propostedGuest to the backend
+
+      
+      
+    // Send the correctly built object to the backend
     try {
-      const response = await apiClient.post(
-        `/trips/${tripId}/proposed-guests`,
-        guestData
+      await apiClient.post(
+        `/trips/${tripId}/TripPreference`,
+        aggregatedFilters
       );
-
-      navigate(`/tripplanner/${tripId}`);
     } catch (error) {
-      console.error("Failed to create trip:", error);
-      alert("Could not create the trip. Please try again.");
+      console.error("Failed to save preferences:", error);
+      alert("Could not save the preferences. Please try again.");
     }
+  
+    navigate(`/tripplanner/${tripId}`);
   };
 
   return (
-     <Flex
+    <Flex
       style={{
         width: "100%",
         minHeight: "100vh",
         alignItems: "stretch",
         flexDirection: isMobile ? "column" : "row",
       }} >
-      {!isMobile && <NavBar currentPage={4} setLocations={setLocations} />}
+      {!isMobile ?  (
+        <NavBar currentPage={0} setLocations={setLocations} />
+      ) : (<NavBar currentPage={0} setLocations={setLocations}/>  )}
       
     
       <Flex
