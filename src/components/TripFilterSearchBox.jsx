@@ -96,7 +96,7 @@ const TripFilterSearchBox = ({
         justify="center"
         align="flex-end"
         style={{ width: "100%" }}
-        wrap = "unwrap"
+        wrap="unwrap"
       >
         <Select
           label="Search By"
@@ -129,7 +129,7 @@ const TripFilterSearchBox = ({
         />
         <Button onClick={handleAddClick}>Add</Button>
       </Group>
-      <Group mt="md">
+      <Group mt="md" justify="center">
         {showNotification && (
           <Notification
             icon={<IconX size={20} />}

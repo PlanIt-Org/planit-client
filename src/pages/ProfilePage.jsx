@@ -26,7 +26,7 @@ const StyledPageWrapper = styled(Flex)`
   width: 100%;
   min-height: 100vh;
   align-items: stretch;
-  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
 `;
 
 const AnimatedBox = styled(Box)`
@@ -35,7 +35,7 @@ const AnimatedBox = styled(Box)`
   padding: 20px;
   box-sizing: border-box;
   animation: ${fadeIn} 0.8s ease-out forwards;
-  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
 `;
 
 const ProfilePage = ({ setLocations }) => {
@@ -66,7 +66,7 @@ const ProfilePage = ({ setLocations }) => {
       theme={theme}
       style={{
         flexDirection: isMobile ? "column" : "row",
-        background: theme.colors["custom-palette"][9], // match HomePage background
+        background: theme.colors["custom-palette"][7], // match HomePage background
       }}
     >
       {!isMobile && <NavBar currentPage={3} setLocations={setLocations} />}
@@ -76,7 +76,7 @@ const ProfilePage = ({ setLocations }) => {
         theme={theme}
         style={{
           padding: isMobile ? "16px" : "20px",
-          background: theme.colors["custom-palette"][9], // match HomePage content background
+          background: theme.colors["custom-palette"][7], // match HomePage content background
         }}
       >
         <Container

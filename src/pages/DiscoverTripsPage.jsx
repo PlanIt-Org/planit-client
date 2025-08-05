@@ -50,7 +50,7 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
         minHeight: "100vh",
         alignItems: "stretch",
         flexDirection: isMobile ? "column" : "row",
-        background: theme.colors["custom-palette"][9], // match HomePage background
+        background: theme.colors["custom-palette"][7], // match HomePage background
       }}
     >
       {!isMobile && <NavBar currentPage={1} setLocations={setLocations} />}
@@ -61,7 +61,7 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
           padding: isMobile ? "16px" : "20px",
           boxSizing: "border-box",
           paddingBottom: isMobile ? "80px" : "20px",
-          background: theme.colors["custom-palette"][9], // match HomePage content background
+          background: theme.colors["custom-palette"][7], // match HomePage content background
         }}
       >
         <Container size="lg" py="lg">
@@ -79,12 +79,12 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
           >
             Discover Trips
           </Title>
-          <Paper
+          <Box
             p="md"
             radius="md"
             mb="xl"
             style={{
-              backgroundColor: theme.colors["custom-palette"][8],
+              backgroundColor: theme.colors["custom-palette"][7],
               minHeight: 60,
               display: "flex",
               alignItems: "center",
@@ -102,7 +102,7 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
                       component="span"
                       fw={700}
                       variant="gradient"
-                      gradient={{ from: "blue", to: "cyan" }}
+                      gradient={{ from: "blue", to: "white" }}
                     >
                       {preferredCity}
                     </Text>
@@ -112,7 +112,7 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
                 )}
               </Text>
             )}
-          </Paper>
+          </Box>
           <TripGrid userId={userId} discoverMode={true} />
         </Container>
       </Box>

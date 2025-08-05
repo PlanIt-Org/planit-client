@@ -14,6 +14,7 @@ import {
   Group,
   Chip,
   LoadingOverlay,
+  useMantineTheme,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
@@ -25,6 +26,7 @@ import CityAutoCompleteSearchField from "../components/CityAutoCompleteSearchFie
  * Returns a tile, radio, or checkbox based on the question.
  */
 function renderQuestion({ question, value, onChange }) {
+  const theme = useMantineTheme();
   switch (question.component) {
     case "TextInput":
       return (
@@ -32,6 +34,12 @@ function renderQuestion({ question, value, onChange }) {
           value={value || ""}
           onChange={(e) => onChange(e.currentTarget.value)}
           required={question.required}
+          styles={{
+            input: {
+              backgroundColor: theme.colors["custom-palette"][7],
+              border: `1px solid ${theme.colors["custom-palette"][6]}`,
+            },
+          }}
         />
       );
     case "CityAutoComplete":
@@ -49,11 +57,8 @@ function renderQuestion({ question, value, onChange }) {
           }}
           styles={{
             input: {
-              backgroundColor: "#f8f9fa",
-              border: "1px solid #dee2e6",
-              "&:focus": {
-                borderColor: "#228be6",
-              },
+              backgroundColor: theme.colors["custom-palette"][7],
+              border: `1px solid ${theme.colors["custom-palette"][6]}`,
             },
           }}
         />
@@ -77,6 +82,7 @@ function renderQuestion({ question, value, onChange }) {
                     onChange((value || []).filter((v) => v !== opt.value));
                   }
                 }}
+                styles={{}}
               />
             ))}
           </Group>
@@ -450,7 +456,6 @@ const QuestionnairePage = () => {
           {/* Save & Exit button*/}
           <Button
             variant="subtle"
-            color="gray"
             size="xs"
             style={{
               position: "absolute",
@@ -460,6 +465,7 @@ const QuestionnairePage = () => {
             }}
             onClick={submitPreferences}
             disabled={isSubmitting}
+            styles={{}}
           >
             Save & Exit
           </Button>
@@ -516,7 +522,7 @@ const QuestionnairePage = () => {
       {/* Progress Bar */}
       <Progress
         value={progress}
-        color="blue"
+        color="white"
         size="md"
         style={{ width: "100%", marginBottom: "40px" }}
       />

@@ -30,7 +30,7 @@ const AnimatedContainer = styled(Container)`
   display: flex;
   justify-content: center;
   align-items: center;
-  background: ${({ theme }) => theme.colors["custom-palette"][9]};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
   animation: ${fadeIn} 0.7s ease;
 `;
 

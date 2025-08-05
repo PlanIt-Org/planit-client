@@ -201,7 +201,7 @@ export default function RouteBetween({
                   : theme.colors["custom-palette"][7],
               color:
                 mode === value
-                  ? theme.colors["custom-palette"][9]
+                  ? theme.colors["custom-palette"][7]
                   : theme.colors["custom-palette"][1],
               border:
                 mode === value

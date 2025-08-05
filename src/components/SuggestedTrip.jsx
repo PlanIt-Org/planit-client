@@ -37,7 +37,7 @@ const SuggestedTrip = ({ location }) => {
           </Group>
 
           {/* Description */}
-          <Text color="dimmed" size="sm" mt="xs">
+          <Text size="sm" mt="xs">
             {location.description}
           </Text>
         </Stack>
