@@ -42,9 +42,9 @@ export default function RouteBetween({
       try {
         setLoading(true);
         const newTime = await getRouteTime(mode);
-        setEstimatedTime(
-          (currentTotal) => currentTotal - (prevTimeRef.current || 0) + newTime
-        );
+        // setEstimatedTime(
+        //   (currentTotal) => currentTotal - (prevTimeRef.current || 0) + newTime
+        // );
         setTime(newTime);
         prevTimeRef.current = newTime;
       } catch (err) {
@@ -100,7 +100,7 @@ export default function RouteBetween({
 
         setMode(finalMode);
         setTime(finalTime);
-        setEstimatedTime((currentTotal) => currentTotal + finalTime);
+        // setEstimatedTime((currentTotal) => currentTotal + finalTime);
         prevTimeRef.current = finalTime;
       } catch (err) {
         console.error("Route optimization failed:", err);
@@ -125,12 +125,16 @@ export default function RouteBetween({
 
   const isSustainable = mode === "walk" || mode === "bicycle";
 
-  const allModes = [
-    { value: "drive", label: "🚗 Drive" },
-    { value: "walk", label: "🚶 Walk" },
-    { value: "bicycle", label: "🚲 Bike" },
-    { value: "transit", label: "🚌 Transit" },
-  ];
+  //Safeguard against the API failing
+  const allModes =
+    time > 60 && mode == "drive"
+      ? [{ value: "drive", label: "🚗 Drive" }]
+      :  [
+        { value: "drive", label: "🚗 Drive" },
+        { value: "walk", label: "🚶 Walk" },
+        { value: "bicycle", label: "🚲 Bike" },
+        { value: "transit", label: "🚌 Transit" },
+      ]  ;
 
   if (loading || !mode) {
     return (

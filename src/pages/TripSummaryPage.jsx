@@ -80,6 +80,7 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
   const { generateAvatarUrl } = useProfilePicture(userObj);
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+  
 
   // Derived state - no need for separate useState
   const ownTrip = tripData ? String(tripData.hostId) === String(userId) : false;
