@@ -49,7 +49,7 @@ const LocationCarousel = ({ locations, comments, setEstimatedTime, estimatedTime
               <Title fw={500} size="xl">{loc.name}</Title>
             </Group>
             <Text size="sm" c="dimmed">
-              <ul style={{ margin: 0, paddingLeft: "1.2em" }}><li>{loc.formatted_address}</li></ul>
+              {loc.address}
             </Text>
           </Box>
           <div style={{ position: "absolute", top: 8, right: 8, background: "white", borderRadius: "50%", padding: 4, boxShadow: "0 2px 8px rgba(0,0,0,0.1)", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>

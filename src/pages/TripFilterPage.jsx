@@ -387,9 +387,11 @@ function handleRemove(idToRemove, type) {
         alignItems: "stretch",
         flexDirection: isMobile ? "column" : "row",
       }} >
+
       {!isMobile ?  (
-        <NavBar currentPage={0} setLocations={setLocations} />
-      ) : (<NavBar currentPage={0} setLocations={setLocations}/>  )}
+        <NavBar currentPage={0}  />
+      ) : (<NavBar currentPage={0} />  )}
+
       
     
       <Flex
@@ -472,7 +474,7 @@ function handleRemove(idToRemove, type) {
             borderTop: '1px solid var(--mantine-color-divider)',
           }}
         >
-          <NavBar currentPage={4} setLocations={setLocations} />
+          <NavBar currentPage={4} />
         </Box>
       )}
     </Flex>

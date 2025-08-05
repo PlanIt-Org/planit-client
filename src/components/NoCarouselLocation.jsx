@@ -76,7 +76,7 @@ const NoCarouselLocation = ({ locations, comments, setEstimatedTime, estimatedTi
                   </Group>
                   <Text size="sm" c="dimmed" component="div">
                     <ul style={{ margin: 0, paddingLeft: "1.2em" }}>
-                      <li>{loc.formatted_address}</li>
+                      <li>{loc.address}</li>
                     </ul>
                   </Text>
                 </Box>
