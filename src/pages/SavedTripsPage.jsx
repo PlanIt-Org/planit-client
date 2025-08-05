@@ -42,8 +42,10 @@ const SavedTripsPage = ({ setLocations, userId }) => {
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
   return (
+
     <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
       {!isMobile && <NavBar currentPage={2} setLocations={setLocations} />}
+
 
       {/* main content */}
       <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
@@ -83,7 +85,7 @@ const SavedTripsPage = ({ setLocations, userId }) => {
             borderTop: `1px solid ${theme.colors["custom-palette"][6]}`, // navbar border
           }}
         >
-          <NavBar currentPage={2} setLocations={setLocations} />
+          <NavBar currentPage={2}/>
         </Box>
       )}
     </AnimatedFlex>

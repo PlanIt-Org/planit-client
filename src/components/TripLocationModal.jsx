@@ -69,6 +69,7 @@ const TripLocationModal = ({ opened, close, location, comments }) => {
 
         <Divider my="sm" />
 
+
         {/* Comments Section */}
         <Stack spacing="md">
           <Title order={4}>Comments</Title>
@@ -100,6 +101,7 @@ const TripLocationModal = ({ opened, close, location, comments }) => {
               No comments yet for this location.
             </Text>
           )}
+
         </Stack>
       </Stack>
     </Modal>

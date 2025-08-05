@@ -145,7 +145,7 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
             borderTop: `1px solid ${theme.colors["custom-palette"][6]}`,
           }}
         >
-          <NavBar currentPage={1} setLocations={setLocations} />
+          <NavBar currentPage={1} />
         </Box>
       )}
     </AnimatedFlex>

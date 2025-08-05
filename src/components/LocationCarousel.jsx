@@ -18,14 +18,17 @@ import TripLocationModal from "./TripLocationModal";
 import { useState } from "react";
 import RouteBetween from "./RouteBetween";
 
+
 const LocationCarousel = ({
   locations,
   comments,
   setEstimatedTime,
   estimatedTime,
 }) => {
+
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  // const [estimatedTime, setEstimatedTime] = useState();
   const [finalMode, setFinalMode] = useState(null);
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
@@ -71,11 +74,14 @@ const LocationCarousel = ({
               </Title>
             </Group>
             <Text size="sm" c="dimmed">
+
               <ul style={{ margin: 0, paddingLeft: "1.2em" }}>
                 <li>{loc.formatted_address}</li>
               </ul>
             </Text>
           </Box>
+
+
         </Card>
       </Carousel.Slide>
     );
@@ -98,8 +104,8 @@ const LocationCarousel = ({
           <RouteBetween
             finalMode={finalMode}
             setFinalMode={setFinalMode}
-            setEstimatedTime={setEstimatedTime}
-            estimatedTime={estimatedTime}
+            // setEstimatedTime={setEstimatedTime}
+            // estimatedTime={estimatedTime}
             origin={`${loc.geometry.location.lat},${loc.geometry.location.lng}`}
             destination={`${locations[index + 1].geometry.location.lat},${
               locations[index + 1].geometry.location.lng

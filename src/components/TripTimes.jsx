@@ -82,6 +82,8 @@ const TripTimes = ({ currTripId, tripStatus, locations, estimatedTime }) => {
             : "Calculating..."}
         </strong>
       </Text> */}
+
+   
     </Group>
   );
 };

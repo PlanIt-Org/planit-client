@@ -310,16 +310,14 @@ const QuestionnairePage = () => {
     const ageAsNumber = parseInt(flattenedAnswers.age, 10);
     console.log("Preparing to submit preferences. Payload:", flattenedAnswers);
 
+    const locationObject = flattenedAnswers.location;
+
     // Handle location data - send the formatted address or the entire object
-    let locationValue = flattenedAnswers.location;
-    if (typeof locationValue === "object" && locationValue.formatted_address) {
-      locationValue = locationValue.formatted_address;
-    }
 
     const apiPayload = {
       age: isNaN(ageAsNumber) ? null : ageAsNumber,
       dietary: flattenedAnswers.dietary || [],
-      location: locationValue.name || "",
+      location: locationObject?.name || locationObject?.formatted_address || "",
       activityType: flattenedAnswers.activityType || [],
       budget: flattenedAnswers.budget || "",
       tripLength: flattenedAnswers.tripLength || "",

@@ -35,14 +35,13 @@ const fadeIn = keyframes`
 const floatUp = keyframes`
   from {
     opacity: 0;
-    transform: translateY(20px);
+    margin-top: 20px;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    margin-top: 0;
   }
 `;
-
 // A full-page wrapper that uses the theme's background color
 const PageWrapper = styled(Flex)`
   width: 100%;
@@ -103,10 +102,6 @@ const InteractiveButton = styled(Button)`
 
 const TripPlannerPage = ({
   selectedCity,
-  locations,
-  setLocations,
-  selectedPlace,
-  setSelectedPlace,
   ownTrip,
   setOwnTrip,
 }) => {
@@ -114,6 +109,9 @@ const TripPlannerPage = ({
   const { id } = useParams();
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+  const [locations, setLocations] = useState([]);
+  const [selectedPlace, setSelectedPlace] = useState(null);
+
 
   // Effect to fetch trip data
   useEffect(() => {
@@ -151,21 +149,31 @@ const TripPlannerPage = ({
     };
 
     fetchTripAndCheckOwnership();
-  }, [id, navigate, setOwnTrip, setLocations]);
+  }, [id, navigate, setOwnTrip]);
 
   // Effect to add a selected place to locations
   useEffect(() => {
-    if (selectedPlace) {
-      setLocations((prevLocations) => {
-        if (
-          !prevLocations.some((loc) => loc.place_id === selectedPlace.place_id)
-        ) {
-          return [...prevLocations, selectedPlace];
-        }
-        return prevLocations;
-      });
+    if (selectedPlace && selectedPlace.place_id) {
+      const alreadyExists = locations.some(
+        (loc) => loc.googlePlaceId === selectedPlace.place_id
+      );
+  
+      if (!alreadyExists) {
+        const newLocation = {
+          googlePlaceId: selectedPlace.place_id,
+          name: selectedPlace.name,
+          address: selectedPlace.formatted_address,
+          geometry: selectedPlace.geometry,
+          types: selectedPlace.types,
+          imageUrl: selectedPlace.photos?.[0]?.getUrl() || null,
+          isNew: true,
+        };
+  
+        setLocations((prevLocations) => [...prevLocations, newLocation]);
+        setSelectedPlace(null);
+      }
     }
-  }, [selectedPlace, setLocations]);
+  }, [selectedPlace, setSelectedPlace, locations]);
 
   // Handler for saving the trip
   const handleLetsGoClick = async () => {
@@ -223,7 +231,7 @@ const TripPlannerPage = ({
 
   return (
     <PageWrapper theme={theme}>
-      {!isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
+      {!isMobile && <NavBar currentPage={0}/>}
 
       <ContentContainer isMobile={isMobile}>
         <PlannerPanel isMobile={isMobile} theme={theme}>
@@ -289,7 +297,7 @@ const TripPlannerPage = ({
             borderTop: `1px solid ${theme.colors["custom-palette"][6]}`,
           }}
         >
-          <NavBar currentPage={0} setLocations={setLocations} />
+          <NavBar currentPage={0} />
         </Box>
       )}
     </PageWrapper>

@@ -80,8 +80,10 @@ const HomePage = ({
 
   return (
     <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
+
       <TwinklingStars />
       {!isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
+
       <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
         <Container size="mid" py="0">
           <Title
@@ -153,7 +155,7 @@ const HomePage = ({
           }}
         ></Box>
       )}
-      {isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
+      {isMobile && <NavBar currentPage={0} />}
     </AnimatedFlex>
   );
 };

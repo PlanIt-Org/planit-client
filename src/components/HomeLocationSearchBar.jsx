@@ -98,7 +98,7 @@ const HomeLocationSearchBar = ({ selectedCity, setSelectedCity, user }) => {
       const result = response.data;
 
       console.log("Trip created successfully:", result.trip);
-      navigate(`/tripfilter/${result.trip.id}`);
+      navigate(`/tripfilter/${result.trip.id}`, { state: { isNew: true } });
     } catch (error) {
       console.error("Error creating trip:", error);
       const backendMessage =

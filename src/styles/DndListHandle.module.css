@@ -7,6 +7,9 @@
     padding-left: calc(var(--mantine-spacing-xl) - var(--mantine-spacing-md));
     background-color: light-dark(var(--mantine-color-white), var(--mantine-color-dark-5));
     margin-bottom: var(--mantine-spacing-sm);
+
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .itemDragging {
