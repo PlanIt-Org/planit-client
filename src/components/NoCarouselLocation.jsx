@@ -81,20 +81,7 @@ const NoCarouselLocation = ({ locations, comments, setEstimatedTime, estimatedTi
                   </Text>
                 </Box>
 
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 2,
-                    right: 2,
-                    background: "white",
-                    borderRadius: "50%",
-                    padding: 4,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    zIndex: 2,
-                  }}
-                >
-                  <IconBubbleFilled size={24} color="#333" />
-                </div>
+           
               </Card>
 
               {/* Only render RouteBetween if both origin and destination coordinates are valid */}

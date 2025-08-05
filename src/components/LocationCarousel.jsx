@@ -11,9 +11,10 @@ import TripLocationModal from "./TripLocationModal";
 import { useState } from "react";
 import RouteBetween from "./RouteBetween";
 
-const LocationCarousel = ({ locations, comments, setEstimatedTime, estimatedTime }) => {
+const LocationCarousel = ({ locations, comments,  }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  // const [estimatedTime, setEstimatedTime] = useState();
   const [finalMode, setFinalMode] = useState(null);
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
@@ -52,9 +53,7 @@ const LocationCarousel = ({ locations, comments, setEstimatedTime, estimatedTime
               {loc.address}
             </Text>
           </Box>
-          <div style={{ position: "absolute", top: 8, right: 8, background: "white", borderRadius: "50%", padding: 4, boxShadow: "0 2px 8px rgba(0,0,0,0.1)", zIndex: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <IconBubbleFilled size={24} color="#333" />
-          </div>
+  
         </Card>
       </Carousel.Slide>
     );
@@ -72,8 +71,8 @@ const LocationCarousel = ({ locations, comments, setEstimatedTime, estimatedTime
           <RouteBetween
             finalMode={finalMode}
             setFinalMode={setFinalMode}
-            setEstimatedTime={setEstimatedTime}
-            estimatedTime={estimatedTime}
+            // setEstimatedTime={setEstimatedTime}
+            // estimatedTime={estimatedTime}
             origin={`${loc.geometry.location.lat},${loc.geometry.location.lng}`}
             destination={`${locations[index + 1].geometry.location.lat},${locations[index + 1].geometry.location.lng}`}
           />
