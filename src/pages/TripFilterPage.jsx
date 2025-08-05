@@ -357,7 +357,6 @@ function handleRemove(idToRemove, type) {
         );
       } catch (error) {
         console.error("Failed to save preferences:", error);
-        alert("Could not save the preferences. Please try again.");
       }
 
   
