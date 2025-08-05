@@ -100,18 +100,13 @@ const InteractiveButton = styled(Button)`
   }
 `;
 
-const TripPlannerPage = ({
-  selectedCity,
-  ownTrip,
-  setOwnTrip,
-}) => {
+const TripPlannerPage = ({ selectedCity, ownTrip, setOwnTrip }) => {
   const navigate = useNavigate();
   const { id } = useParams();
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
   const [locations, setLocations] = useState([]);
   const [selectedPlace, setSelectedPlace] = useState(null);
-
 
   // Effect to fetch trip data
   useEffect(() => {
@@ -157,7 +152,7 @@ const TripPlannerPage = ({
       const alreadyExists = locations.some(
         (loc) => loc.googlePlaceId === selectedPlace.place_id
       );
-  
+
       if (!alreadyExists) {
         const newLocation = {
           googlePlaceId: selectedPlace.place_id,
@@ -168,7 +163,7 @@ const TripPlannerPage = ({
           imageUrl: selectedPlace.photos?.[0]?.getUrl() || null,
           isNew: true,
         };
-  
+
         setLocations((prevLocations) => [...prevLocations, newLocation]);
         setSelectedPlace(null);
       }
@@ -187,8 +182,16 @@ const TripPlannerPage = ({
     }
 
     try {
-      // ... (rest of the saving logic remains the same)
+      // 1. Fetch the current trip data to get the existing locationOrder
+      const tripRes = await apiClient.get(`/trips/${id}`);
+      const existingOrder = tripRes.data.trip.locationOrder || [];
+      const existingIds = new Set(existingOrder);
+      
+      const newLocationGooglePlaceIds = [];
+
+      // 2. Loop through all locations currently in the UI
       for (const loc of locations) {
+        // 3. Ensure the location exists in the main 'locations' table and get its DB ID
         const locationPayload = {
           place_id: loc.googlePlaceId || loc.place_id,
           name: loc.name,
@@ -211,16 +214,35 @@ const TripPlannerPage = ({
           image_url: loc.image || loc.imageUrl || null,
         };
         const createRes = await apiClient.post("/locations", locationPayload);
-        await apiClient.post(`/trips/${id}/locations`, {
-          locationId: createRes.data.id,
-        });
+        const locationDbId = createRes.data.id;
+
+        // 4. If this location is NOT in the original order, it's considered new for this trip.
+        if (!existingIds.has(loc.googlePlaceId)) {
+          // --- THIS IS THE FIX ---
+          // 4a. Associate this new location with the trip using its database ID.
+          // This is the crucial missing step to create the link.
+          await apiClient.post(`/trips/${id}/locations`, { locationId: locationDbId });
+
+          // 4b. Add its googlePlaceId to our list of new IDs to append to the order.
+          newLocationGooglePlaceIds.push(loc.googlePlaceId);
+        }
       }
+
+      // 5. Combine the old order with the new locations' IDs
+      const finalOrder = [...existingOrder, ...newLocationGooglePlaceIds];
+
+      // 6. Update the trip's locationOrder with the final combined list
+      await apiClient.put(`/trips/${id}/locations/order`, {
+        locationIds: finalOrder,
+      });
+
       notifications.show({
         title: "Success!",
-        message: "Your trip has been saved.",
+        message: "Your trip has been updated.",
         color: "green",
       });
       navigate(`/tripsummary/${id}`);
+      
     } catch (error) {
       console.error("Error saving trip:", error);
       const message =
@@ -231,7 +253,7 @@ const TripPlannerPage = ({
 
   return (
     <PageWrapper theme={theme}>
-      {!isMobile && <NavBar currentPage={0}/>}
+      {!isMobile && <NavBar currentPage={0} />}
 
       <ContentContainer isMobile={isMobile}>
         <PlannerPanel isMobile={isMobile} theme={theme}>

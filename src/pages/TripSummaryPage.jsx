@@ -57,20 +57,19 @@ const AnimatedBox = styled(Box)`
 
 // Helper function outside the component
 async function fetchAllCommentsForTrip(tripId) {
-    try {
-      const response = await apiClient.get(`/comments/trips/${tripId}`);
-      return response.data;
-    } catch (error) {
-      console.error("Failed to fetch comments for trip:", error);
-      throw error;
-    }
+  try {
+    const response = await apiClient.get(`/comments/trips/${tripId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch comments for trip:", error);
+    throw error;
+  }
 }
-
 
 const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
   const navigate = useNavigate();
   const { id } = useParams();
-  
+
   const [locations, setLocations] = useState([]);
   const [tripData, setTripData] = useState(null); // Use a single object for trip data
   const [comments, setComments] = useState([]);
@@ -80,7 +79,6 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
   const { generateAvatarUrl } = useProfilePicture(userObj);
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
-  
 
   // Derived state - no need for separate useState
   const ownTrip = tripData ? String(tripData.hostId) === String(userId) : false;
@@ -88,42 +86,55 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
 
   useEffect(() => {
     if (!id) return;
-  
+
     const fetchAllPageData = async () => {
       try {
         setIsTimeLoading(true);
-  
+
         // 1. Fetch all data concurrently
         const [tripRes, commentsRes] = await Promise.all([
           apiClient.get(`/trips/${id}`), // Fetch the main trip object which includes locations, host, etc.
           fetchAllCommentsForTrip(id),
         ]);
-        
+
         const fetchedTrip = tripRes.data.trip;
         setTripData(fetchedTrip);
 
         // --- Process Locations ---
         const dbLocations = fetchedTrip.locations || [];
+
         const transformedLocations = dbLocations.map((loc) => ({
-            name: loc.name, 
-            address: loc.address, 
-            googlePlaceId: loc.googlePlaceId, 
-            imageUrl: loc.image, 
-            types: loc.types,
-            geometry: { location: { lat: parseFloat(loc.latitude), lng: parseFloat(loc.longitude) } },
+          name: loc.name,
+          address: loc.address,
+          googlePlaceId: loc.googlePlaceId,
+          imageUrl: loc.image,
+          types: loc.types,
+          geometry: {
+            location: {
+              lat: parseFloat(loc.latitude),
+              lng: parseFloat(loc.longitude),
+            },
+          },
         }));
         setLocations(transformedLocations);
-        
+
         // --- Process Comments (with safety check) ---
         const formattedComments = commentsRes.map((comment) => ({
           id: comment.id,
           // THE FIX for the crash: Use optional chaining
-          author: { name: comment.author?.name || "Guest", avatar: generateAvatarUrl(comment.author?.email) },
+          author: {
+            name: comment.author?.name || "Guest",
+            avatar: generateAvatarUrl(comment.author?.email),
+          },
           text: comment.text,
           location: comment.location?.name || "",
         }));
         setComments(formattedComments);
-        
+
+        console.log("Trip Data:", fetchedTrip);
+        console.log("Raw Locations:", dbLocations);
+        console.log("Transformed Locations:", transformedLocations);
+
         // --- Process RSVP Status (with race condition fix) ---
         const isOwner = String(fetchedTrip.hostId) === String(userId);
         if (isOwner) {
@@ -138,33 +149,42 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
             }
           }
         }
-  
       } catch (err) {
         console.error("Failed to fetch page data:", err);
-        notifications.show({ title: "Error", message: "Could not load trip details.", color: "red" });
+        notifications.show({
+          title: "Error",
+          message: "Could not load trip details.",
+          color: "red",
+        });
       } finally {
         setIsTimeLoading(false);
       }
     };
-  
+
     fetchAllPageData();
   }, [id, userId]); // Removed userObj as generateAvatarUrl can be passed down
-
 
   const handlePublish = async () => {
     if (!tripData) return;
     const newStatus = tripStatus === "ACTIVE" ? "PLANNING" : "ACTIVE";
     try {
       await apiClient.put(`/trips/${id}/status`, { status: newStatus });
-      setTripData(prev => ({...prev, status: newStatus})); // Update local state immediately
+      setTripData((prev) => ({ ...prev, status: newStatus })); // Update local state immediately
       notifications.show({
         title: `Trip ${newStatus === "ACTIVE" ? "Published" : "Unpublished"}`,
-        message: newStatus === "ACTIVE" ? "Your trip is now live!" : "Your trip is back to draft mode.",
+        message:
+          newStatus === "ACTIVE"
+            ? "Your trip is now live!"
+            : "Your trip is back to draft mode.",
         color: "green",
       });
     } catch (err) {
       console.error("Failed to update trip status:", err);
-      notifications.show({ title: "Error", message: `Could not update trip status.`, color: "red" });
+      notifications.show({
+        title: "Error",
+        message: `Could not update trip status.`,
+        color: "red",
+      });
     }
   };
 
@@ -213,7 +233,9 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
                 ownTrip={ownTrip}
                 tripStatus={tripStatus}
                 isPrivate={tripData?.isPrivate}
-                setIsPrivate={(isPrivate) => setTripData(prev => ({...prev, isPrivate}))}
+                setIsPrivate={(isPrivate) =>
+                  setTripData((prev) => ({ ...prev, isPrivate }))
+                }
               />
 
               <RSVPForm
@@ -260,15 +282,9 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
               </Paper>
 
               {locations.length < 3 ? (
-                <NoCarouselLocation
-                  locations={locations}
-                  comments={comments}
-                />
+                <NoCarouselLocation locations={locations} comments={comments} />
               ) : (
-                <LocationCarousel
-                  locations={locations}
-                  comments={comments}
-                />
+                <LocationCarousel locations={locations} comments={comments} />
               )}
 
               <TripGuestList tripId={id} />
@@ -383,7 +399,9 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
                     ownTrip={ownTrip}
                     tripStatus={tripStatus}
                     isPrivate={tripData?.isPrivate}
-                    setIsPrivate={(isPrivate) => setTripData(prev => ({...prev, isPrivate}))}
+                    setIsPrivate={(isPrivate) =>
+                      setTripData((prev) => ({ ...prev, isPrivate }))
+                    }
                   />
                   <RSVPForm
                     tripId={id}

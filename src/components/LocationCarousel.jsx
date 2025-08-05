@@ -83,21 +83,20 @@ const LocationCarousel = ({ locations, comments,  }) => {
 
 
   return (
-    <Carousel
-      withIndicators
-      slideGap="md"
-      // --- THIS IS THE CHANGE ---
-      // We remove the slideSize prop to allow individual slides to control their own width via flexbox styles.
-      // On mobile, the default 100% width will apply.
-      slideSize={isMobile ? "100%" : undefined}
-      align="start"
-      // Scrolling one slide at a time is more intuitive with variable widths
-      slidesToScroll={1}
-      emblaOptions={{ loop: false, containScroll: 'trimSnaps' }}
-      nextControlIcon={<IconChevronCompactRight size={30} />}
-      previousControlIcon={<IconChevronCompactLeft size={30} />}
-    >
-      {carouselSlides}
+    <>
+      <Carousel
+        withIndicators
+        slideGap="md"
+        slideSize={isMobile ? "100%" : undefined}
+        align="start"
+        emblaOptions={{ loop: false, containScroll: 'trimSnaps' }}
+        nextControlIcon={<IconChevronCompactRight size={30} />}
+        previousControlIcon={<IconChevronCompactLeft size={30} />}
+      >
+        {carouselSlides}
+      </Carousel>
+
+      {/* Move the modal here, outside the Carousel */}
       <TripLocationModal
         opened={opened}
         open={open}
@@ -105,7 +104,7 @@ const LocationCarousel = ({ locations, comments,  }) => {
         location={selectedLocation}
         comments={comments}
       />
-    </Carousel>
+    </>
   );
 };
 
