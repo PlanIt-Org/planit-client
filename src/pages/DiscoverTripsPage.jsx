@@ -8,6 +8,8 @@ import {
   useMantineTheme,
   Title,
   Divider,
+  Stack,
+  Button,
 } from "@mantine/core";
 import NavBar from "../components/NavBar";
 import TripGrid from "../components/TripGrid";
@@ -106,7 +108,7 @@ const DiscoverTripsPage = ({ userId }) => {
               <Skeleton height={30} width="300px" />
             ) : (
               <Text ta="center" size="xl" fw={500}>
-                {preferredCity ? (
+                {preferredCity && (
                   <>
                     Explore trips in{" "}
                     <Text
@@ -118,8 +120,6 @@ const DiscoverTripsPage = ({ userId }) => {
                       {preferredCity}
                     </Text>
                   </>
-                ) : (
-                  "Recommended based on your preferences"
                 )}
               </Text>
             )}
@@ -130,7 +130,29 @@ const DiscoverTripsPage = ({ userId }) => {
               borderColor: theme.colors["custom-palette"][6],
             }}
           />
-          <TripGrid userId={userId} discoverMode={true} />
+          {preferredCity ? (
+            <TripGrid userId={userId} discoverMode={true} />
+          ) : (
+            <Container>
+              <Stack align="center" spacing="md" mt="xl">
+                <Text size="lg" weight={500} ta="center">
+                  Please set your preferred city to discover trips.
+                </Text>
+                <Text c="dimmed" ta="center" size="sm">
+                  You can do this by completing your profile questionnaire.
+                </Text>
+                <Button
+                  component="a"
+                  href="/questionnaire"
+                  variant="gradient"
+                  gradient={{ from: "blue", to: "cyan" }}
+                  mt="md"
+                >
+                  Go to Questionnaire
+                </Button>
+              </Stack>
+            </Container>
+          )}
         </Container>
       </AnimatedBox>
       {isMobile && (
