@@ -68,7 +68,7 @@ export const myCustomDarkTheme = createTheme({
     }),
     Card: Card.extend({
       defaultProps: {
-        bg: "custom-palette.7", // Slightly lighter than Paper
+        bg: "custom-palette.6", // Slightly lighter than Paper
         shadow: "md",
       },
     }),
