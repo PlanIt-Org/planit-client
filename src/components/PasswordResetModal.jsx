@@ -1,21 +1,22 @@
 import { useState } from "react";
-import {
-  TextInput,
-  Button,
-  Group,
-  Stack,
-  PasswordInput,
-  Text,
-} from "@mantine/core";
-import { useForm, isNotEmpty, hasLength } from "@mantine/form";
+import { Button, Group, Stack, PasswordInput, Text } from "@mantine/core";
+import { useForm, hasLength } from "@mantine/form";
+import styled from "@emotion/styled";
+import { keyframes } from "@emotion/react";
 import apiClient from "../api/axios";
-import { useAuth } from "../hooks/useAuth";
+
+const slideIn = keyframes`
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const AnimatedForm = styled.form`
+  animation: ${slideIn} 0.4s ease-out forwards;
+`;
 
 const PasswordResetModal = ({ onClose, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { session } = useAuth();
-  const accessToken = session?.access_token;
 
   const form = useForm({
     initialValues: {
@@ -33,26 +34,18 @@ const PasswordResetModal = ({ onClose, onSuccess }) => {
   });
 
   const handleSubmit = async (values) => {
-    let response;
+    setIsLoading(true);
+    setError("");
     try {
-      setIsLoading(true);
-      setError("");
-      response = await apiClient.post(
+      // The axios interceptor automatically adds the user's auth token.
+      const response = await apiClient.post(
         "/users/reset-password",
-        { password: values.password },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+        { password: values.password }
       );
-      console.log("🚀 ~ handleSubmit ~ response.data:", response.data);
       onSuccess(response.data);
-      onClose();
     } catch (err) {
-      console.error("❌ API call failed! Error object:", err);
       const message =
-        err.response?.data?.error ||
+        err.response?.data?.message ||
         "An unexpected error occurred. Please try again.";
       setError(message);
     } finally {
@@ -61,7 +54,7 @@ const PasswordResetModal = ({ onClose, onSuccess }) => {
   };
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <AnimatedForm onSubmit={form.onSubmit(handleSubmit)}>
       <Stack>
         <PasswordInput
           withAsterisk
@@ -91,7 +84,7 @@ const PasswordResetModal = ({ onClose, onSuccess }) => {
           </Button>
         </Group>
       </Stack>
-    </form>
+    </AnimatedForm>
   );
 };
 

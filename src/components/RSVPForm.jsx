@@ -4,12 +4,12 @@ import apiClient from "../api/axios";
 import { useNavigate } from "react-router-dom";
 import { notifications } from "@mantine/notifications";
 
-function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
+function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus, tripStatus }) {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   // Don't render anything if the user is the host
-  if (ownTrip) {
+  if (ownTrip || tripStatus === "COMPLETED") {
     return null;
   }
 
@@ -26,7 +26,7 @@ function RSVPForm({ tripId, ownTrip, RSVPStatus, setRSVPStatus }) {
       setRSVPStatus(status);
 
       if (status === "no") {
-        navigate("/");
+        navigate("/home");
       } else {
         notifications.show({
           title: "RSVP Received!",

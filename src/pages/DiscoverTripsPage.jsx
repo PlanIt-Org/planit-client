@@ -1,12 +1,54 @@
 import React, { useState, useEffect } from "react";
-import { Text, Container, Flex, Box, Skeleton } from "@mantine/core";
+import {
+  Text,
+  Container,
+  Flex,
+  Box,
+  Skeleton,
+  useMantineTheme,
+  Title,
+  Divider,
+  Stack,
+  Button,
+} from "@mantine/core";
 import NavBar from "../components/NavBar";
 import TripGrid from "../components/TripGrid";
 import apiClient from "../api/axios";
+import { useMediaQuery } from "@mantine/hooks";
+import styled from "@emotion/styled";
+import { keyframes } from "@emotion/react";
 
-const DiscoverTripsPage = ({ setLocations, userId }) => {
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+`;
+
+const AnimatedFlex = styled(Flex)`
+  width: 100%;
+  min-height: 100vh;
+  align-items: stretch;
+  flex-direction: ${({ ismobile }) => (ismobile === "true" ? "column" : "row")};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
+  animation: ${fadeIn} 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+`;
+
+const AnimatedBox = styled(Box)`
+  flex: 1;
+  min-width: 0;
+  padding: ${({ ismobile, theme }) =>
+    ismobile === "true" ? theme.spacing.md : theme.spacing.lg};
+  box-sizing: border-box;
+  padding-bottom: ${({ ismobile }) => (ismobile === "true" ? "80px" : "20px")};
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
+  animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+`;
+
+const DiscoverTripsPage = ({ userId }) => {
+  const theme = useMantineTheme();
   const [preferredCity, setPreferredCity] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   useEffect(() => {
     if (!userId) {
@@ -32,56 +74,103 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
   }, [userId]);
 
   return (
-    <Flex
-      style={{
-        width: "100%",
-        minHeight: "100vh",
-        alignItems: "stretch",
-      }}
-    >
-      <NavBar currentPage={1} setLocations={setLocations} />
-      <Box
-        style={{
-          flex: 1,
-          minWidth: 0,
-          padding: 20,
-          boxSizing: "border-box",
-        }}
-      >
+    <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
+      {!isMobile && <NavBar currentPage={1} />}
+      <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
         <Container size="lg" py="lg">
-          <Text ta="center" fz="h2" fw={700} mb="xs">
+          <Title
+            order={1}
+            ta="center"
+            mb="xs"
+            variant="gradient"
+            gradient={{ from: "blue", to: "cyan" }}
+            style={{
+              fontSize: isMobile
+                ? "clamp(1.8rem, 5vw, 2.5rem)"
+                : "clamp(2.2rem, 4vw, 3rem)",
+            }}
+          >
             Discover Trips
-          </Text>
-
-          {/* This subtitle is now dynamic */}
-          <Box h={30} mb="xl">
+          </Title>
+          <Box
+            p="md"
+            radius="md"
+            mb="xl"
+            style={{
+              backgroundColor: theme.colors["custom-palette"][7],
+              minHeight: 60,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             {loading ? (
-              <Skeleton height={30} width="300px" mx="auto" />
+              <Skeleton height={30} width="300px" />
             ) : (
-              <Text ta="center" size="xl">
-                {preferredCity ? (
+              <Text ta="center" size="xl" fw={500}>
+                {preferredCity && (
                   <>
                     Explore trips in{" "}
                     <Text
                       component="span"
                       fw={700}
                       variant="gradient"
-                      gradient={{ from: "blue", to: "cyan" }}
+                      gradient={{ from: "blue", to: "white" }}
                     >
                       {preferredCity}
                     </Text>
                   </>
-                ) : (
-                  "Recommended based on your preferences"
                 )}
               </Text>
             )}
           </Box>
-
-          <TripGrid userId={userId} discoverMode={true} />
+          <Divider
+            my="sm"
+            style={{
+              borderColor: theme.colors["custom-palette"][6],
+            }}
+          />
+          {preferredCity ? (
+            <TripGrid userId={userId} discoverMode={true} />
+          ) : (
+            <Container>
+              <Stack align="center" spacing="md" mt="xl">
+                <Text size="lg" weight={500} ta="center">
+                  Please set your preferred city to discover trips.
+                </Text>
+                <Text c="dimmed" ta="center" size="sm">
+                  You can do this by completing your profile questionnaire.
+                </Text>
+                <Button
+                  component="a"
+                  href="/questionnaire"
+                  variant="gradient"
+                  gradient={{ from: "blue", to: "cyan" }}
+                  mt="md"
+                >
+                  Go to Questionnaire
+                </Button>
+              </Stack>
+            </Container>
+          )}
         </Container>
-      </Box>
-    </Flex>
+      </AnimatedBox>
+      {isMobile && (
+        <Box
+          style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            width: "100%",
+            zIndex: 1000,
+            backgroundColor: theme.colors["custom-palette"][8],
+            borderTop: `1px solid ${theme.colors["custom-palette"][6]}`,
+          }}
+        >
+          <NavBar currentPage={1} />
+        </Box>
+      )}
+    </AnimatedFlex>
   );
 };
 

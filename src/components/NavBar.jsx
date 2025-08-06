@@ -13,9 +13,9 @@ import {
   UnstyledButton,
   useMantineTheme,
 } from "@mantine/core";
-import { MantineLogo } from "@mantinex/mantine-logo";
 import { useMediaQuery } from "@mantine/hooks";
 import classes from "../styles/NavBarMinimal.module.css";
+import { IconWorldSearch } from "@tabler/icons-react";
 
 function NavbarLink({ icon: Icon, label, active, onClick }) {
   const theme = useMantineTheme();
@@ -55,8 +55,8 @@ const mockdata = [
   // { icon: IconFingerprint, label: 'Security' },
 ];
 
-function NavBar({ currentPage, setLocations }) {
-  const [active, setActive] = useState(currentPage); // default to home
+function NavBar({ currentPage }) {
+  const [active, setActive] = useState(currentPage);
   const navigate = useNavigate();
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
@@ -68,12 +68,9 @@ function NavBar({ currentPage, setLocations }) {
       active={index === active}
       onClick={() => {
         setActive(index);
-
-        if (index === 0) {
-          setLocations([]);
-        }
         navigate(link.path);
       }}
+      iconSize={isMobile ? 28 : 32}
     />
   ));
 
@@ -96,7 +93,7 @@ function NavBar({ currentPage, setLocations }) {
     >
       {!isMobile && (
         <Center>
-          <MantineLogo
+          <IconWorldSearch
             type="mark"
             size={30}
             onClick={() => {

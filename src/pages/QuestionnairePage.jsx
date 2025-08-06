@@ -14,6 +14,7 @@ import {
   Group,
   Chip,
   LoadingOverlay,
+  useMantineTheme,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import apiClient from "../api/axios";
@@ -24,7 +25,7 @@ import CityAutoCompleteSearchField from "../components/CityAutoCompleteSearchFie
  * Renders a single question based on its component type and options.
  * Returns a tile, radio, or checkbox based on the question.
  */
-function renderQuestion({ question, value, onChange }) {
+function renderQuestion({ question, value, onChange, theme }) {
   switch (question.component) {
     case "TextInput":
       return (
@@ -32,6 +33,12 @@ function renderQuestion({ question, value, onChange }) {
           value={value || ""}
           onChange={(e) => onChange(e.currentTarget.value)}
           required={question.required}
+          styles={{
+            input: {
+              backgroundColor: theme.colors["custom-palette"][7],
+              border: `1px solid ${theme.colors["custom-palette"][6]}`,
+            },
+          }}
         />
       );
     case "CityAutoComplete":
@@ -49,11 +56,8 @@ function renderQuestion({ question, value, onChange }) {
           }}
           styles={{
             input: {
-              backgroundColor: "#f8f9fa",
-              border: "1px solid #dee2e6",
-              "&:focus": {
-                borderColor: "#228be6",
-              },
+              backgroundColor: theme.colors["custom-palette"][7],
+              border: `1px solid ${theme.colors["custom-palette"][6]}`,
             },
           }}
         />
@@ -77,6 +81,7 @@ function renderQuestion({ question, value, onChange }) {
                     onChange((value || []).filter((v) => v !== opt.value));
                   }
                 }}
+                styles={{}}
               />
             ))}
           </Group>
@@ -120,6 +125,7 @@ const QuestionnairePage = () => {
   const navigate = useNavigate();
   const { preferences: initialPreferences, isLoading: isLoadingPreferences } =
     useUserPreferences();
+  const theme = useMantineTheme();
 
   const questionnaireSteps = [
     {
@@ -304,16 +310,14 @@ const QuestionnairePage = () => {
     const ageAsNumber = parseInt(flattenedAnswers.age, 10);
     console.log("Preparing to submit preferences. Payload:", flattenedAnswers);
 
+    const locationObject = flattenedAnswers.location;
+
     // Handle location data - send the formatted address or the entire object
-    let locationValue = flattenedAnswers.location;
-    if (typeof locationValue === "object" && locationValue.formatted_address) {
-      locationValue = locationValue.formatted_address;
-    }
 
     const apiPayload = {
       age: isNaN(ageAsNumber) ? null : ageAsNumber,
       dietary: flattenedAnswers.dietary || [],
-      location: locationValue.name || "",
+      location: locationObject?.name || locationObject?.formatted_address || "",
       activityType: flattenedAnswers.activityType || [],
       budget: flattenedAnswers.budget || "",
       tripLength: flattenedAnswers.tripLength || "",
@@ -450,7 +454,6 @@ const QuestionnairePage = () => {
           {/* Save & Exit button*/}
           <Button
             variant="subtle"
-            color="gray"
             size="xs"
             style={{
               position: "absolute",
@@ -460,6 +463,7 @@ const QuestionnairePage = () => {
             }}
             onClick={submitPreferences}
             disabled={isSubmitting}
+            styles={{}}
           >
             Save & Exit
           </Button>
@@ -475,6 +479,7 @@ const QuestionnairePage = () => {
                 question: q,
                 value: answers[step.id]?.[q.id],
                 onChange: (val) => handleQuestionChange(q.id, val),
+                theme: theme,
               })}
             </Paper>
           ))}
@@ -511,12 +516,12 @@ const QuestionnairePage = () => {
     >
       <LoadingOverlay
         visible={isSubmitting || isLoadingPreferences}
-        overlayBlur={2}
+        overlayProps={{ blur: 2, backgroundOpacity: 0.3 }}
       />
       {/* Progress Bar */}
       <Progress
         value={progress}
-        color="blue"
+        color="white"
         size="md"
         style={{ width: "100%", marginBottom: "40px" }}
       />

@@ -10,12 +10,36 @@ import {
   Divider,
   Anchor,
   Text,
+  useMantineTheme,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import { supabase } from "../supabaseClient";
 import apiClient from "../api/axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import styled from "@emotion/styled";
+import { keyframes } from "@emotion/react";
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px);}
+  to { opacity: 1; transform: translateY(0);}
+`;
+
+const AnimatedContainer = styled(Container)`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: ${({ theme }) => theme.colors["custom-palette"][7]};
+  animation: ${fadeIn} 0.7s ease;
+`;
+
+const AnimatedPaper = styled(Paper)`
+  width: 100%;
+  max-width: 420px;
+  background: ${({ theme }) => theme.colors["custom-palette"][8]};
+  animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+`;
 
 const RegisterPage = () => {
   const [email, setEmail] = useState("");
@@ -23,90 +47,73 @@ const RegisterPage = () => {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const theme = useMantineTheme();
 
-  const handleOAuthLogin = async (provider) => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: provider,
-      options: {
-        redirectTo: `${window.location.origin}/questionnaire`,
-      },
-    });
-    if (error) {
-      console.error("Error signing up:", error.message);
-      alert(error.message);
-    }
-    setLoading(false);
-  };
+  // const handleOAuthLogin = async (provider) => {
+  //   setLoading(true);
+  //   const { error } = await supabase.auth.signInWithOAuth({
+  //     provider: provider,
+  //     options: {
+  //       redirectTo: `${window.location.origin}/questionnaire`,
+  //     },
+  //   });
+  //   if (error) {
+  //     console.error("Error signing up:", error.message);
+  //     alert(error.message);
+  //   }
+  //   setLoading(false);
+  // };
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
 
   const handleEmailPasswordSignUp = async (event) => {
     event.preventDefault();
     setLoading(true);
 
     try {
-      const response = await apiClient.post("/users/create", {
+      const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password,
-        name: username,
+        options: { data: { display_name: username } },
       });
-      notifications.show({
-        title: "Success!",
-        message: "Please check your email for a verification link.",
-        color: "green",
-      });
-      console.log("User created:", response.data);
 
-      const { data: signUpData, error: signUpError } =
-        await supabase.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            data: {
-              display_name: username,
-            },
-          },
-        });
-
-      if (signUpError) {
-        throw new Error(
-          `Sign-in failed after registration: ${signUpError.message}`
-        );
+      if (error) {
+        throw error;
       }
 
-      console.log("Sign-in successful, navigating to questionnaire...");
-      navigate("/questionnaire");
+      notifications.show({
+        title: "Success!",
+        message:
+          "User created successfully. Please check your email to verify.",
+        color: "green",
+      });
+
+      // --- USE THE REDIRECT PATH HERE ---
+      // If a redirectPath exists, go there. Otherwise, go to the default page.
+      // NOTE: Supabase email auth requires verification, so you might redirect them to a "check your email" page first.
+      // For now, we'll redirect directly.
+      navigate(redirectPath || "/questionnaire", { replace: true });
     } catch (error) {
       notifications.show({
         title: "Registration Error",
-        message: error.response?.data?.message || "An unknown error occurred.",
+        message: error.message || "An unknown error occurred.",
         color: "red",
       });
-      console.error(
-        "Error signing up:",
-        error.response?.data?.message || error.message
-      );
-      alert(error.response?.data?.message || "Registration failed.");
+      console.error("Error signing up:", error.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Container
-      h="100vh"
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Paper
+    <AnimatedContainer theme={theme}>
+      <AnimatedPaper
         withBorder
         shadow="md"
         p={30}
         mt={30}
         radius="md"
-        style={{ width: "100%", maxWidth: "420px" }}
+        theme={theme}
       >
         <Stack>
           <Title align="center" order={2}>
@@ -142,7 +149,7 @@ const RegisterPage = () => {
               </Button>
             </Stack>
           </form>
-          <Divider label="or" labelPosition="center" my="lg" />
+          {/* <Divider label="or" labelPosition="center" my="lg" />
           <Button
             onClick={() => handleOAuthLogin("google")}
             variant="default"
@@ -158,13 +165,18 @@ const RegisterPage = () => {
             loading={loading}
           >
             Sign up with GitHub
-          </Button>
+          </Button> */}
         </Stack>
         <Text ta="center" mt="md">
-          Don't have an account?{" "}
+          Already have an account? 
           <Anchor
             component={Link}
-            to="/login"
+
+            to={`/login${
+              redirectPath
+                ? `?redirect=${encodeURIComponent(redirectPath)}`
+                : ""
+            }`}
             underline="always"
             fw={700}
             c="blue"
@@ -172,8 +184,8 @@ const RegisterPage = () => {
             Login
           </Anchor>
         </Text>
-      </Paper>
-    </Container>
+      </AnimatedPaper>
+    </AnimatedContainer>
   );
 };
 

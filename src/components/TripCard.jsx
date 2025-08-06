@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Image, Text, Group, Card, Button, ActionIcon } from "@mantine/core";
+import {
+  Image,
+  Text,
+  Group,
+  Card,
+  Button,
+  ActionIcon,
+  useMantineTheme,
+} from "@mantine/core";
 import { IconHeart, IconHeartFilled } from "@tabler/icons-react";
 import apiClient from "../api/axios";
 
@@ -13,6 +21,8 @@ const TripCard = ({
 }) => {
   const [isHeartFilled, setIsHeartFilled] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
+  const theme = useMantineTheme();
+
   useEffect(() => {
     if (trip.savedByUsers && userId) {
       const isSaved = trip.savedByUsers.some((user) => user.id === userId);
@@ -96,19 +106,24 @@ const TripCard = ({
           disabled={isToggling || !userId}
         >
           {isHeartFilled ? (
-            <IconHeartFilled size={30} color="red" />
+            <IconHeartFilled
+              size={30}
+              color={theme.colors["custom-palette"][2]}
+            />
           ) : (
-            <IconHeart size={30} color="black" />
+            <IconHeart size={30} color={theme.colors["custom-palette"][2]} />
           )}
         </ActionIcon>
       </Group>
       <Group justify="space-between" mt="md" mb="xs">
         <Text size="sm" c="dimmed">
-          Hosted By {trip.host?.name || "Unknown"}
+          Hosted By: {trip.host?.name || "Unknown"}
         </Text>
-        {!canDelete && <Text size="sm" c="dimmed">
-          {formatDate(trip.startTime)}
-        </Text>}
+        {!canDelete && (
+          <Text size="sm" c="dimmed">
+            {formatDate(trip.startTime)}
+          </Text>
+        )}
       </Group>
       <Group justify="space-between" align="center">
         {canDelete && <Text>Status: {trip.status}</Text>}

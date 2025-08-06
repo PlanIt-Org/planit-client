@@ -1,20 +1,20 @@
 import { useState } from "react";
 import { TextInput, Button, Group, Stack } from "@mantine/core";
 import { useForm, isNotEmpty, hasLength } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
 import apiClient from "../api/axios";
-import useUpdateDisplayName from "../hooks/useUpdateDisplayName";
 
-const EditDisplayNameForm = ({
+const EditProfileModal = ({
   currentDisplayName,
   onClose,
-  onSubmit,
   refreshUserInfo,
 }) => {
-  const [updateDisplayName, { isLoading, error }] = useUpdateDisplayName();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const form = useForm({
     initialValues: {
-      displayName: currentDisplayName,
+      displayName: currentDisplayName || "",
     },
     validate: {
       displayName: (value) => {
@@ -38,12 +38,33 @@ const EditDisplayNameForm = ({
   });
 
   const handleSubmit = async (values) => {
-    const result = await updateDisplayName(values.displayName);
-    if (result.success) {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // This now calls your new, dedicated endpoint for updating the username.
+      await apiClient.put("/users/username", { displayName: values.displayName });
+
+      notifications.show({
+        title: "Success!",
+        message: "Your display name has been updated.",
+        color: "green",
+      });
+
       if (refreshUserInfo) {
         await refreshUserInfo();
       }
       onClose();
+
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Failed to update display name.";
+      setError(errorMessage);
+      notifications.show({
+        title: "Error",
+        message: errorMessage,
+        color: "red",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,7 +76,7 @@ const EditDisplayNameForm = ({
           label="Display Name"
           placeholder="Your new display name"
           data-autofocus
-          error={error}
+          error={error || form.errors.displayName}
           {...form.getInputProps("displayName")}
         />
 
@@ -72,4 +93,4 @@ const EditDisplayNameForm = ({
   );
 };
 
-export default EditDisplayNameForm;
+export default EditProfileModal;

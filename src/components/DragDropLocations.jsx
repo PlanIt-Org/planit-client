@@ -1,3 +1,4 @@
+// src/components/DragDropLocations.jsx
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { IconGripVertical, IconX } from "@tabler/icons-react";
 import cx from "clsx";
@@ -6,48 +7,112 @@ import { useListState } from "@mantine/hooks";
 import classes from "../styles/DndListHandle.module.css";
 import { useEffect } from "react";
 import apiClient from "../api/axios";
+import { notifications } from "@mantine/notifications";
 
-function DragDropLocations({ locations, setLocations, id }) {
+function DragDropLocations({ locations, setLocations, id: tripId }) {
   const [internalLocations, internalHandlers] = useListState(locations);
 
   useEffect(() => {
     internalHandlers.setState(locations);
-  }, [locations, internalHandlers]);
+  }, [locations]);
 
   const handleRemove = async (indexToRemove) => {
-    const locationToRemove = internalLocations[indexToRemove];
-    // Ensure you are using the correct property for the Google Place ID.
-    // Based on your previous code, it's `place_id`.
-    const placeId = locationToRemove.googlePlaceId;
+    const originalOrder = Array.from(internalLocations);
+    const locationToRemove = originalOrder[indexToRemove];
 
-    if (!id || !placeId) {
-      console.error("Missing trip ID or location Place ID.");
+    // --- 1. Optimistic UI Update ---
+    const newOrder = originalOrder.filter((_, i) => i !== indexToRemove);
+    internalHandlers.setState(newOrder);
+    setLocations(newOrder);
+
+    if (locationToRemove.isNew) {
+      notifications.show({
+        title: "Location removed",
+        message: `${locationToRemove.name} has been removed from your list.`,
+        color: "green",
+      });
       return;
     }
 
-    console.log("Removing location from trip:", id, "with Place ID:", placeId);
-
-    try {
-      // --- THIS IS THE CORRECTED LINE ---
-      // Add the '/trips' prefix to match your backend routing.
-      await apiClient.delete(`/trips/${id}/locations/${placeId}`);
-    } catch (err) {
-      console.error("Failed to remove location from trip:", err);
-      // Optionally, show a notification to the user here.
-      return; // Don't update local state if server request fails.
+    // --- THIS IS THE FIX ---
+    // We get the googlePlaceId for the DELETE request, as the backend expects it.
+    const googlePlaceId = locationToRemove.googlePlaceId; 
+    if (!googlePlaceId) {
+      notifications.show({ title: "Deletion error", message: "Location is missing a Google Place identifier.", color: "red" });
+      internalHandlers.setState(originalOrder);
+      setLocations(originalOrder);
+      return;
     }
 
-    // This part only runs if the API call was successful.
-    const newOrder = internalLocations.filter((_, index) => index !== indexToRemove);
+    try {
+      // --- 2. Persist Changes to the Backend ---
+      // API Call A: Use the googlePlaceId to disassociate the location from the trip.
+      await apiClient.delete(`/trips/${tripId}/locations/${googlePlaceId}`);
+
+      // API Call B: Update the locationOrder array with the remaining googlePlaceIds.
+      const remainingLocationIds = newOrder.map(loc => loc.googlePlaceId);
+      await apiClient.put(`/trips/${tripId}/locations/order`, { locationIds: remainingLocationIds });
+
+      notifications.show({
+        title: "Location Removed",
+        message: `${locationToRemove.name} has been successfully removed from the trip.`,
+        color: "green",
+      });
+
+    } catch (error) {
+      // --- 3. Revert on Error ---
+      console.error("Failed to remove location:", error);
+      internalHandlers.setState(originalOrder);
+      setLocations(originalOrder);
+
+      notifications.show({
+        title: "Error Removing Location",
+        message: error.response?.data?.message || "Could not update the trip. Please try again.",
+        color: "red",
+      });
+    }
+  };
+
+  const handleDragEnd = async ({ destination, source }) => {
+    if (!destination) return;
+
+    const originalOrder = Array.from(internalLocations);
+    const newOrder = Array.from(internalLocations);
+    const [reorderedItem] = newOrder.splice(source.index, 1);
+    newOrder.splice(destination.index, 0, reorderedItem);
+
     internalHandlers.setState(newOrder);
     setLocations(newOrder);
+
+    try {
+      const locationIds = newOrder.map(loc => loc.googlePlaceId);
+      await apiClient.put(`/trips/${tripId}/locations/order`, { locationIds });
+
+      notifications.show({
+        title: "Order Saved",
+        message: "Your new location order has been saved.",
+        color: "green",
+        autoClose: 2000,
+      });
+
+    } catch (error) {
+      console.error("Failed to save location order:", error);
+      internalHandlers.setState(originalOrder);
+      setLocations(originalOrder);
+
+      notifications.show({
+        title: "Error Saving Order",
+        message: "Could not save the new location order. Please try again.",
+        color: "red",
+      });
+    }
   };
 
   const items = internalLocations.map((location, index) => (
     <Draggable
-      key={location.place_id || `${location.name}-${index}`}
+      key={location.googlePlaceId || `location-${index}`}
       index={index}
-      draggableId={location.place_id || `${location.name}-${index}`}
+      draggableId={String(location.googlePlaceId || `location-${index}`)}
     >
       {(provided, snapshot) => (
         <div
@@ -81,17 +146,6 @@ function DragDropLocations({ locations, setLocations, id }) {
       )}
     </Draggable>
   ));
-
-  const handleDragEnd = ({ destination, source }) => {
-    if (!destination) return;
-
-    const newOrder = Array.from(internalLocations);
-    const [reorderedItem] = newOrder.splice(source.index, 1);
-    newOrder.splice(destination.index, 0, reorderedItem);
-    internalHandlers.setState(newOrder);
-
-    setLocations(newOrder);
-  };
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>

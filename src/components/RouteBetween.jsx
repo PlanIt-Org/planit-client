@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { Text, Box, Stack, Button, Skeleton } from "@mantine/core";
+import {
+  Text,
+  Box,
+  Stack,
+  Button,
+  Skeleton,
+  useMantineTheme,
+} from "@mantine/core";
 
 const API_GEO_URL = import.meta.env.VITE_GEO_API_KEY;
 
@@ -13,6 +20,7 @@ export default function RouteBetween({
   const [time, setTime] = useState(null);
   const [loading, setLoading] = useState(true);
   const prevTimeRef = useRef(null);
+  const theme = useMantineTheme();
 
   // this effect runs when locations change to find the best route automaticall, and it also runs when the user manually changes the mode.
   useEffect(() => {
@@ -34,9 +42,9 @@ export default function RouteBetween({
       try {
         setLoading(true);
         const newTime = await getRouteTime(mode);
-        setEstimatedTime(
-          (currentTotal) => currentTotal - (prevTimeRef.current || 0) + newTime
-        );
+        // setEstimatedTime(
+        //   (currentTotal) => currentTotal - (prevTimeRef.current || 0) + newTime
+        // );
         setTime(newTime);
         prevTimeRef.current = newTime;
       } catch (err) {
@@ -92,7 +100,7 @@ export default function RouteBetween({
 
         setMode(finalMode);
         setTime(finalTime);
-        setEstimatedTime((currentTotal) => currentTotal + finalTime);
+        // setEstimatedTime((currentTotal) => currentTotal + finalTime);
         prevTimeRef.current = finalTime;
       } catch (err) {
         console.error("Route optimization failed:", err);
@@ -117,16 +125,26 @@ export default function RouteBetween({
 
   const isSustainable = mode === "walk" || mode === "bicycle";
 
-  const allModes = [
-    { value: "drive", label: "🚗 Drive" },
-    { value: "walk", label: "🚶 Walk" },
-    { value: "bicycle", label: "🚲 Bike" },
-    { value: "transit", label: "🚌 Transit" },
-  ];
+  //Safeguard against the API failing
+  const allModes =
+    time > 60 && mode == "drive"
+      ? [{ value: "drive", label: "🚗 Drive" }]
+      :  [
+        { value: "drive", label: "🚗 Drive" },
+        { value: "walk", label: "🚶 Walk" },
+        { value: "bicycle", label: "🚲 Bike" },
+        { value: "transit", label: "🚌 Transit" },
+      ]  ;
 
   if (loading || !mode) {
     return (
-      <Box w={160} h="100%" p="md">
+      <Box
+        w={160}
+        h="100%"
+        p="md"
+        bg={theme.colors["custom-palette"][8]}
+        style={{ borderRadius: 10 }}
+      >
         <Skeleton height={80} circle mb="sm" />
         <Stack spacing="xs" w="100%">
           <Skeleton height={36} radius="sm" />
@@ -143,7 +161,7 @@ export default function RouteBetween({
       w={160}
       h="100%"
       p="md"
-      bg="#f1f3f5"
+      bg={theme.colors["custom-palette"][8]}
       style={{
         display: "flex",
         flexDirection: "column",
@@ -157,8 +175,8 @@ export default function RouteBetween({
         mb="sm"
         style={{
           borderRadius: "50%",
-          backgroundColor: "#000",
-          color: "#fff",
+          backgroundColor: theme.colors["custom-palette"][6],
+          color: theme.colors["custom-palette"][2],
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -180,6 +198,20 @@ export default function RouteBetween({
                 ? "green"
                 : "gray"
             }
+            style={{
+              background:
+                mode === value
+                  ? theme.colors["custom-palette"][4]
+                  : theme.colors["custom-palette"][7],
+              color:
+                mode === value
+                  ? theme.colors["custom-palette"][7]
+                  : theme.colors["custom-palette"][1],
+              border:
+                mode === value
+                  ? `2px solid ${theme.colors["custom-palette"][5]}`
+                  : "none",
+            }}
             onClick={() => setMode(value)}
           >
             {label}

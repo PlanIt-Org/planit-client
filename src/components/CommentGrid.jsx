@@ -1,108 +1,62 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Title,
   Card,
   Stack,
   Group,
   Text,
-  InputBase,
   Avatar,
-  Combobox,
   Paper,
   Grid,
   Select,
   Textarea,
   Button,
   Modal,
-  Input,
-  useCombobox,
 } from "@mantine/core";
-import { LoremIpsum } from "react-lorem-ipsum";
 import { useDisclosure } from "@mantine/hooks";
-import { useState } from "react";
-import axios from "axios";
 import apiClient from "../api/axios";
-import { useEffect } from "react";
 import { useProfilePicture } from "../hooks/useProfilePicture";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-/**
- * Fetches all comments for a specific trip ID.
- * @param {string} tripId - The ID of the trip.
- * @returns {Promise<Array>} An array of comment objects.
- */
-// async function fetchAllCommentsForTrip(tripId) {
-//   try {
-//     const response = await axios.get(`${API_BASE_URL}comments/trips/${tripId}`);
-
-//     return response.data;
-//   } catch (error) {
-//     console.error("Failed to fetch comments for trip:", error);
-//     throw error;
-//   }
-// }
-
-function CommentBox({ onAddComment, locations, userId, tripId }) {
-  const [opened, { open, close, toggle }] = useDisclosure(false);
+// This component is now self-contained and correct.
+function CommentBox({ onAddComment, locations, userId, tripId, setProfilePictureURL }) {
+  const [opened, { open, close }] = useDisclosure(false);
   const [commentText, setCommentText] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const [locationsOptions, setLocationsOptions] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("general");
+  const [locationsOptions, setLocationsOptions] = useState([]);
 
-  React.useEffect(() => {
+
+  useEffect(() => {
+    const generalOption = { value: "general", label: "General Comment" };
     if (locations && locations.length > 0) {
-      setLocationsOptions(
-        locations.map((location) => ({
-          value: location.name,
-          label: location.name,
-        }))
-      );
+      const locationSpecificOptions = locations.map((location) => ({
+        value: location.name,
+        label: location.name,
+      }));
+      setLocationsOptions([generalOption, ...locationSpecificOptions]);
     } else {
-      setLocationsOptions([{ value: "general", label: "General Comment" }]);
+      setLocationsOptions([generalOption]);
     }
   }, [locations]);
 
   const createCommentData = async () => {
+    if (!commentText.trim()) return null;
+
+    if (selectedLocation === "general" || !selectedLocation) {
+      return { authorId: userId, text: commentText, tripId: tripId, locationId: null };
+    }
+
+    const foundLocation = locations.find(
+      (loc) => loc.name.trim().toLowerCase() === selectedLocation.trim().toLowerCase()
+    );
+
+    if (!foundLocation?.googlePlaceId) {
+      console.error("Could not find location or its googlePlaceId.");
+      return null;
+    }
+
     try {
-      console.log(selectedLocation, "selected loc");
-      console.log(locations, "All my locations");
-
-      let commentDataAPI;
-
-      if (selectedLocation === "general" || selectedLocation === "") {
-        //General comment
-        commentDataAPI = {
-          authorId: userId,
-          text: commentText,
-          tripId: tripId,
-        };
-      } else {
-        //Comment with location tag
-        const foundLocation = locations.find((location) => {
-          return (
-            location.name.trim().toLowerCase() ===
-            selectedLocation.trim().toLowerCase()
-          );
-        });
-        console.log("Find my locaiton", foundLocation);
-
-        if (!foundLocation) {
-          console.error("Error: Could not find the selected location.");
-          return null;
-        }
-
-        console.log("My place id x2", foundLocation.place_id);
-        const locationId = await fetchLocationID(foundLocation.place_id);
-
-        commentDataAPI = {
-          authorId: userId,
-          text: commentText,
-          tripId: tripId,
-          locationId: locationId,
-        };
-      }
-
-      return commentDataAPI;
+      const locationIdFromDb = await fetchLocationID(foundLocation.googlePlaceId);
+      return { authorId: userId, text: commentText, tripId: tripId, locationId: locationIdFromDb };
     } catch (error) {
       console.error("An error occurred while creating comment data:", error);
       return null;
@@ -113,17 +67,17 @@ function CommentBox({ onAddComment, locations, userId, tripId }) {
     const data = await createCommentData();
     if (data) {
       try {
-        const response = await addComments(data);
-
-        // Call onAddComment with the response data from server
+        const serverResponse = await addComments(data);
+        
+        // THE FIX, PART 1:
+        // Pass an object containing both the server response AND the location name we already know.
         onAddComment({
-          text: commentText,
-          location: selectedLocation !== "general" ? selectedLocation : "",
-          serverResponse: response,
+          serverResponse,
+          locationName: selectedLocation === "general" ? "" : selectedLocation,
         });
-
+        
         setCommentText("");
-        setSelectedLocation("");
+        setSelectedLocation("general");
         close();
       } catch (error) {
         console.error("Failed to add comment:", error);
@@ -136,7 +90,7 @@ function CommentBox({ onAddComment, locations, userId, tripId }) {
       <Modal opened={opened} onClose={close} title="Add a New Comment" centered>
         <Stack>
           <Select
-            label="Select a Location (optional)"
+            label="Tag a Location (optional)"
             placeholder="Pick one"
             data={locationsOptions}
             value={selectedLocation}
@@ -151,29 +105,20 @@ function CommentBox({ onAddComment, locations, userId, tripId }) {
             minRows={3}
             required
           />
-          <Button onClick={handleSubmit} mt="md">
+          <Button onClick={handleSubmit} mt="md" disabled={!commentText.trim()}>
             Submit Comment
           </Button>
         </Stack>
       </Modal>
-
       <Button onClick={open}>Add New Comment</Button>
     </>
   );
 }
 
-/**
- * Sends a new comment to the server.
- * @param {object} commentData - The comment object, e.g., { text: "Great trip!", tripId: "xyz-123" }
- * @returns {Promise<object>} The newly created comment from the server.
- */
+// Helper functions (no changes needed here)
 async function addComments(commentData) {
   try {
-    console.log("What I am passing", commentData);
-    const response = await axios.post(`${API_BASE_URL}comments`, commentData);
-    console.log("COmment data", commentData);
-
-    console.log("Successfully created comment:", response.data);
+    const response = await apiClient.post(`/comments`, commentData);
     return response.data;
   } catch (error) {
     console.error("Failed to post comment:", error);
@@ -181,35 +126,22 @@ async function addComments(commentData) {
   }
 }
 
-async function fetchCurrentUser() {
-  try {
-    const response = await apiClient.get("/users/me");
-
-    // setEmail(response.data.email);
-    console.log("Current data", response.data);
-
-    return response.data;
-  } catch (error) {
-    console.error("Failed to get current  user:", error);
-    throw error;
+async function fetchLocationID(placeId) {
+  if (!placeId || typeof placeId !== 'string') {
+    console.error("fetchLocationID called with invalid placeId:", placeId);
+    return null;
   }
-}
-
-async function fetchLocationID(place_id) {
   try {
-    console.log("My place", place_id);
-    place_id = place_id.trim();
-    const response = await apiClient.get(`/locations/by-place-id/${place_id}`);
-
-    console.log("Current location id", response.data.id);
-
+    const trimmedPlaceId = placeId.trim();
+    const response = await apiClient.get(`/locations/by-place-id/${trimmedPlaceId}`);
     return response.data.id;
   } catch (error) {
-    console.error("Failed to get location ID :", error);
+    console.error("Failed to get location ID:", error);
     throw error;
   }
 }
 
+// Main Component
 export default function CommentGrid({
   tripId,
   userId,
@@ -218,42 +150,55 @@ export default function CommentGrid({
   setComments,
   userObj,
 }) {
-  const [selectedFilter, setSelectedFilter] = useState("all");
-  const { generateAvatarUrl } = useProfilePicture(userObj);
 
-  console.log("All locations", locations);
+  const [profilePictureURL, setProfilePictureURL] = useState("");
+  const [name, setName] = useState("");
 
-  console.log("Current user object", userObj);
 
-  const handleAddComment = async (newCommentData) => {
-    console.log("New comment submitted:", newCommentData);
+  useEffect(() => {
 
-    try {
-      const user = await fetchCurrentUser();
-      const userEmail = user.email;
+    const fetchProfile = async () => {
+      try {
+        const { data } = await apiClient.get("/users/me");
 
-      console.log("current email!!!!!!!", userEmail);
-      if (comments) {
-        const newComment = {
-          id: comments.length + 1,
-          author: {
-            name: userEmail,
-            avatar: generateAvatarUrl(userEmail),
-          },
-          text: newCommentData.text,
-          location: newCommentData.location || "",
-          // Include server response data if available
-          ...(newCommentData.serverResponse && {
-            id: newCommentData.serverResponse.id,
-            createdAt: newCommentData.serverResponse.createdAt,
-          }),
-        };
+    
+        setName(data.name)
 
-        setComments([newComment, ...comments]);
+        setProfilePictureURL(data.profilePictureUrl);
+
+      } catch (err) {
+        console.error("Failed to load profile:", err);
       }
-    } catch (error) {
-      console.error("Failed to add comment to UI:", error);
-    }
+    };
+
+    fetchProfile();
+  }, [tripId]); 
+
+
+
+  const handleAddComment = (commentPayload) => {
+    // THE FIX, PART 2:
+    // Destructure the payload to get both the server response and the location name.
+ 
+    const { serverResponse, locationName } = commentPayload;
+
+    if (!serverResponse) return;
+
+    
+
+  
+
+    // Create the new comment object for the UI.
+    const formattedComment = {
+        ...serverResponse,
+        author: {
+            name: name,
+            avatar: profilePictureURL
+        },
+        // Use the locationName passed up from the CommentBox.
+        location: locationName
+    };
+    setComments([formattedComment, ...comments]);
   };
 
   return (
@@ -265,37 +210,30 @@ export default function CommentGrid({
               <Title order={3} fw={300}>
                 Comments
               </Title>
-
               <CommentBox
                 onAddComment={handleAddComment}
                 userId={userId}
                 tripId={tripId}
                 locations={locations}
+                setProfilePictureURL = {setProfilePictureURL}
               />
             </Group>
-
-            <Group justify="space-between">
-              {/* <Title> Filter by Location</Title> */}
-            </Group>
-
             <Stack spacing="md" mt="md">
               {comments && comments.length > 0 ? (
                 comments.map((comment) => (
                   <Paper key={comment.id} p="sm" withBorder radius="md">
                     <Group>
                       <Avatar
-                        src={
-                          comment.author?.avatar ||
-                          generateAvatarUrl(comment.author?.name || "User")
-                        }
-                        alt={comment.author?.name || "Unknown"}
+                        src={profilePictureURL}
+                        alt={comment.author?.name || comment.author?.email || "Guest"}
                         radius="xl"
                       />
                       <div>
                         <Text size="sm" fw={500}>
-                          {comment.author?.name || "Unknown"}
+                          {comment.author?.name || comment.author?.email || "Guest"}
                         </Text>
-                        {comment.location?.length > 0 && (
+                        {/* This now uses the correct `location` property */}
+                        {comment.location && (
                           <Text size="xs" c="dimmed">
                             on {comment.location}
                           </Text>
