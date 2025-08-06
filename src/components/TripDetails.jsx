@@ -39,36 +39,42 @@ const TripDetails = ({
   const theme = useMantineTheme();
 
   useEffect(() => {
-    const fetchTripDetails = async () => {
-      if (tripId) {
-        try {
-          const response = await apiClient.get(`/trips/${tripId}`);
+    const fetchTripAndHostDetails = async () => {
+      if (!tripId) return;
 
-          const {
-            title,
-            description,
-            host,
-            private: tripIsPrivate,
-          } = response.data.trip;
-          setHostName(host?.name || "Loading...");
-          setInputTitle(title || "");
-          setInputDesc(description || "");
-          setIsPrivate(tripIsPrivate);
-        } catch (err) {
-          console.error("Failed to fetch trip details:", err);
-          notifications.show({
-            title: "Error",
-            message: "Could not load trip details.",
-            color: "red",
-          });
+      try {
+        const tripResponse = await apiClient.get(`/trips/${tripId}`);
+        const tripData = tripResponse.data.trip;
+
+        // Set trip details from the first response
+        setInputTitle(tripData.title || "");
+        setInputDesc(tripData.description || "");
+        setIsPrivate(tripData.private);
+
+        if (tripData.hostId) {
+          try {
+            const hostResponse = await apiClient.get(`/users/${tripData.hostId}`);
+            setHostName(hostResponse.data.name || "Unknown Host");
+          } catch (hostError) {
+            console.error("Failed to fetch host details:", hostError);
+            setHostName("Unknown Host");
+          }
+        } else {
+          setHostName("No host assigned");
         }
+
+      } catch (tripError) {
+        console.error("Failed to fetch trip details:", tripError);
+        notifications.show({
+          title: "Error",
+          message: "Could not load trip details.",
+          color: "red",
+        });
       }
     };
 
-    // Call the async function
-    fetchTripDetails();
-  }, [tripId]);
-
+    fetchTripAndHostDetails();
+}, [tripId]); 
   const handleTogglePrivacy = async () => {
     const newPrivacyState = !isPrivate;
     try {

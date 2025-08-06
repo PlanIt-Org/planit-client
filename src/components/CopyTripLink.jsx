@@ -30,7 +30,7 @@ const CopyTripLink = ({ tripId, goto, tripStatus }) => {
   };
 
   return (
-    <Group mt="md" grow>
+    <Group grow>
       {tripStatus !== "PLANNING" && (
         <Button variant="light" onClick={handleTripCopyLink}>
           Copy Trip Link

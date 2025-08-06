@@ -42,7 +42,7 @@ const AnimatedBox = styled(Box)`
   animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
-const DiscoverTripsPage = ({ setLocations, userId }) => {
+const DiscoverTripsPage = ({ userId }) => {
   const theme = useMantineTheme();
   const [preferredCity, setPreferredCity] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +73,7 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
 
   return (
     <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
-      {!isMobile && <NavBar currentPage={1} setLocations={setLocations} />}
+      {!isMobile && <NavBar currentPage={1} />}
       <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
         <Container size="lg" py="lg">
           <Title

@@ -44,7 +44,7 @@ const SavedTripsPage = ({ setLocations, userId }) => {
   return (
 
     <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
-      {!isMobile && <NavBar currentPage={2} setLocations={setLocations} />}
+      {!isMobile && <NavBar currentPage={2}/>}
 
 
       {/* main content */}

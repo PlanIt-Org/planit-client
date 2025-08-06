@@ -58,12 +58,13 @@ const TripGrid = ({
       if (discoverMode) {
         return trips;
       }
-      const now = new Date(); // Current time is August 3, 2025, 6:07 PM PDT
+      const now = new Date(); // Current time is August 5, 2025, 4:32 PM PDT
 
       switch (active) {
         case "Drafts":
-          return trips.filter((trip) => trip.status === "PLANNING");
-
+          return trips.filter(
+            (trip) => trip.status === "PLANNING" && trip.hostId === userId
+          );
         // --- UPDATED LOGIC IS HERE ---
         case "Upcoming":
           return trips.filter((trip) => {
@@ -73,8 +74,7 @@ const TripGrid = ({
               (user) => user.id === userId
             );
 
-            // A trip is "Upcoming" only if it's active, in the future,
-            // AND the user is either hosting it or was explicitly invited.
+    
             return (
               trip.status === "ACTIVE" && isFutureDate && (isHost || isInvited)
             );
@@ -366,8 +366,9 @@ const TripGrid = ({
         centered
         size="lg"
         radius="md"
-        padding={0} // Padding is handled by the inner Stack
-        withCloseButton={false}
+        padding={0}
+        withCloseButton={true} // Display the default close button
+        closeButtonProps={{ color: "red", "aria-label": "Close modal" }} // Style the close button
         overlayProps={{ blur: 3 }}
       >
         {selectedTrip &&
@@ -460,18 +461,15 @@ const TripGrid = ({
 
                 <Divider />
 
-                <Group justify="space-between" p="md">
-                  <Button variant="outline" onClick={close}>
-                    Close
-                  </Button>
-
+                {/* All buttons are now aligned to the right */}
+                <Group justify="flex-end" p="md">
                   {!shouldHideDetails && (
-                    <Group>
+                    <>
                       <CopyTripLink goto={true} tripId={selectedTrip.id} />
                       <Button onClick={handleCopy} variant="light">
                         {copied ? "Copied!" : "Copy Details"}
                       </Button>
-                    </Group>
+                    </>
                   )}
                 </Group>
               </Stack>
