@@ -4,23 +4,12 @@ import { useForm, hasLength } from "@mantine/form";
 import styled from "@emotion/styled";
 import { keyframes } from "@emotion/react";
 import apiClient from "../api/axios";
-import { useAuth } from "../hooks/useAuth";
 
-// --- Emotion Animations & Styled Components ---
-
-// 1. A keyframe animation for the form to slide in from the bottom.
 const slideIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
-// 2. Style the form element to apply the animation.
 const AnimatedForm = styled.form`
   animation: ${slideIn} 0.4s ease-out forwards;
 `;
@@ -28,8 +17,6 @@ const AnimatedForm = styled.form`
 const PasswordResetModal = ({ onClose, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { session } = useAuth();
-  const accessToken = session?.access_token;
 
   const form = useForm({
     initialValues: {
@@ -47,25 +34,18 @@ const PasswordResetModal = ({ onClose, onSuccess }) => {
   });
 
   const handleSubmit = async (values) => {
+    setIsLoading(true);
+    setError("");
     try {
-      setIsLoading(true);
-      setError("");
+      // The axios interceptor automatically adds the user's auth token.
       const response = await apiClient.post(
         "/users/reset-password",
-        { password: values.password },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+        { password: values.password }
       );
-      console.log("🚀 ~ handleSubmit ~ response.data:", response.data);
       onSuccess(response.data);
-      // No need to call onClose here, it should be handled by the parent component (ProfileCard)
     } catch (err) {
-      console.error("❌ API call failed! Error object:", err);
       const message =
-        err.response?.data?.error ||
+        err.response?.data?.message ||
         "An unexpected error occurred. Please try again.";
       setError(message);
     } finally {
@@ -74,7 +54,6 @@ const PasswordResetModal = ({ onClose, onSuccess }) => {
   };
 
   return (
-    // Use the new AnimatedForm component
     <AnimatedForm onSubmit={form.onSubmit(handleSubmit)}>
       <Stack>
         <PasswordInput

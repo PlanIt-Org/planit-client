@@ -65,7 +65,6 @@ const TripFilterPage = ({ setLocations }) => {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        // Use Promise.all to fetch both sets of data concurrently for better performance
         const [preferenceResponse, guestResponse] = await Promise.all([
           apiClient.get(`/trips/${tripId}/TripPreference`),
           apiClient.get(`/trips/${tripId}/proposed-guests`),
@@ -128,7 +127,7 @@ const TripFilterPage = ({ setLocations }) => {
     };
 
     fetchInitialData();
-  }, [tripId]); // This effect runs only once when the page loads
+  }, [tripId]);
 
   const recalculateFilters = (users) => {
     const filterCounts = {};
@@ -411,7 +410,15 @@ const TripFilterPage = ({ setLocations }) => {
                 <Title order={4} ta="center">
                   Filters Applied
                 </Title>
-                <Group justify="center" gap="sm">
+                <Group
+                  justify="center"
+                  gap="sm"
+                  style={{
+                    maxHeight: 250,
+                    overflowY: "auto",
+                    paddingRight: 8,
+                  }}
+                >
                   {renderMultiSelectButtons(selectedFilters, "filters")}
                 </Group>
               </Stack>
