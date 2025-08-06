@@ -275,14 +275,22 @@ const TripPlannerPage = ({ selectedCity, ownTrip, setOwnTrip }) => {
           <SearchSection isMobile={isMobile} theme={theme}>
             <Stack>
               <AutocompleteSearchField onPlaceSelected={setSelectedPlace} />
-              <Text fw={700} ta="center">
-                AI Suggested Trips
+              <Text
+                fw={700}
+                ta="center"
+                variant="gradient"
+                gradient={{ from: "cyan", to: "white", deg: 0 }}
+              >
+                AI Suggested Locations
               </Text>
               <Box
                 style={{
                   flex: 1,
                   overflowY: "auto",
-                  minHeight: isMobile ? "150px" : "auto",
+                  minHeight: isMobile ? "300px" : "400px",
+                  maxHeight: isMobile ? "300px" : "600px",
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "#b3b3b3 #f0f0f0",
                 }}
               >
                 <SuggestedTripContainer />

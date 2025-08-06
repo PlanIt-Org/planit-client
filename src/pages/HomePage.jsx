@@ -99,7 +99,6 @@ const HomePage = ({
 
   return (
     <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
-
       <TwinklingStars />
       {!isMobile && <NavBar currentPage={0} setLocations={setLocations} />}
 
