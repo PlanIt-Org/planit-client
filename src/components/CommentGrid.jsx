@@ -152,6 +152,7 @@ export default function CommentGrid({
 }) {
 
   const [profilePictureURL, setProfilePictureURL] = useState("");
+  const [name, setName] = useState("");
 
 
   useEffect(() => {
@@ -159,6 +160,9 @@ export default function CommentGrid({
     const fetchProfile = async () => {
       try {
         const { data } = await apiClient.get("/users/me");
+
+        console.log("My data", data)
+        setName(data.name)
 
         setProfilePictureURL(data.profilePictureUrl);
 
@@ -188,7 +192,7 @@ export default function CommentGrid({
     const formattedComment = {
         ...serverResponse,
         author: {
-            name: serverResponse.author?.name || userObj.name,
+            name: name,
             avatar: profilePictureURL
         },
         // Use the locationName passed up from the CommentBox.
