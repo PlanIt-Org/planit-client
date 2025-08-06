@@ -21,9 +21,6 @@ const TripLocationModal = ({ opened, close, location, comments }) => {
       location.name.trim().toLowerCase()
   );
 
-  console.log("My comments ", comments)
-
-  console.log("My avatar", comments[0].author.avatar)
 
   return (
     <Modal

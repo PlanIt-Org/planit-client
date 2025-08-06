@@ -161,7 +161,7 @@ export default function CommentGrid({
       try {
         const { data } = await apiClient.get("/users/me");
 
-        console.log("My data", data)
+    
         setName(data.name)
 
         setProfilePictureURL(data.profilePictureUrl);
@@ -179,7 +179,7 @@ export default function CommentGrid({
   const handleAddComment = (commentPayload) => {
     // THE FIX, PART 2:
     // Destructure the payload to get both the server response and the location name.
-    console.log("let's see", comments)
+ 
     const { serverResponse, locationName } = commentPayload;
 
     if (!serverResponse) return;
