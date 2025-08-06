@@ -50,23 +50,23 @@ const LoginPage = () => {
     setLoading(true);
 
     if (provider) {
-      console.log(`Attempting OAuth login with provider: ${provider}`);
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/home`,
-        },
-      });
+      // console.log(`Attempting OAuth login with provider: ${provider}`);
+      // const { error } = await supabase.auth.signInWithOAuth({
+      //   provider,
+      //   options: {
+      //     redirectTo: `${window.location.origin}/home`,
+      //   },
+      // });
 
-      if (error) {
-        notifications.show({
-          title: "Login Error",
-          message: error.message,
-          color: "red",
-        });
-        console.error(`OAuth login failed for provider: ${provider}`, error);
-        setLoading(false);
-      }
+      // if (error) {
+      //   notifications.show({
+      //     title: "Login Error",
+      //     message: error.message,
+      //     color: "red",
+      //   });
+      //   console.error(`OAuth login failed for provider: ${provider}`, error);
+      //   setLoading(false);
+      // }
     } else {
       console.log("Attempting password login with credentials.");
       const { error } = await supabase.auth.signInWithPassword(credentials);
@@ -119,7 +119,7 @@ const LoginPage = () => {
             </Button>
           </Stack>
         </form>{" "}
-        <Divider label="or" labelPosition="center" my="lg" />
+        {/* <Divider label="or" labelPosition="center" my="lg" />
         <Button
           onClick={() => handleLogin("google")}
           variant="default"
@@ -137,7 +137,7 @@ const LoginPage = () => {
           loading={loading}
         >
           Sign in with GitHub
-        </Button>
+        </Button> */}
         <Text ta="center" mt="md">
           Don't have an account?{" "}
           <Anchor
