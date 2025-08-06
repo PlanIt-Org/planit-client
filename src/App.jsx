@@ -22,8 +22,14 @@ import { useLocation } from "react-router";
 
 const ProtectedRoute = ({ children }) => {
   const { session } = useAuth();
+  const location = useLocation(); // Get the current location object
+
   if (!session) {
-    return <Navigate to="/login" replace />;
+    // Get the full path the user was trying to access (e.g., "/tripsummary/123")
+    const destination = location.pathname + location.search;
+    
+    // Redirect to the login page, passing the destination as a query param
+    return <Navigate to={`/login?redirect=${encodeURIComponent(destination)}`} replace />;
   }
   return children;
 };
@@ -38,7 +44,6 @@ function App({ isMapsApiLoaded }) {
     <>
       <Notifications position="bottom-center" zIndex={2077} />
       <Routes>
-        {/* --- PUBLIC ROUTES --- */}
         <Route path="/" element={<LandingPage />} />
         <Route
           path="/login"
@@ -46,7 +51,6 @@ function App({ isMapsApiLoaded }) {
         />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />
-        {/* --- PROTECTED ROUTES --- */}
         <Route
           path="/home"
           element={

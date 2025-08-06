@@ -13,7 +13,7 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { supabase } from "../supabaseClient.js";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
 import { keyframes } from "@emotion/react";
 
@@ -45,28 +45,15 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const theme = useMantineTheme();
 
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
+
   // This handler is for OAuth providers (Google, GitHub, etc.)
   const handleLogin = async (provider, credentials) => {
     setLoading(true);
 
     if (provider) {
-      // console.log(`Attempting OAuth login with provider: ${provider}`);
-      // const { error } = await supabase.auth.signInWithOAuth({
-      //   provider,
-      //   options: {
-      //     redirectTo: `${window.location.origin}/home`,
-      //   },
-      // });
-
-      // if (error) {
-      //   notifications.show({
-      //     title: "Login Error",
-      //     message: error.message,
-      //     color: "red",
-      //   });
-      //   console.error(`OAuth login failed for provider: ${provider}`, error);
-      //   setLoading(false);
-      // }
+      // OAuth login logic (can be updated similarly if needed)
     } else {
       console.log("Attempting password login with credentials.");
       const { error } = await supabase.auth.signInWithPassword(credentials);
@@ -80,7 +67,9 @@ const LoginPage = () => {
         console.error("Password login failed", error);
       } else {
         console.log("Password login successful");
-        navigate("/home");
+        // --- USE THE REDIRECT PATH HERE ---
+        // If a redirectPath exists, go there. Otherwise, go to "/home".
+        navigate(redirectPath || "/home", { replace: true });
       }
       setLoading(false);
     }
@@ -139,10 +128,15 @@ const LoginPage = () => {
           Sign in with GitHub
         </Button> */}
         <Text ta="center" mt="md">
-          Don't have an account?{" "}
+          Don't have an account? {/* --- THIS IS THE FIX --- */}
           <Anchor
             component={Link}
-            to="/register"
+            // If a redirectPath exists, append it to the register link
+            to={`/register${
+              redirectPath
+                ? `?redirect=${encodeURIComponent(redirectPath)}`
+                : ""
+            }`}
             underline="always"
             fw={700}
             c="blue"
