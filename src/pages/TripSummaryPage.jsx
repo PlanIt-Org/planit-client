@@ -59,6 +59,7 @@ const AnimatedBox = styled(Box)`
 async function fetchAllCommentsForTrip(tripId) {
   try {
     const response = await apiClient.get(`/comments/trips/${tripId}`);
+    console.log("ALl comments ", response.data)
     return response.data;
   } catch (error) {
     console.error("Failed to fetch comments for trip:", error);
@@ -120,6 +121,9 @@ useEffect(() => {
           fetchAllCommentsForTrip(id),
         ]);
 
+        console.log("What I got ", commentsRes)
+        setComments(commentsRes)
+
         const fetchedTrip = tripRes.data.trip;
         setTripData(fetchedTrip);
 
@@ -141,13 +145,15 @@ useEffect(() => {
         }));
         setLocations(transformedLocations);
 
+        console.log("What I fetched ", commentsRes)
+
         // --- Process Comments (with safety check) ---
         const formattedComments = commentsRes.map((comment) => ({
           id: comment.id,
-          // THE FIX for the crash: Use optional chaining
           author: {
             name: comment.author?.name || "Guest",
-            avatar: profilePictureURL,
+            // Keep the original property name for consistency
+            profilePictureUrl: comment.author.profilePictureUrl, 
           },
           text: comment.text,
           location: comment.location?.name || "",
