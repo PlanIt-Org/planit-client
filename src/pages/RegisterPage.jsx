@@ -16,7 +16,7 @@ import { notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import { supabase } from "../supabaseClient";
 import apiClient from "../api/axios";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import styled from "@emotion/styled";
 import { keyframes } from "@emotion/react";
 
@@ -63,22 +63,18 @@ const RegisterPage = () => {
   //   }
   //   setLoading(false);
   // };
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
 
   const handleEmailPasswordSignUp = async (event) => {
     event.preventDefault();
     setLoading(true);
 
     try {
-      // --- FIX: The entire registration process is handled by Supabase on the frontend ---
       const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password,
-        options: {
-          // This data is stored in Supabase's auth.users table
-          data: {
-            display_name: username,
-          },
-        },
+        options: { data: { display_name: username } },
       });
 
       if (error) {
@@ -87,12 +83,16 @@ const RegisterPage = () => {
 
       notifications.show({
         title: "Success!",
-        message: "User created succesfully",
+        message:
+          "User created successfully. Please check your email to verify.",
         color: "green",
       });
-      
-      navigate("/questionnaire");
 
+      // --- USE THE REDIRECT PATH HERE ---
+      // If a redirectPath exists, go there. Otherwise, go to the default page.
+      // NOTE: Supabase email auth requires verification, so you might redirect them to a "check your email" page first.
+      // For now, we'll redirect directly.
+      navigate(redirectPath || "/questionnaire", { replace: true });
     } catch (error) {
       notifications.show({
         title: "Registration Error",
@@ -168,10 +168,15 @@ const RegisterPage = () => {
           </Button> */}
         </Stack>
         <Text ta="center" mt="md">
-          Already have an account?{" "}
+          Already have an account? 
           <Anchor
             component={Link}
-            to="/login"
+
+            to={`/login${
+              redirectPath
+                ? `?redirect=${encodeURIComponent(redirectPath)}`
+                : ""
+            }`}
             underline="always"
             fw={700}
             c="blue"
