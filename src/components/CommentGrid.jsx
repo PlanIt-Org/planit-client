@@ -150,7 +150,7 @@ export default function CommentGrid({
   setComments,
   userObj,
 }) {
-  const { generateAvatarUrl } = useProfilePicture(userObj);
+
   const [profilePictureURL, setProfilePictureURL] = useState("");
 
 
@@ -220,7 +220,7 @@ export default function CommentGrid({
                   <Paper key={comment.id} p="sm" withBorder radius="md">
                     <Group>
                       <Avatar
-                        src={comment.author?.avatar || generateAvatarUrl(comment.author?.name || "User")}
+                        src={profilePictureURL}
                         alt={comment.author?.name || comment.author?.email || "Guest"}
                         radius="xl"
                       />
