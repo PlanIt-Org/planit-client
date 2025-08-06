@@ -49,20 +49,20 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const theme = useMantineTheme();
 
-  const handleOAuthLogin = async (provider) => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: provider,
-      options: {
-        redirectTo: `${window.location.origin}/questionnaire`,
-      },
-    });
-    if (error) {
-      console.error("Error signing up:", error.message);
-      alert(error.message);
-    }
-    setLoading(false);
-  };
+  // const handleOAuthLogin = async (provider) => {
+  //   setLoading(true);
+  //   const { error } = await supabase.auth.signInWithOAuth({
+  //     provider: provider,
+  //     options: {
+  //       redirectTo: `${window.location.origin}/questionnaire`,
+  //     },
+  //   });
+  //   if (error) {
+  //     console.error("Error signing up:", error.message);
+  //     alert(error.message);
+  //   }
+  //   setLoading(false);
+  // };
 
   const handleEmailPasswordSignUp = async (event) => {
     event.preventDefault();
@@ -87,7 +87,7 @@ const RegisterPage = () => {
 
       notifications.show({
         title: "Success!",
-        message: "Please check your email for a verification link to complete your registration.",
+        message: "User created succesfully",
         color: "green",
       });
       
@@ -149,7 +149,7 @@ const RegisterPage = () => {
               </Button>
             </Stack>
           </form>
-          <Divider label="or" labelPosition="center" my="lg" />
+          {/* <Divider label="or" labelPosition="center" my="lg" />
           <Button
             onClick={() => handleOAuthLogin("google")}
             variant="default"
@@ -165,7 +165,7 @@ const RegisterPage = () => {
             loading={loading}
           >
             Sign up with GitHub
-          </Button>
+          </Button> */}
         </Stack>
         <Text ta="center" mt="md">
           Already have an account?{" "}
