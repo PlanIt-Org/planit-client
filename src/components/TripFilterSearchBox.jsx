@@ -36,7 +36,7 @@ const TripFilterSearchBox = ({
 
   const renderAutocompleteOption = ({ option }) => {
     const user = searchResults.find((item) => item.id === option.value);
-    console.log("Current user for render", user);
+
 
     if (!user) return null;
     return (

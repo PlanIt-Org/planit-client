@@ -97,7 +97,6 @@ function App({ isMapsApiLoaded }) {
               <TripSummaryPage
                 selectedCity={selectedCity}
                 setSelectedCity={setSelectedCity}
-         
                 userId={session?.user.id}
                 userObj = {session?.user}
                 ownTrip={ownTrip}

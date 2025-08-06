@@ -49,68 +49,57 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const theme = useMantineTheme();
 
-  const handleOAuthLogin = async (provider) => {
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: provider,
-      options: {
-        redirectTo: `${window.location.origin}/questionnaire`,
-      },
-    });
-    if (error) {
-      console.error("Error signing up:", error.message);
-      alert(error.message);
-    }
-    setLoading(false);
-  };
+  // const handleOAuthLogin = async (provider) => {
+  //   setLoading(true);
+  //   const { error } = await supabase.auth.signInWithOAuth({
+  //     provider: provider,
+  //     options: {
+  //       redirectTo: `${window.location.origin}/questionnaire`,
+  //     },
+  //   });
+  //   if (error) {
+  //     console.error("Error signing up:", error.message);
+  //     alert(error.message);
+  //   }
+  //   setLoading(false);
+  // };
 
   const handleEmailPasswordSignUp = async (event) => {
     event.preventDefault();
     setLoading(true);
 
     try {
-      const response = await apiClient.post("/users/create", {
+      // --- FIX: The entire registration process is handled by Supabase on the frontend ---
+      const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password,
-        name: username,
-      });
-      notifications.show({
-        title: "Success!",
-        message: "Please check your email for a verification link.",
-        color: "green",
-      });
-      console.log("User created:", response.data);
-
-      const { data: signUpData, error: signUpError } =
-        await supabase.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            data: {
-              display_name: username,
-            },
+        options: {
+          // This data is stored in Supabase's auth.users table
+          data: {
+            display_name: username,
           },
-        });
+        },
+      });
 
-      if (signUpError) {
-        throw new Error(
-          `Sign-in failed after registration: ${signUpError.message}`
-        );
+      if (error) {
+        throw error;
       }
 
-      console.log("Sign-in successful, navigating to questionnaire...");
+      notifications.show({
+        title: "Success!",
+        message: "User created succesfully",
+        color: "green",
+      });
+      
       navigate("/questionnaire");
+
     } catch (error) {
       notifications.show({
         title: "Registration Error",
-        message: error.response?.data?.message || "An unknown error occurred.",
+        message: error.message || "An unknown error occurred.",
         color: "red",
       });
-      console.error(
-        "Error signing up:",
-        error.response?.data?.message || error.message
-      );
-      alert(error.response?.data?.message || "Registration failed.");
+      console.error("Error signing up:", error.message);
     } finally {
       setLoading(false);
     }
@@ -160,7 +149,7 @@ const RegisterPage = () => {
               </Button>
             </Stack>
           </form>
-          <Divider label="or" labelPosition="center" my="lg" />
+          {/* <Divider label="or" labelPosition="center" my="lg" />
           <Button
             onClick={() => handleOAuthLogin("google")}
             variant="default"
@@ -176,10 +165,10 @@ const RegisterPage = () => {
             loading={loading}
           >
             Sign up with GitHub
-          </Button>
+          </Button> */}
         </Stack>
         <Text ta="center" mt="md">
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <Anchor
             component={Link}
             to="/login"

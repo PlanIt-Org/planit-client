@@ -8,6 +8,8 @@ import {
   useMantineTheme,
   Title,
   Divider,
+  Stack,
+  Button,
 } from "@mantine/core";
 import NavBar from "../components/NavBar";
 import TripGrid from "../components/TripGrid";
@@ -42,7 +44,7 @@ const AnimatedBox = styled(Box)`
   animation: ${fadeIn} 0.9s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
-const DiscoverTripsPage = ({ setLocations, userId }) => {
+const DiscoverTripsPage = ({ userId }) => {
   const theme = useMantineTheme();
   const [preferredCity, setPreferredCity] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,7 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
 
   return (
     <AnimatedFlex theme={theme} ismobile={isMobile ? "true" : "false"}>
-      {!isMobile && <NavBar currentPage={1} setLocations={setLocations} />}
+      {!isMobile && <NavBar currentPage={1} />}
       <AnimatedBox theme={theme} ismobile={isMobile ? "true" : "false"}>
         <Container size="lg" py="lg">
           <Title
@@ -106,7 +108,7 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
               <Skeleton height={30} width="300px" />
             ) : (
               <Text ta="center" size="xl" fw={500}>
-                {preferredCity ? (
+                {preferredCity && (
                   <>
                     Explore trips in{" "}
                     <Text
@@ -118,8 +120,6 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
                       {preferredCity}
                     </Text>
                   </>
-                ) : (
-                  "Recommended based on your preferences"
                 )}
               </Text>
             )}
@@ -130,7 +130,29 @@ const DiscoverTripsPage = ({ setLocations, userId }) => {
               borderColor: theme.colors["custom-palette"][6],
             }}
           />
-          <TripGrid userId={userId} discoverMode={true} />
+          {preferredCity ? (
+            <TripGrid userId={userId} discoverMode={true} />
+          ) : (
+            <Container>
+              <Stack align="center" spacing="md" mt="xl">
+                <Text size="lg" weight={500} ta="center">
+                  Please set your preferred city to discover trips.
+                </Text>
+                <Text c="dimmed" ta="center" size="sm">
+                  You can do this by completing your profile questionnaire.
+                </Text>
+                <Button
+                  component="a"
+                  href="/questionnaire"
+                  variant="gradient"
+                  gradient={{ from: "blue", to: "cyan" }}
+                  mt="md"
+                >
+                  Go to Questionnaire
+                </Button>
+              </Stack>
+            </Container>
+          )}
         </Container>
       </AnimatedBox>
       {isMobile && (

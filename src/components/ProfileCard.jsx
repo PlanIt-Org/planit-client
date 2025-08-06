@@ -180,22 +180,11 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
           </div>
 
           <Text size="lg" weight={700}>
-            {userInfo.user_metadata?.display_name}
+            {userInfo.name}
           </Text>
 
           <Text c="dimmed" size="sm">
             {userInfo.email}
-          </Text>
-
-          <Text>
-            Joined{" "}
-            {userInfo.created_at
-              ? new Date(userInfo.created_at).toLocaleDateString("en-US", {
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                })
-              : "Unknown"}
           </Text>
 
           {/* Use the new InteractiveButton for all buttons */}

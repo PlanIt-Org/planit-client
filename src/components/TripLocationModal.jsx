@@ -21,6 +21,7 @@ const TripLocationModal = ({ opened, close, location, comments }) => {
       location.name.trim().toLowerCase()
   );
 
+
   return (
     <Modal
       opened={opened}
@@ -69,6 +70,8 @@ const TripLocationModal = ({ opened, close, location, comments }) => {
 
         <Divider my="sm" />
 
+      
+
 
         {/* Comments Section */}
         <Stack spacing="md">
@@ -79,8 +82,7 @@ const TripLocationModal = ({ opened, close, location, comments }) => {
                 <Group>
                   <Avatar
                     src={
-                      comment.author?.avatar ||
-                      `https://i.pravatar.cc/150?img=${comment.id}`
+                      comment.author.avatar
                     }
                     alt={comment.author?.name || "Unknown"}
                     radius="xl"

@@ -18,11 +18,12 @@ import apiClient from "../api/axios";
 import { useProfilePicture } from "../hooks/useProfilePicture";
 
 // This component is now self-contained and correct.
-function CommentBox({ onAddComment, locations, userId, tripId }) {
+function CommentBox({ onAddComment, locations, userId, tripId, setProfilePictureURL }) {
   const [opened, { open, close }] = useDisclosure(false);
   const [commentText, setCommentText] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("general");
   const [locationsOptions, setLocationsOptions] = useState([]);
+
 
   useEffect(() => {
     const generalOption = { value: "general", label: "General Comment" };
@@ -149,21 +150,50 @@ export default function CommentGrid({
   setComments,
   userObj,
 }) {
-  const { generateAvatarUrl } = useProfilePicture(userObj);
+
+  const [profilePictureURL, setProfilePictureURL] = useState("");
+  const [name, setName] = useState("");
+
+
+  useEffect(() => {
+
+    const fetchProfile = async () => {
+      try {
+        const { data } = await apiClient.get("/users/me");
+
+    
+        setName(data.name)
+
+        setProfilePictureURL(data.profilePictureUrl);
+
+      } catch (err) {
+        console.error("Failed to load profile:", err);
+      }
+    };
+
+    fetchProfile();
+  }, [tripId]); 
+
+
 
   const handleAddComment = (commentPayload) => {
     // THE FIX, PART 2:
     // Destructure the payload to get both the server response and the location name.
+ 
     const { serverResponse, locationName } = commentPayload;
 
     if (!serverResponse) return;
+
+    
+
+  
 
     // Create the new comment object for the UI.
     const formattedComment = {
         ...serverResponse,
         author: {
-            name: serverResponse.author?.name || userObj.name,
-            avatar: generateAvatarUrl(serverResponse.author?.email || userObj.email)
+            name: name,
+            avatar: profilePictureURL
         },
         // Use the locationName passed up from the CommentBox.
         location: locationName
@@ -185,6 +215,7 @@ export default function CommentGrid({
                 userId={userId}
                 tripId={tripId}
                 locations={locations}
+                setProfilePictureURL = {setProfilePictureURL}
               />
             </Group>
             <Stack spacing="md" mt="md">
@@ -193,7 +224,7 @@ export default function CommentGrid({
                   <Paper key={comment.id} p="sm" withBorder radius="md">
                     <Group>
                       <Avatar
-                        src={comment.author?.avatar || generateAvatarUrl(comment.author?.name || "User")}
+                        src={profilePictureURL}
                         alt={comment.author?.name || comment.author?.email || "Guest"}
                         radius="xl"
                       />
