@@ -79,13 +79,36 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
   const { generateAvatarUrl } = useProfilePicture(userObj);
   const theme = useMantineTheme();
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+  const [profilePictureURL, setProfilePictureURL] = useState("");
 
   // Derived state - no need for separate useState
   const ownTrip = tripData ? String(tripData.hostId) === String(userId) : false;
   const tripStatus = tripData ? tripData.status : null;
 
+
+
+//This fetches the profile from our database
+useEffect(() => {
+
+  const fetchProfile = async () => {
+    try {
+      const { data } = await apiClient.get("/users/me");
+
+      setProfilePictureURL(data.profilePictureUrl);
+
+    } catch (err) {
+      console.error("Failed to load profile:", err);
+    }
+  };
+
+  fetchProfile();
+}, [id]); 
+
   useEffect(() => {
     if (!id) return;
+
+
+    
 
     const fetchAllPageData = async () => {
       try {
@@ -124,7 +147,7 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
           // THE FIX for the crash: Use optional chaining
           author: {
             name: comment.author?.name || "Guest",
-            avatar: generateAvatarUrl(comment.author?.email),
+            avatar: profilePictureURL,
           },
           text: comment.text,
           location: comment.location?.name || "",
@@ -162,7 +185,11 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
     };
 
     fetchAllPageData();
-  }, [id, userId]); // Removed userObj as generateAvatarUrl can be passed down
+  }, [id, userId, profilePictureURL]); // Removed userObj as generateAvatarUrl can be passed down
+
+
+
+
 
   const handlePublish = async () => {
     if (!tripData) return;
