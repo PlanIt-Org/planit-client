@@ -45,7 +45,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const theme = useMantineTheme();
 
-  // This handler is for OAuth providers (Google, GitHub, etc.)
   const handleLogin = async (provider, credentials) => {
     setLoading(true);
 
