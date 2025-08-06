@@ -187,17 +187,6 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
             {userInfo.email}
           </Text>
 
-          <Text>
-            Joined{" "}
-            {userInfo.created_at
-              ? new Date(userInfo.created_at).toLocaleDateString("en-US", {
-                  day: "2-digit",
-                  month: "long",
-                  year: "numeric",
-                })
-              : "Unknown"}
-          </Text>
-
           {/* Use the new InteractiveButton for all buttons */}
           <InteractiveButton
             onClick={openEditProfile}
