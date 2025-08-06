@@ -155,6 +155,7 @@ export default function CommentGrid({
   const [name, setName] = useState("");
 
 
+
   useEffect(() => {
 
     const fetchProfile = async () => {
@@ -163,6 +164,8 @@ export default function CommentGrid({
 
     
         setName(data.name)
+
+        
 
         setProfilePictureURL(data.profilePictureUrl);
 
@@ -174,33 +177,27 @@ export default function CommentGrid({
     fetchProfile();
   }, [tripId]); 
 
+// src/components/CommentGrid.jsx
 
+const handleAddComment = (commentPayload) => {
+  const { serverResponse, locationName } = commentPayload;
 
-  const handleAddComment = (commentPayload) => {
-    // THE FIX, PART 2:
-    // Destructure the payload to get both the server response and the location name.
- 
-    const { serverResponse, locationName } = commentPayload;
+  if (!serverResponse) return;
 
-    if (!serverResponse) return;
-
-    
-
-  
-
-    // Create the new comment object for the UI.
-    const formattedComment = {
-        ...serverResponse,
-        author: {
-            name: name,
-            avatar: profilePictureURL
-        },
-        // Use the locationName passed up from the CommentBox.
-        location: locationName
-    };
-    setComments([formattedComment, ...comments]);
+  // Create the new comment object for the UI.
+  const formattedComment = {
+      ...serverResponse,
+      author: {
+          // Use the logged-in user's data from the userObj prop
+          name: name,
+          // Use the correct property name to match what the server sends
+          profilePictureUrl: profilePictureURL, 
+      },
+      location: locationName
   };
-
+  
+  setComments([formattedComment, ...comments]);
+};
   return (
     <Grid>
       <Grid.Col>
@@ -224,7 +221,7 @@ export default function CommentGrid({
                   <Paper key={comment.id} p="sm" withBorder radius="md">
                     <Group>
                       <Avatar
-                        src={profilePictureURL}
+                        src={comment.author.profilePictureUrl}
                         alt={comment.author?.name || comment.author?.email || "Guest"}
                         radius="xl"
                       />
