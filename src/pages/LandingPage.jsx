@@ -155,7 +155,7 @@ const MeetOurTeam = () => {
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
-                  backgroundColor: "#1A1B1E",
+                  background: "#7EC1E3",
                 }}
               >
                 <Card.Section>
