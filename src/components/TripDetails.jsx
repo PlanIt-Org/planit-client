@@ -26,8 +26,6 @@ const TripDetails = ({
   tripId,
   ownTrip,
   tripStatus,
-  isPrivate,
-  setIsPrivate,
 }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -35,6 +33,7 @@ const TripDetails = ({
   const [inputTitle, setInputTitle] = useState("");
   const [inputDesc, setInputDesc] = useState("");
   const [hostName, setHostName] = useState("Loading...");
+  const [isPrivate, setIsPrivate] = useState(null);
   const { deleteTrip } = useDeleteTrip();
   const theme = useMantineTheme();
 
