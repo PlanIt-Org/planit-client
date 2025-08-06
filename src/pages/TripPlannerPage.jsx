@@ -68,6 +68,7 @@ const PlannerPanel = styled(Paper)`
   width: 85vw;
   display: flex;
   flex-wrap: nowrap;
+  flex-direction: ${({ isMobile }) => (isMobile ? "column" : "row")};
   gap: 0;
   overflow: hidden;
   animation: ${floatUp} 0.6s ease-out 0.2s forwards;
@@ -77,7 +78,7 @@ const PlannerPanel = styled(Paper)`
 
 const MapSection = styled(Box)`
   flex: 3;
-  height: 100%;
+  height: ${({ isMobile }) => (isMobile ? "auto" : "100%")};
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -85,7 +86,7 @@ const MapSection = styled(Box)`
 
 const SearchSection = styled(Stack)`
   flex: 2;
-  height: 100%;
+  height: ${({ isMobile }) => (isMobile ? "auto" : "100%")};
   justify-content: flex-start;
   padding: 24px;
   background-color: ${({ theme }) => theme.colors["custom-palette"][7]};
@@ -186,7 +187,7 @@ const TripPlannerPage = ({ selectedCity, ownTrip, setOwnTrip }) => {
       const tripRes = await apiClient.get(`/trips/${id}`);
       const existingOrder = tripRes.data.trip.locationOrder || [];
       const existingIds = new Set(existingOrder);
-      
+
       const newLocationGooglePlaceIds = [];
 
       // 2. Loop through all locations currently in the UI
@@ -216,19 +217,14 @@ const TripPlannerPage = ({ selectedCity, ownTrip, setOwnTrip }) => {
         const createRes = await apiClient.post("/locations", locationPayload);
         const locationDbId = createRes.data.id;
 
-        // 4. If this location is NOT in the original order, it's considered new for this trip.
         if (!existingIds.has(loc.googlePlaceId)) {
-          // --- THIS IS THE FIX ---
-          // 4a. Associate this new location with the trip using its database ID.
-          // This is the crucial missing step to create the link.
-          await apiClient.post(`/trips/${id}/locations`, { locationId: locationDbId });
-
-          // 4b. Add its googlePlaceId to our list of new IDs to append to the order.
+          await apiClient.post(`/trips/${id}/locations`, {
+            locationId: locationDbId,
+          });
           newLocationGooglePlaceIds.push(loc.googlePlaceId);
         }
       }
 
-      // 5. Combine the old order with the new locations' IDs
       const finalOrder = [...existingOrder, ...newLocationGooglePlaceIds];
 
       // 6. Update the trip's locationOrder with the final combined list
@@ -242,7 +238,6 @@ const TripPlannerPage = ({ selectedCity, ownTrip, setOwnTrip }) => {
         color: "green",
       });
       navigate(`/tripsummary/${id}`);
-      
     } catch (error) {
       console.error("Error saving trip:", error);
       const message =
@@ -263,7 +258,7 @@ const TripPlannerPage = ({ selectedCity, ownTrip, setOwnTrip }) => {
               locations={locations}
               selectedCity={selectedCity}
               showRoutes={false}
-              mapHeight={isMobile ? "300px" : "50%"}
+              mapHeight={isMobile ? "60%" : "50%"}
             />
             <Box style={{ flex: 1, overflowY: "auto", padding: "10px" }}>
               <Text size="lg" fw={700} my="lg" ta="center">

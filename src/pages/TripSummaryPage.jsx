@@ -285,7 +285,9 @@ const TripSummaryPage = ({ selectedCity, userId, userObj }) => {
                 </div>
               </Paper>
 
-              {locations.length < 3 ? (
+              {isMobile && locations.length >= 2 ? (
+                <LocationCarousel locations={locations} comments={comments} />
+              ) : locations.length < 3 ? (
                 <NoCarouselLocation locations={locations} comments={comments} />
               ) : (
                 <LocationCarousel locations={locations} comments={comments} />

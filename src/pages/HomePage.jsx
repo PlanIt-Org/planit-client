@@ -23,6 +23,8 @@ import { useMediaQuery } from "@mantine/hooks";
 import styled from "@emotion/styled";
 import { keyframes } from "@emotion/react";
 import TwinklingStars from "../components/TwinklingStars";
+import apiClient from "../api/axios"; 
+
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px);}
@@ -70,7 +72,24 @@ const HomePage = ({
     "Past Events",
   ];
 
-  const name = user?.user_metadata?.display_name;
+  const [displayName, setDisplayName] = useState("");
+  
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await apiClient.get("/users/me");
+        
+        if (response.data?.name) {
+          setDisplayName(response.data.name);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user profile:", error);
+        setDisplayName("User");
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const [active, setActive] = useState(categories[0]);
 
@@ -102,7 +121,7 @@ const HomePage = ({
               transition: "color 0.3s",
             }}
           >
-            Welcome {name}!
+            Welcome {displayName}!
           </Title>
           {/* only show search bar when API fully loaded */}
           {isMapsApiLoaded ? (

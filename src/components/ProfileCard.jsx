@@ -180,7 +180,7 @@ const ProfileCard = ({ userInfo, refreshUserInfo, user, setUser }) => {
           </div>
 
           <Text size="lg" weight={700}>
-            {userInfo.user_metadata?.display_name}
+            {userInfo.name}
           </Text>
 
           <Text c="dimmed" size="sm">

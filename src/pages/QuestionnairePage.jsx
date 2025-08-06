@@ -25,8 +25,7 @@ import CityAutoCompleteSearchField from "../components/CityAutoCompleteSearchFie
  * Renders a single question based on its component type and options.
  * Returns a tile, radio, or checkbox based on the question.
  */
-function renderQuestion({ question, value, onChange }) {
-  const theme = useMantineTheme();
+function renderQuestion({ question, value, onChange, theme }) {
   switch (question.component) {
     case "TextInput":
       return (
@@ -126,6 +125,7 @@ const QuestionnairePage = () => {
   const navigate = useNavigate();
   const { preferences: initialPreferences, isLoading: isLoadingPreferences } =
     useUserPreferences();
+  const theme = useMantineTheme();
 
   const questionnaireSteps = [
     {
@@ -479,6 +479,7 @@ const QuestionnairePage = () => {
                 question: q,
                 value: answers[step.id]?.[q.id],
                 onChange: (val) => handleQuestionChange(q.id, val),
+                theme: theme,
               })}
             </Paper>
           ))}
@@ -515,7 +516,7 @@ const QuestionnairePage = () => {
     >
       <LoadingOverlay
         visible={isSubmitting || isLoadingPreferences}
-        overlayBlur={2}
+        overlayProps={{ blur: 2, backgroundOpacity: 0.3 }}
       />
       {/* Progress Bar */}
       <Progress

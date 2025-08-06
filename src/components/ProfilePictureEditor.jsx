@@ -1,5 +1,4 @@
-// components/ProfilePictureEditor.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   Avatar,
@@ -32,11 +31,15 @@ const ProfilePictureEditor = ({ opened, onClose, userInfo, onUpdate }) => {
     clearError,
   } = useProfilePicture(userInfo);
 
-  const [previewConfig, setPreviewConfig] = useState({
-    background: currentAvatarConfig.background,
-    color: currentAvatarConfig.color,
-    size: currentAvatarConfig.size,
-  });
+  // This is now the single source of truth for the avatar's appearance.
+  const [previewConfig, setPreviewConfig] = useState(currentAvatarConfig);
+
+  // This effect ensures the editor resets to the current avatar state each time it's opened.
+  useEffect(() => {
+    if (opened) {
+      setPreviewConfig(currentAvatarConfig);
+    }
+  }, [opened, currentAvatarConfig]);
 
   const displayName =
     userInfo?.user_metadata?.display_name ||
@@ -44,27 +47,13 @@ const ProfilePictureEditor = ({ opened, onClose, userInfo, onUpdate }) => {
     "User";
   const previewUrl = getPreviewUrl(previewConfig);
 
-  const handleThemeSelect = async (themeName) => {
-    const theme = AVATAR_THEMES[themeName];
-    const newConfig = {
-      background: theme.background,
-      color: theme.color,
-      size: previewConfig.size,
-    };
-
-    setPreviewConfig(newConfig);
-
-    const result = await applyTheme(themeName);
-    if (result.success && onUpdate) {
-      onUpdate();
-    }
-  };
-
   const handleCustomUpdate = async () => {
+    // The preview is already up-to-date, so we just save the current config.
     const result = await updateAvatarColors(
       previewConfig.background,
       previewConfig.color
     );
+
     if (result.success) {
       if (previewConfig.size !== currentAvatarConfig.size) {
         await updateAvatarSize(previewConfig.size);
@@ -76,21 +65,23 @@ const ProfilePictureEditor = ({ opened, onClose, userInfo, onUpdate }) => {
   const handleReset = async () => {
     const result = await resetToDefault();
     if (result.success) {
-      setPreviewConfig({
+      const defaultConfig = {
         background: "228be6",
         color: "fff",
         size: 128,
-      });
+      };
+      setPreviewConfig(defaultConfig);
       if (onUpdate) onUpdate();
     }
   };
 
   const handleSizeChange = (newSize) => {
+    // Size changes are reflected in the preview immediately.
     setPreviewConfig((prev) => ({ ...prev, size: newSize }));
   };
 
   const handleColorChange = (field, value) => {
-    // Remove # from hex color if present
+    // This now updates the preview directly, causing an instant visual change.
     const cleanValue = value.replace("#", "");
     setPreviewConfig((prev) => ({ ...prev, [field]: cleanValue }));
   };
@@ -126,37 +117,6 @@ const ProfilePictureEditor = ({ opened, onClose, userInfo, onUpdate }) => {
         <Text align="center" size="sm" color="dimmed">
           Preview for: {displayName}
         </Text>
-
-        <Divider />
-
-        {/* Quick Themes */}
-        <div>
-          <Text size="sm" weight={500} mb="xs">
-            Quick Themes
-          </Text>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <SimpleGrid cols={5} spacing="xs" style={{ maxWidth: 320 }}>
-              {Object.entries(AVATAR_THEMES).map(([themeName, theme]) => (
-                <Tooltip key={themeName} label={`Apply ${themeName} theme`}>
-                  <ActionIcon
-                    size="lg"
-                    radius="xl"
-                    style={{
-                      backgroundColor: `#${theme.background}`,
-                      color: `#${theme.color}`,
-                    }}
-                    onClick={() => handleThemeSelect(themeName)}
-                    disabled={isLoading}
-                  >
-                    <Text size="xs" weight={700}>
-                      {themeName.charAt(0).toUpperCase()}
-                    </Text>
-                  </ActionIcon>
-                </Tooltip>
-              ))}
-            </SimpleGrid>
-          </div>
-        </div>
 
         <Divider />
 
@@ -219,32 +179,14 @@ const ProfilePictureEditor = ({ opened, onClose, userInfo, onUpdate }) => {
 
         <Divider />
 
-        {/* Size Slider */}
-        {/* <div>
-          <Text size="sm" weight={500} mb="xs">
-            Avatar Size: {previewConfig.size}px
-          </Text>
-          <Slider
-            value={previewConfig.size}
-            onChange={handleSizeChange}
-            min={64}
-            max={256}
-            step={16}
-            marks={[
-              { value: 64, label: "64px" },
-              { value: 128, label: "128px" },
-              { value: 192, label: "192px" },
-              { value: 256, label: "256px" },
-            ]}
-            disabled={isLoading}
-          />
-        </div> */}
+        {/* Size Slider (Commented out as in original) */}
+        {/* <div> ... </div> */}
 
         {/* Action Buttons */}
         <Group position="apart" mt="md">
           <Button
             variant="subtle"
-            leftIcon={<IconRefresh size={16} />}
+            leftSection={<IconRefresh size={16} />}
             onClick={handleReset}
             disabled={isLoading}
           >
@@ -256,7 +198,7 @@ const ProfilePictureEditor = ({ opened, onClose, userInfo, onUpdate }) => {
               Cancel
             </Button>
             <Button
-              leftIcon={
+              leftSection={
                 isLoading ? <Loader size={16} /> : <IconCheck size={16} />
               }
               onClick={handleCustomUpdate}
