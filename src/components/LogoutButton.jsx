@@ -1,40 +1,45 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import apiClient from "../api/axios";
 import { supabase } from "../supabaseClient";
-// import { useAuth } from "../hooks/useAuth";
+import { notifications } from "@mantine/notifications";
 
 const LogoutButton = () => {
-  //  const { session, setSession } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    // if (!user) return;
-
     setIsLoading(true);
     try {
-      await apiClient.post("/users/logout");
-    } catch (error) {
-      console.error(
-        "Backend logout failed, proceeding with client-side logout:",
-        error
-      );
-    } finally {
-      // setSession(null);
-      await supabase.auth.signOut();
+      // 1. Sign the user out from Supabase. This clears the session.
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        throw error;
+      }
+
+      // 2. Navigate the user to the login page.
+      // This is a cleaner way to reset the app's state, as it allows
+      // React's context and routing to handle the session change gracefully.
       navigate("/login");
+      
+    } catch (error) {
+      notifications.show({
+        title: "Logout Failed",
+        message: error.message || "An unexpected error occurred.",
+        color: "red",
+      });
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
     <Button
-      variant="light"
-      color="red"
-      fullWidth
       onClick={handleLogout}
+      variant="gradient"
+      gradient={{ from: "red", to: "orange" }}
+      fullWidth
       loading={isLoading}
     >
       Logout
