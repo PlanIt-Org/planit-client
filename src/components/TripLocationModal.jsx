@@ -82,7 +82,7 @@ const TripLocationModal = ({ opened, close, location, comments }) => {
                 <Group>
                   <Avatar
                     src={
-                      comment.author.avatar
+                      comment.author?.profilePictureUrl
                     }
                     alt={comment.author?.name || "Unknown"}
                     radius="xl"
